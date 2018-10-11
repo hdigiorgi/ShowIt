@@ -1,17 +1,13 @@
 package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
-import java.util
-
 import cats.Later
-
-import scala.collection.immutable.HashMap
-import play.api.libs.json._
 import cats.syntax.option._
 
 /**
   * LANGUAGE
   */
+
 case class Language(code: String, name: String)
 object Language {
   implicit def toLanguage(code: String): Option[Language] = code match {
@@ -26,13 +22,14 @@ object Language {
   val default: Language = English
   val list: List[Language] =
     List(English, Spanish, Portuguese, German, French, Russian)
+
+  object English extends Language("en", "english")
+  object Spanish extends Language("es", "español")
+  object Portuguese extends Language("pt", "português ")
+  object German extends Language("de", "deutsch")
+  object French extends Language("fr", "le français")
+  object Russian extends Language("ru", "ру́сский язы́к")
 }
-object English extends Language("en", "english")
-object Spanish extends Language("es", "español")
-object Portuguese extends Language("pt", "português ")
-object German extends Language("de", "deutsch")
-object French extends Language("fr", "le français")
-object Russian extends Language("ru", "ру́сский язы́к")
 
 /**
   * PRICE
@@ -118,23 +115,24 @@ object FileMeta {
 /**
   * Persistence
   */
-trait Persistent[A]{
+trait PersistentInterface[A]{
   def create(element: A): A
   def update(element: A): A
   def read(key: String): A
   def delete(element: A): A
   def init(): Unit
 }
-object Persistent {
-  trait License extends Persistent[License]
-  trait Item extends Persistent[Item]
-  trait Site extends Persistent[Site]
-  trait Purchase extends Persistent[Purchase]
-  trait FileMeta extends Persistent[FileMeta]
-}
+trait LicensePI extends PersistentInterface[License]
+trait ItemPI extends PersistentInterface[Item]
+trait SitePI extends PersistentInterface[Site]
+trait PurchasePI extends PersistentInterface[Purchase]
+trait FileMetaPI extends PersistentInterface[FileMeta]
 
-case class DB(license: Persistent.License,
-              item: Persistent.Item,
-              site: Persistent.Site,
-              purchase: Persistent.Purchase,
-              fileMeta: Persistent.FileMeta)
+
+
+/*
+case class DB(license: PersistentLicense,
+              item: PersistentItem,
+              site: PersistentSite,
+              purchase: PersistentPurchase,
+              fileMeta: PersistentFileMeta)*/

@@ -14,7 +14,7 @@ import play.api.Configuration
 
 class ModelTest extends FunSuite with GuiceOneAppPerTest with Injecting with test.UseTestConfig {
   test("Smoke license persistence") {
-    val db = new PersistentLicense(fakeApplication().configuration)
+    val db = new SQLiteLicensePI(fakeApplication().configuration)
     db.init()
     assert(Set.empty.size == 0)
   }
