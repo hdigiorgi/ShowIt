@@ -1,10 +1,8 @@
 package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
-
 import cats.Later
 import cats.syntax.option._
-import com.hdigiorgi.showPhoto.model.db.SQLite
 import play.api.Configuration
 
 final case class InvalidModelException(private val message: String = "")
@@ -191,7 +189,7 @@ trait DBInterface {
   }
 }
 object DBInterface {
-  def DB: DBInterface = SQLite
+  def DB: DBInterface = db.sqlite.DB
 
   def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
     DB.init(configuration)

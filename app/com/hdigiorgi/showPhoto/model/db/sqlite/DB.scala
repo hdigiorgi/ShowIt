@@ -1,76 +1,20 @@
-package com.hdigiorgi.showPhoto.model.db
+package com.hdigiorgi.showPhoto.model.db.sqlite
+
 import java.io.File
 import java.sql.DriverManager
 import com.hdigiorgi.showPhoto.model.ExecutionContext._
-import scala.concurrent.duration._
 import com.hdigiorgi.showPhoto.model._
+import com.hdigiorgi.showPhoto.model.db.sqlite.license._
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
 import slick.jdbc.SQLiteProfile
-import slick.jdbc.meta.MTable
 import slick.jdbc.SQLiteProfile.api._
+import slick.jdbc.meta.MTable
+import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class SQLiteLicense(tag: Tag) extends Table[(Int, Float, Boolean)](tag, "license") {
-  def grade = column[Int]("grade", O.PrimaryKey)
-  def price = column[Float]("PRICE")
-  def enabled = column[Boolean]("ENABLED")
-  override def * = (grade, price, enabled)
-}
 
-class SQLiteLicensePI() extends LicensePI { self =>
-  val tableQuery = TableQuery[SQLiteLicense]
-
-  override def update(element: License): Unit = {
-    val insertOrUpdate = tableQuery.insertOrUpdate(toTuple(element))
-    SQLite.runSync(insertOrUpdate)
-  }
-
-  override def read(key: Grade): Option[License] = {
-    val q = tableQuery.filter(_.grade === key.int).result
-    val seq = SQLite.runSync(q)
-    seq.isEmpty match {
-      case true => None
-      case false => Some(fromTuple(seq.head))
-    }
-  }
-
-  override def delete(key: Grade): Unit = {
-    val q = tableQuery.filter(_.grade === key.int).delete
-    SQLite.runSync(q)
-  }
-
-  private def toTuple(license: License) =
-    (license.grade.int, license.price.value, license.enabled.boolean)
-
-  private def fromTuple(tuple: (Int, Float, Boolean)): License = tuple match {
-    case(id, price, toggle) => License(Grade(id), Price(price), Toggle(toggle))
-  }
-
-  def init(): SQLiteLicensePI = {
-    ensureTableExists()
-    ensureDefaultLicensesExist()
-    self
-  }
-
-  private def ensureTableExists(): Unit = {
-    if (!SQLite.checkIfTableNotExist(SQLite.db, tableQuery)) {
-      SQLite.runSync(tableQuery.schema.create)
-    }
-  }
-
-  private def ensureDefaultLicensesExist(): Unit = {
-    License.defaultLicenses.map{default =>
-      (read(default.grade), default)
-    }.foreach{
-      case (Some(_),_) => ()
-      case (None, default) => update(default)
-    }
-  }
-
-}
-
-object SQLite extends DBInterface { self =>
+object DB extends DBInterface { self =>
   val configurationPath = "slick.dbs.default"
   val urlPath = f"$configurationPath.url"
   private var _db: SQLiteProfile.backend.Database = _
@@ -140,7 +84,7 @@ object SQLite extends DBInterface { self =>
   }
 
   def checkIfTableNotExist[A <: slick.lifted.AbstractTable[_] , B]
-  (db: Database, table: TableQuery[A]): Boolean = {
+  (table: TableQuery[A]): Boolean = {
     val existingTables = db.run(MTable.getTables)
     val doesExist = existingTables map (tables =>
       tables.exists( mtable =>
