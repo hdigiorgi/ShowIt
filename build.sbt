@@ -10,6 +10,7 @@ scalacOptions += "-language:implicitConversions"
 
 libraryDependencies += guice
 libraryDependencies += "org.typelevel" %% "cats-core" % "1.4.0"
+libraryDependencies += "org.jasypt" % "jasypt" % "1.9.2"
 libraryDependencies ++= Seq(
   "org.xerial" % "sqlite-jdbc" % "3.25.2",
   "com.typesafe.play" %% "play-slick" % "3.0.3",

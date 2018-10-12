@@ -3,7 +3,7 @@ import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.db.sqlite.DB
 import slick.jdbc.SQLiteProfile.api._
 
-class SQLiteLicense(tag: Tag) extends Table[(Int, Float, Boolean)](tag, "license") {
+class SQLiteLicense(tag: Tag) extends Table[(Int, Float, Boolean)](tag, "LICENSE") {
   def grade = column[Int]("grade", O.PrimaryKey)
   def price = column[Float]("PRICE")
   def enabled = column[Boolean]("ENABLED")
@@ -21,10 +21,7 @@ class SQLiteLicensePI() extends LicensePI { self =>
   override def read(key: Grade): Option[License] = {
     val q = tableQuery.filter(_.grade === key.int).result
     val seq = DB.runSync(q)
-    seq.isEmpty match {
-      case true => None
-      case false => Some(fromTuple(seq.head))
-    }
+    seq.headOption.map(fromTuple)
   }
 
   override def delete(key: Grade): Unit = {

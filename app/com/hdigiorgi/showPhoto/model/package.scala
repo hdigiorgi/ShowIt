@@ -1,8 +1,10 @@
 package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
+
 import cats.Later
 import cats.syntax.option._
+import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
 
 final case class InvalidModelException(private val message: String = "")
@@ -153,6 +155,35 @@ object FileMeta {
 }
 
 /**
+  * User
+  */
+
+case class UserRole private(id: Int) {
+  object Admin extends UserRole(0)
+  object Contributor extends UserRole(1)
+  object Registered extends UserRole(2)
+  object Guest extends UserRole(69)
+}
+
+case class Password(private var _value: String) {
+  _value = {
+    val passwordEncryptor = new StrongPasswordEncryptor()
+    passwordEncryptor.encryptPassword(_value)
+  }
+  def is(plainPassword: String): Boolean = {
+    val passwordEncryptor = new StrongPasswordEncryptor()
+    passwordEncryptor.checkPassword(plainPassword, _value)
+  }
+}
+
+case class User(id: String, password: Password, role: UserRole)
+
+/**
+  * Meta
+  */
+case class Meta(entry: String, value: String)
+
+/**
   * Persistence
   */
 trait PersistentInterface[A, B]{
@@ -165,13 +196,14 @@ trait ItemPI extends PersistentInterface[Item, String]
 trait SitePI extends PersistentInterface[Site, String]
 trait PurchasePI extends PersistentInterface[Purchase, String]
 trait FileMetaPI extends PersistentInterface[FileMeta, String]
+trait MetaPI extends PersistentInterface[Meta, String]
 
 trait DBInterface {
   def license: LicensePI
   def item: ItemPI
   def site: SitePI
   def purchase: PurchasePI
-  def meta: FileMetaPI
+  def meta: MetaPI
   def init(configuration: Configuration): Unit
   def configuration: Configuration
   def destroy(): Unit

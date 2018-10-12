@@ -45,4 +45,16 @@ class ModelTest extends FunSuite
     }
   }
 
+  test("crud meta") {
+    DBInterface.wrapCleanDB { db =>
+      db.meta.read("A") shouldBe empty
+      db.meta.update(Meta("A", "SOMETHING"))
+      db.meta.read("A") should contain (Meta("A", "SOMETHING"))
+      db.meta.update(Meta("A", "ELSE"))
+      db.meta.read("A") should contain (Meta("A", "ELSE"))
+      db.meta.delete("A")
+      db.meta.read("A") shouldBe empty
+    }
+  }
+
 }

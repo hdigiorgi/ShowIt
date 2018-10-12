@@ -2,14 +2,17 @@ package com.hdigiorgi.showPhoto.model.db.sqlite
 
 import java.io.File
 import java.sql.DriverManager
+
 import com.hdigiorgi.showPhoto.model.ExecutionContext._
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.db.sqlite.license._
+import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLiteMetaPI
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
 import slick.jdbc.SQLiteProfile
 import slick.jdbc.SQLiteProfile.api._
 import slick.jdbc.meta.MTable
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
@@ -20,6 +23,7 @@ object DB extends DBInterface { self =>
   private var _db: SQLiteProfile.backend.Database = _
   private var _configuration: Configuration =  _
   private var _license_db: SQLiteLicensePI = _
+  private var _meta_db: SQLiteMetaPI = _
   private var _initialized = false
 
   override def license: LicensePI = _license_db
@@ -30,7 +34,7 @@ object DB extends DBInterface { self =>
 
   override def purchase: PurchasePI = ???
 
-  override def meta: FileMetaPI = ???
+  override def meta: MetaPI = _meta_db
 
   override def init(configuration: Configuration): Unit = {
     if(!_initialized) {
@@ -47,10 +51,14 @@ object DB extends DBInterface { self =>
     if (_db != null) db.close()
     if (!file.delete())
       throw new RuntimeException("unable to delete database")
+    destroy_PutVarsInNull()
+  }
 
+  private def destroy_PutVarsInNull(): Unit = {
     _db = null
     _configuration = null
     _license_db = null
+    _meta_db = null
     _initialized = false
   }
 
@@ -61,6 +69,7 @@ object DB extends DBInterface { self =>
       ensureSQLiteFileExists()
       _db = getSlickProfile()
       _license_db = new SQLiteLicensePI().init()
+      _meta_db = new SQLiteMetaPI().init()
     }
   }
 
@@ -81,6 +90,15 @@ object DB extends DBInterface { self =>
     if(!folder.exists()) folder.mkdirs()
     val con = DriverManager.getConnection(url)
     con.close()
+  }
+
+  def ensureTableExists[A <: Table[_]](table: TableQuery[A]): Boolean = {
+    if(!checkIfTableNotExist(table)) {
+      runSync(table.schema.create)
+      true
+    } else {
+      false
+    }
   }
 
   def checkIfTableNotExist[A <: slick.lifted.AbstractTable[_] , B]
