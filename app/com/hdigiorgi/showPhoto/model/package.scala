@@ -41,7 +41,8 @@ object Language {
   * PRICE
   */
 trait Price {
-  def value(): Float
+  def value: Float
+  def op(f: Float => Float): Price = Price(f(value))
 }
 object Price {
   def apply(v: Float): Price = {
@@ -49,24 +50,33 @@ object Price {
   }
 }
 object Free extends Price {
-  override def value(): Float = 0
+  override def value: Float = 0
 }
 case class Priced(private val _value: Float) extends Price {
-  override def value(): Float = _value
+  override def value: Float = _value
 }
 
 /**
   * ENABLED
   */
-trait Toggle { def getBoolean(): Boolean }
+trait Toggle {
+  def boolean: Boolean
+  def toggle: Toggle
+}
 object Toggle {
   def apply(x: Boolean): Toggle = x match {
     case true => Enabled
     case false => Disabled
   }
 }
-object Enabled extends Toggle { override def getBoolean() = true }
-object Disabled extends Toggle { override def getBoolean() = false }
+object Enabled extends Toggle {
+  override def boolean = true
+  override def toggle: Toggle = Disabled
+}
+object Disabled extends Toggle {
+  override def boolean = false
+  override def toggle: Toggle = Enabled
+}
 
 /**
   * GRADE
@@ -74,8 +84,8 @@ object Disabled extends Toggle { override def getBoolean() = false }
 
 case class Grade(n: Int) {
   if(n <= 0) throw InvalidModelException(f"grade should be > 0 (current $n)")
-  def string(): String = f"G$n"
-  def int(): Int = n
+  def string: String = f"G$n"
+  def int: Int = n
 }
 
 /**
@@ -151,7 +161,6 @@ trait PersistentInterface[A, B]{
   def update(element: A): Unit
   def read(key: B): Option[A]
   def delete(key: B): Unit
-  def init(): Unit
 }
 trait LicensePI extends PersistentInterface[License, Grade]
 trait ItemPI extends PersistentInterface[Item, String]
@@ -168,10 +177,7 @@ trait DBInterface {
   def init(configuration: Configuration): Unit
   def configuration: Configuration
   def destroy(): Unit
-}
-object DBInterface {
-  def DB: DBInterface = SQLite
-  def wrapDestroy(configuration: Configuration)(destroy: => Unit): Unit = {
+  protected def wrapDestroy(destroy: => Unit): Unit = {
     val conf = configuration match {
       case null => None
       case _ => configuration.getOptional[String]("unsecure.allow_db_destroy")
@@ -183,11 +189,20 @@ object DBInterface {
         throw new SecurityException("the database should NOT be deleted")
     }
   }
+}
+object DBInterface {
+  def DB: DBInterface = SQLite
+
   def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
     DB.init(configuration)
     val r = op(DB)
     DB.destroy()
     r
+  }
+
+  def wrap[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
+    DB.init(configuration)
+    op(DB)
   }
 
 }

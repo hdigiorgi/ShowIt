@@ -18,7 +18,7 @@ class SQLiteLicense(tag: Tag) extends Table[(Int, Float, Boolean)](tag, "license
   override def * = (grade, price, enabled)
 }
 
-class SQLiteLicensePI() extends LicensePI {
+class SQLiteLicensePI() extends LicensePI { self =>
   val tableQuery = TableQuery[SQLiteLicense]
 
   override def update(element: License): Unit = {
@@ -41,15 +41,16 @@ class SQLiteLicensePI() extends LicensePI {
   }
 
   private def toTuple(license: License) =
-    (license.grade.int, license.price.value(), license.enabled.getBoolean())
+    (license.grade.int, license.price.value, license.enabled.boolean)
 
   private def fromTuple(tuple: (Int, Float, Boolean)): License = tuple match {
     case(id, price, toggle) => License(Grade(id), Price(price), Toggle(toggle))
   }
 
-  override def init(): Unit = {
+  def init(): SQLiteLicensePI = {
     ensureTableExists()
     ensureDefaultLicensesExist()
+    self
   }
 
   private def ensureTableExists(): Unit = {
@@ -75,6 +76,7 @@ object SQLite extends DBInterface { self =>
   private var _db: SQLiteProfile.backend.Database = _
   private var _configuration: Configuration =  _
   private var _license_db: SQLiteLicensePI = _
+  private var _initialized = false
 
   override def license: LicensePI = _license_db
 
@@ -87,17 +89,25 @@ object SQLite extends DBInterface { self =>
   override def meta: FileMetaPI = ???
 
   override def init(configuration: Configuration): Unit = {
-    if(_configuration == null) _configuration = configuration
-    ensureDatabaseExists()
+    if(!_initialized) {
+      if(_configuration == null) _configuration = configuration
+      ensureDatabaseExists()
+    }
+    _initialized = true
   }
 
   override def configuration: Configuration = _configuration
 
-  def destroy(): Unit = DBInterface.wrapDestroy(self.configuration) {
+  def destroy(): Unit = self.wrapDestroy {
     val (_, file) = getDBFile(self.configuration)
-    if (_db != null) { db.close(); _db = null }
+    if (_db != null) db.close()
     if (!file.delete())
       throw new RuntimeException("unable to delete database")
+
+    _db = null
+    _configuration = null
+    _license_db = null
+    _initialized = false
   }
 
   def db = self._db
@@ -106,7 +116,7 @@ object SQLite extends DBInterface { self =>
     if (db == null){
       ensureSQLiteFileExists()
       _db = getSlickProfile()
-      _license_db = new SQLiteLicensePI()
+      _license_db = new SQLiteLicensePI().init()
     }
   }
 
