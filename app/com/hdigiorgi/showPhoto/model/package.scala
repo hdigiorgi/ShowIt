@@ -1,8 +1,14 @@
 package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
+
 import cats.Later
 import cats.syntax.option._
+import com.hdigiorgi.showPhoto.model.db.SQLite
+import play.api.Configuration
+
+final case class InvalidModelException(private val message: String = "")
+  extends Exception(message)
 
 /**
   * LANGUAGE
@@ -50,23 +56,39 @@ case class Priced(private val _value: Float) extends Price {
 }
 
 /**
+  * ENABLED
+  */
+trait Toggle { def getBoolean(): Boolean }
+object Toggle {
+  def apply(x: Boolean): Toggle = x match {
+    case true => Enabled
+    case false => Disabled
+  }
+}
+object Enabled extends Toggle { override def getBoolean() = true }
+object Disabled extends Toggle { override def getBoolean() = false }
+
+/**
+  * GRADE
+  */
+
+case class Grade(n: Int) {
+  if(n <= 0) throw InvalidModelException(f"grade should be > 0 (current $n)")
+  def string(): String = f"G$n"
+  def int(): Int = n
+}
+
+/**
   * LICENCE
   */
-case class License(id: License.Id, price: Price, enabled: Boolean)
+case class License(grade: Grade, price: Price, enabled: Toggle)
 object License {
-  sealed case class Id(id: String,
-                       defaultPrice: Price,
-                       enabledByDefault: Boolean)
-  object Id {
-    def apply(id: String): Id = ids.find(_.id == id).get
-  }
-  object LVL1 extends Id("L1", Priced(2), true)
-  object LVL2 extends Id("L2", Priced(10), true)
-  object LVL3 extends Id("L3", Priced(60), true)
-  val ids = List(LVL1, LVL2, LVL3)
-  def getDefaultLicenses(): List[License] = {
-    ids.map( id => License(id, id.defaultPrice, id.enabledByDefault))
-  }
+  val allowedGrades = List(Grade(1), Grade(2), Grade(3))
+  val defaultLicenses: List[License] = List(
+    License(Grade(1), Price(2), Enabled),
+    License(Grade(2), Price(10), Enabled),
+    License(Grade(3), Price(30), Enabled)
+  )
 }
 
 /**
@@ -131,17 +153,41 @@ trait PersistentInterface[A, B]{
   def delete(key: B): Unit
   def init(): Unit
 }
-trait LicensePI extends PersistentInterface[License, License.Id]
+trait LicensePI extends PersistentInterface[License, Grade]
 trait ItemPI extends PersistentInterface[Item, String]
 trait SitePI extends PersistentInterface[Site, String]
 trait PurchasePI extends PersistentInterface[Purchase, String]
 trait FileMetaPI extends PersistentInterface[FileMeta, String]
 
+trait DBInterface {
+  def license: LicensePI
+  def item: ItemPI
+  def site: SitePI
+  def purchase: PurchasePI
+  def meta: FileMetaPI
+  def init(configuration: Configuration): Unit
+  def configuration: Configuration
+  def destroy(): Unit
+}
+object DBInterface {
+  def DB: DBInterface = SQLite
+  def wrapDestroy(configuration: Configuration)(destroy: => Unit): Unit = {
+    val conf = configuration match {
+      case null => None
+      case _ => configuration.getOptional[String]("unsecure.allow_db_destroy")
+    }
+    conf match {
+      case Some("allow") =>
+        destroy
+      case _ =>
+        throw new SecurityException("the database should NOT be deleted")
+    }
+  }
+  def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
+    DB.init(configuration)
+    val r = op(DB)
+    DB.destroy()
+    r
+  }
 
-
-/*
-case class DB(license: PersistentLicense,
-              item: PersistentItem,
-              site: PersistentSite,
-              purchase: PersistentPurchase,
-              fileMeta: PersistentFileMeta)*/
+}

@@ -1,8 +1,9 @@
 package test
 import com.typesafe.config.ConfigFactory
 import org.scalatestplus.play.guice.GuiceFakeApplicationFactory
-import play.api.Application
+import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
+
 import scala.collection.JavaConverters._
 
 trait UseTestConfig extends GuiceFakeApplicationFactory {
@@ -15,4 +16,5 @@ trait UseTestConfig extends GuiceFakeApplicationFactory {
   }
 
   private val allowDatabaseDeletion = "unsecure.allow_db_destroy" -> "allow"
+  protected implicit val configuration: Configuration = fakeApplication().configuration
 }

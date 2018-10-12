@@ -1,28 +1,24 @@
 package com.hdigiorgi.showPhoto.model.db
 import java.io.File
 import java.sql.DriverManager
-
 import com.hdigiorgi.showPhoto.model.ExecutionContext._
-
 import scala.concurrent.duration._
-import javax.inject._
-import com.hdigiorgi.showPhoto.model.{License, _}
+import com.hdigiorgi.showPhoto.model._
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
 import slick.jdbc.SQLiteProfile
 import slick.jdbc.meta.MTable
 import slick.jdbc.SQLiteProfile.api._
+import scala.concurrent.{Await, Future}
 
-import scala.concurrent.{Await, Future, Promise}
-
-class SQLiteLicense(tag: Tag) extends Table[(String, Float, Boolean)](tag, "license") {
-  def licenseId = column[String]("LICENSE_ID", O.PrimaryKey)
+class SQLiteLicense(tag: Tag) extends Table[(Int, Float, Boolean)](tag, "license") {
+  def grade = column[Int]("grade", O.PrimaryKey)
   def price = column[Float]("PRICE")
   def enabled = column[Boolean]("ENABLED")
-  override def * = (licenseId, price, enabled)
+  override def * = (grade, price, enabled)
 }
 
-class SQLiteLicensePI @Inject() (config: Configuration) extends LicensePI {
+class SQLiteLicensePI() extends LicensePI {
   val tableQuery = TableQuery[SQLiteLicense]
 
   override def update(element: License): Unit = {
@@ -30,8 +26,8 @@ class SQLiteLicensePI @Inject() (config: Configuration) extends LicensePI {
     SQLite.runSync(insertOrUpdate)
   }
 
-  override def read(key: License.Id): Option[License] = {
-    val q = tableQuery.filter(_.licenseId === key.id).result
+  override def read(key: Grade): Option[License] = {
+    val q = tableQuery.filter(_.grade === key.int).result
     val seq = SQLite.runSync(q)
     seq.isEmpty match {
       case true => None
@@ -39,20 +35,19 @@ class SQLiteLicensePI @Inject() (config: Configuration) extends LicensePI {
     }
   }
 
-  override def delete(key: License.Id): Unit = {
-    val q = tableQuery.filter(_.licenseId === key.id).delete
+  override def delete(key: Grade): Unit = {
+    val q = tableQuery.filter(_.grade === key.int).delete
     SQLite.runSync(q)
   }
 
   private def toTuple(license: License) =
-    (license.id.id, license.price.value(), license.enabled)
+    (license.grade.int, license.price.value(), license.enabled.getBoolean())
 
-  private def fromTuple(tuple: (String, Float, Boolean)): License = tuple match {
-    case(id, price, enabled) => License(License.Id(id), Price(price), enabled)
+  private def fromTuple(tuple: (Int, Float, Boolean)): License = tuple match {
+    case(id, price, toggle) => License(Grade(id), Price(price), Toggle(toggle))
   }
 
   override def init(): Unit = {
-    SQLite.ensureDatabaseExists(config)
     ensureTableExists()
     ensureDefaultLicensesExist()
   }
@@ -64,8 +59,8 @@ class SQLiteLicensePI @Inject() (config: Configuration) extends LicensePI {
   }
 
   private def ensureDefaultLicensesExist(): Unit = {
-    License.getDefaultLicenses().map{default =>
-      (read(default.id), default)
+    License.defaultLicenses.map{default =>
+      (read(default.grade), default)
     }.foreach{
       case (Some(_),_) => ()
       case (None, default) => update(default)
@@ -74,41 +69,49 @@ class SQLiteLicensePI @Inject() (config: Configuration) extends LicensePI {
 
 }
 
-object SQLite { self =>
+object SQLite extends DBInterface { self =>
   val configurationPath = "slick.dbs.default"
-  val urlPath = f"${configurationPath}.url"
-  private var _db: SQLiteProfile.backend.Database = null
-  private var _configuration: Configuration =  null
+  val urlPath = f"$configurationPath.url"
+  private var _db: SQLiteProfile.backend.Database = _
+  private var _configuration: Configuration =  _
+  private var _license_db: SQLiteLicensePI = _
+
+  override def license: LicensePI = _license_db
+
+  override def item: ItemPI = ???
+
+  override def site: SitePI = ???
+
+  override def purchase: PurchasePI = ???
+
+  override def meta: FileMetaPI = ???
+
+  override def init(configuration: Configuration): Unit = {
+    if(_configuration == null) _configuration = configuration
+    ensureDatabaseExists()
+  }
+
+  override def configuration: Configuration = _configuration
+
+  def destroy(): Unit = DBInterface.wrapDestroy(self.configuration) {
+    val (_, file) = getDBFile(self.configuration)
+    if (_db != null) { db.close(); _db = null }
+    if (!file.delete())
+      throw new RuntimeException("unable to delete database")
+  }
 
   def db = self._db
-  def config: Configuration = self._configuration
-  def config_= (c : Configuration): Unit = _configuration = c
 
-  def ensureDatabaseExists(config: Configuration): Unit = {
+  private def ensureDatabaseExists(): Unit = {
     if (db == null){
-      _configuration = config
-      ensureSQLiteFileExists(config)
-      _db = getSlickProfile(config)
+      ensureSQLiteFileExists()
+      _db = getSlickProfile()
+      _license_db = new SQLiteLicensePI()
     }
   }
 
-  def destroy(): Unit = {
-    if (_configuration != null) {
-      config.getOptional[String]("unsecure.allow_db_destroy") match {
-        case Some("allow") =>
-          val (_, file) = getDBFile(config)
-          if (_db != null) { db.close(); _db = null }
-          if (!file.delete())
-            throw new RuntimeException("unable to delete database")
-        case _ =>
-          throw new SecurityException("the database should NOT be deleted")
-      }
-    }
-  }
-
-
-  private def getSlickProfile(config: Configuration): SQLiteProfile.backend.Database = {
-    Database.forConfig(configurationPath, config.underlying)
+  private def getSlickProfile(): SQLiteProfile.backend.Database = {
+    Database.forConfig(configurationPath, self.configuration.underlying)
   }
 
   private def getDBFile(config: Configuration): (String, File) = {
@@ -118,8 +121,8 @@ object SQLite { self =>
     (url, file)
   }
 
-  private def ensureSQLiteFileExists(config: Configuration): Unit = {
-    val (url, file) = getDBFile(config)
+  private def ensureSQLiteFileExists(): Unit = {
+    val (url, file) = getDBFile(self.configuration)
     val folder = file.getParentFile
     if(!folder.exists()) folder.mkdirs()
     val con = DriverManager.getConnection(url)
@@ -136,11 +139,11 @@ object SQLite { self =>
     Await.result(doesExist, Duration.Inf)
   }
 
-  final def runSync[R](a: DBIOAction[R, NoStream, Nothing], duration: Duration = Duration.Inf ): R = {
+  def runSync[R](a: DBIOAction[R, NoStream, Nothing], duration: Duration = Duration.Inf ): R = {
     val run = db.run(a)
     Await.result(run, duration)
   }
 
-  final def run[R](a: DBIOAction[R, NoStream, Nothing] ): Future[R] = db.run(a)
+  def run[R](a: DBIOAction[R, NoStream, Nothing] ): Future[R] = db.run(a)
 
 }
