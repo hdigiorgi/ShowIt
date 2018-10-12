@@ -7,6 +7,7 @@ import com.hdigiorgi.showPhoto.model.ExecutionContext._
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.db.sqlite.license._
 import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLiteMetaPI
+import com.hdigiorgi.showPhoto.model.db.sqlite.user.SQLiteUserPI
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
 import slick.jdbc.SQLiteProfile
@@ -24,6 +25,7 @@ object DB extends DBInterface { self =>
   private var _configuration: Configuration =  _
   private var _license_db: SQLiteLicensePI = _
   private var _meta_db: SQLiteMetaPI = _
+  private var _user_db: SQLiteUserPI = _
   private var _initialized = false
 
   override def license: LicensePI = _license_db
@@ -35,6 +37,8 @@ object DB extends DBInterface { self =>
   override def purchase: PurchasePI = ???
 
   override def meta: MetaPI = _meta_db
+
+  override def user: UserPI = _user_db
 
   override def init(configuration: Configuration): Unit = {
     if(!_initialized) {
@@ -59,6 +63,7 @@ object DB extends DBInterface { self =>
     _configuration = null
     _license_db = null
     _meta_db = null
+    _user_db = null
     _initialized = false
   }
 
@@ -70,6 +75,7 @@ object DB extends DBInterface { self =>
       _db = getSlickProfile()
       _license_db = new SQLiteLicensePI().init()
       _meta_db = new SQLiteMetaPI().init()
+      _user_db = new SQLiteUserPI().init()
     }
   }
 

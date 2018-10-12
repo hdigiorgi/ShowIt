@@ -10,6 +10,11 @@ import play.api.Configuration
 final case class InvalidModelException(private val message: String = "")
   extends Exception(message)
 
+trait Id
+case class StringId(value: String) extends Id
+case class IntId(value: Int) extends Id
+case class Email(value: String)
+
 /**
   * LANGUAGE
   */
@@ -158,25 +163,63 @@ object FileMeta {
   * User
   */
 
-case class UserRole private(id: Int) {
-  object Admin extends UserRole(0)
-  object Contributor extends UserRole(1)
-  object Registered extends UserRole(2)
-  object Guest extends UserRole(69)
+class Role private(_id: IntId) {
+  def id: IntId = _id
+  override def toString: String = id match {
+    case x if x == Role.Admin.id => "Admin"
+    case x if x == Role.Contributor.id => "Contributor"
+    case x if x == Role.Registered.id => "Registered"
+    case x if x == Role.Guest.id => "Guest"
+  }
+}
+object Role {
+  def apply(value: IntId): Role = value match {
+    case x if x == Admin.id => Admin
+    case x if x == Contributor.id => Contributor
+    case x if x == Registered.id => Registered
+    case x if x == Guest.id => Guest
+  }
+  val Admin = new Role(IntId(0))
+  val Contributor = new Role(IntId(1))
+  val Registered = new Role(IntId(2))
+  val Guest = new Role(IntId(69))
 }
 
-case class Password(private var _value: String) {
-  _value = {
-    val passwordEncryptor = new StrongPasswordEncryptor()
-    passwordEncryptor.encryptPassword(_value)
-  }
+case class Password(value: String) {
   def is(plainPassword: String): Boolean = {
     val passwordEncryptor = new StrongPasswordEncryptor()
-    passwordEncryptor.checkPassword(plainPassword, _value)
+    passwordEncryptor.checkPassword(plainPassword, value)
+  }
+  override def toString: String = {
+    val index = (value.length * 0.85).toInt
+    f"Password(${value.substring(index)})"
+  }
+}
+object Password {
+  def apply(plainText: String): Password = {
+    val passwordEncryptor = new StrongPasswordEncryptor()
+    val encrypted = passwordEncryptor.encryptPassword(plainText)
+    new Password(encrypted)
+  }
+  def fromEncrypted(encrypted: String): Password = {
+    new Password(encrypted)
   }
 }
 
-case class User(id: String, password: Password, role: UserRole)
+case class User(id: IntId,
+                email: Email,
+                password: Password,
+                role: Role) {
+  if((id == User.adminId && role != Role.Admin) ||
+     (id != User.adminId && role == Role.Admin))
+    throw InvalidModelException("Only the first user can be the administrator")
+}
+object User {
+  val adminId = IntId(0)
+  def defaultUsers: List[User] = List(
+    User(adminId, Email("me@hdigiorgi.com"), Password("password"), Role.Admin)
+  )
+}
 
 /**
   * Meta
@@ -197,6 +240,7 @@ trait SitePI extends PersistentInterface[Site, String]
 trait PurchasePI extends PersistentInterface[Purchase, String]
 trait FileMetaPI extends PersistentInterface[FileMeta, String]
 trait MetaPI extends PersistentInterface[Meta, String]
+trait UserPI extends PersistentInterface[User, IntId]
 
 trait DBInterface {
   def license: LicensePI
@@ -204,6 +248,7 @@ trait DBInterface {
   def site: SitePI
   def purchase: PurchasePI
   def meta: MetaPI
+  def user: UserPI
   def init(configuration: Configuration): Unit
   def configuration: Configuration
   def destroy(): Unit
