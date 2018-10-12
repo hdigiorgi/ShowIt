@@ -10,7 +10,9 @@ trait UseTestConfig extends GuiceFakeApplicationFactory {
     val config = ConfigFactory.load("application.test.conf")
     val configStringSet =
       config.entrySet().asScala.map { entry => (entry.getKey, entry.getValue()) }
-    val configMap = configStringSet.toMap
+    val configMap = configStringSet.toMap + allowDatabaseDeletion
     GuiceApplicationBuilder().configure(configMap).build()
   }
+
+  private val allowDatabaseDeletion = "unsecure.allow_db_destroy" -> "allow"
 }

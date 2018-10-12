@@ -37,8 +37,13 @@ object Language {
 trait Price {
   def value(): Float
 }
+object Price {
+  def apply(v: Float): Price = {
+    if(v > 0) Priced(v) else Free
+  }
+}
 object Free extends Price {
-  override def value(): Float = return 0;
+  override def value(): Float = 0
 }
 case class Priced(private val _value: Float) extends Price {
   override def value(): Float = _value
@@ -47,16 +52,21 @@ case class Priced(private val _value: Float) extends Price {
 /**
   * LICENCE
   */
-case class License(id: License.Id,
-                   name: String,
-                   description: String,
-                   price: Price)
+case class License(id: License.Id, price: Price, enabled: Boolean)
 object License {
-  sealed case class Id(id: String)
-  object LVL1 extends Id("L1")
-  object LVL2 extends Id("L2")
-  object LVL3 extends Id("L3")
-  val licenses = List(LVL1, LVL2, LVL3)
+  sealed case class Id(id: String,
+                       defaultPrice: Price,
+                       enabledByDefault: Boolean)
+  object Id {
+    def apply(id: String): Id = ids.find(_.id == id).get
+  }
+  object LVL1 extends Id("L1", Priced(2), true)
+  object LVL2 extends Id("L2", Priced(10), true)
+  object LVL3 extends Id("L3", Priced(60), true)
+  val ids = List(LVL1, LVL2, LVL3)
+  def getDefaultLicenses(): List[License] = {
+    ids.map( id => License(id, id.defaultPrice, id.enabledByDefault))
+  }
 }
 
 /**
@@ -115,18 +125,17 @@ object FileMeta {
 /**
   * Persistence
   */
-trait PersistentInterface[A]{
-  def create(element: A): A
-  def update(element: A): A
-  def read(key: String): A
-  def delete(element: A): A
+trait PersistentInterface[A, B]{
+  def update(element: A): Unit
+  def read(key: B): Option[A]
+  def delete(key: B): Unit
   def init(): Unit
 }
-trait LicensePI extends PersistentInterface[License]
-trait ItemPI extends PersistentInterface[Item]
-trait SitePI extends PersistentInterface[Site]
-trait PurchasePI extends PersistentInterface[Purchase]
-trait FileMetaPI extends PersistentInterface[FileMeta]
+trait LicensePI extends PersistentInterface[License, License.Id]
+trait ItemPI extends PersistentInterface[Item, String]
+trait SitePI extends PersistentInterface[Site, String]
+trait PurchasePI extends PersistentInterface[Purchase, String]
+trait FileMetaPI extends PersistentInterface[FileMeta, String]
 
 
 
