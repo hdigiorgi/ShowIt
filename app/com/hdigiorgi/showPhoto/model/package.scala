@@ -1,6 +1,7 @@
 package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
+import java.util.UUID
 
 import cats.Later
 import cats.syntax.option._
@@ -10,9 +11,11 @@ import play.api.Configuration
 final case class InvalidModelException(private val message: String = "")
   extends Exception(message)
 
-trait Id
-case class StringId(value: String) extends Id
-case class IntId(value: Int) extends Id
+
+case class StringId(value: String)
+object StringId { def random: StringId = StringId(UUID.randomUUID().toString) }
+case class IntId(value: Int)
+object IntId { def random: IntId = IntId(new java.security.SecureRandom().nextInt()) }
 case class Email(value: String)
 
 /**
@@ -170,7 +173,6 @@ object Role {
     case x if x == Admin.id => Admin
     case x if x == Contributor.id => Contributor
     case x if x == Registered.id => Registered
-    case x if x == Guest.id => Guest
   }
   val Admin = new Role(IntId(0))
   val Contributor = new Role(IntId(1))
@@ -199,18 +201,10 @@ object Password {
   }
 }
 
-case class User(id: IntId,
-                email: Email,
-                password: Password,
-                role: Role) {
-  if((id == User.adminId && role != Role.Admin) ||
-     (id != User.adminId && role == Role.Admin))
-    throw InvalidModelException("Only the first user can be the administrator")
-}
+case class User(id: StringId, email: Email, password: Password, role: Role)
 object User {
-  val adminId = IntId(0)
   def defaultUsers: List[User] = List(
-    User(adminId, Email("me@hdigiorgi.com"), Password("password"), Role.Admin)
+    User(StringId.random, Email("me@hdigiorgi.com"), Password("password"), Role.Admin)
   )
 }
 
@@ -233,7 +227,9 @@ trait SitePI extends PersistentInterface[Site, String]
 trait PurchasePI extends PersistentInterface[Purchase, String]
 trait FileMetaPI extends PersistentInterface[FileMeta, String]
 trait MetaPI extends PersistentInterface[Meta, String]
-trait UserPI extends PersistentInterface[User, IntId]
+trait UserPI extends PersistentInterface[User, StringId] {
+  def readByEmail(email: String): Option[User]
+}
 
 trait DBInterface {
   def license: LicensePI

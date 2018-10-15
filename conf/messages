@@ -6,3 +6,4 @@ authentication.login.form.email.placeholder = Enter email
 authentication.login.form.password = Password
 authentication.login.form.password.placeholder = Enter password
 authentication.login.form.access = Go
+authentication.login.msg.genericError = Combination of user and password was not found
