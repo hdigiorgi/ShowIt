@@ -1,1 +1,8 @@
 # https://www.playframework.com/documentation/latest/ScalaI18N
+
+authentication.login.form.title = Login
+authentication.login.form.email = Email address
+authentication.login.form.email.placeholder = Enter email
+authentication.login.form.password = Password
+authentication.login.form.password.placeholder = Enter password
+authentication.login.form.access = Go

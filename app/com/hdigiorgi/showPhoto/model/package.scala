@@ -21,25 +21,18 @@ case class Email(value: String)
 
 case class Language(code: String, name: String)
 object Language {
-  implicit def toLanguage(code: String): Option[Language] = code match {
-    case English.code => English.some
-    case Spanish.code => Spanish.some
-    case German.code => German.some
-    case Portuguese.code => Portuguese.some
-    case Russian.code => Russian.some
-    case French.code => French.some
-    case _ => None
-  }
-  val default: Language = English
-  val list: List[Language] =
-    List(English, Spanish, Portuguese, German, French, Russian)
+  val English = Language("en", "english")
+  val Spanish = Language("es", "español")
+  val Portuguese = Language("pt", "português ")
+  val German = Language("de", "deutsch")
+  val French = Language("fr", "le français")
+  val Russian = Language("ru", "ру́сский язы́к")
 
-  object English extends Language("en", "english")
-  object Spanish extends Language("es", "español")
-  object Portuguese extends Language("pt", "português ")
-  object German extends Language("de", "deutsch")
-  object French extends Language("fr", "le français")
-  object Russian extends Language("ru", "ру́сский язы́к")
+  val Default: Language = English
+  val languages: List[Language] = List(English, Spanish, Portuguese, German, French, Russian)
+
+  def toLanguage(code: String): Option[Language] = languages.find( _.code.contains(code) )
+  def getLanguage(code: String): Language = toLanguage(code).getOrElse(Default)
 }
 
 /**
