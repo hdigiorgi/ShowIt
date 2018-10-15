@@ -167,6 +167,10 @@ class Role private(_id: IntId) {
     case x if x == Role.Registered.id => "Registered"
     case x if x == Role.Guest.id => "Guest"
   }
+  def > (that: Role): Boolean = id.value <  that.id.value
+  def >=(that: Role): Boolean = id.value <= that.id.value
+  def < (that: Role): Boolean = id.value >  that.id.value
+  def <=(that: Role): Boolean = id.value >= that.id.value
 }
 object Role {
   def apply(value: IntId): Role = value match {

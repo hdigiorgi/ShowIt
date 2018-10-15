@@ -6,9 +6,8 @@ import com.google.inject.Inject
 import play.api.Configuration
 import play.api.libs.typedmap.TypedKey
 import play.api.mvc.request.{Cell, RequestAttrKey}
-import play.api.mvc.{Filter, RequestHeader, Result, Session}
+import play.api.mvc._
 
-import scala.util.Try
 import scala.concurrent.{ExecutionContext, Future}
 
 object AuthenticationFilter {
@@ -63,3 +62,20 @@ class AuthenticationFilter @Inject() (implicit val mat: Materializer, ec: Execut
   }
 
 }
+
+class WhenRole[A](role: Role, action: Action[A]) extends Action[A] with AuthenticationSupport{
+
+  def apply(request: Request[A]): Future[Result] = {
+    if (request.role >= role) {
+      action(request)
+    } else {
+      Future.successful(play.api.mvc.Results.Unauthorized(views.html.error.unauthorized()))
+    }
+  }
+
+  override def parser: BodyParser[A] = action.parser
+  override def executionContext: ExecutionContext = action.executionContext
+}
+
+case class WhenAdmin[A](private val _action: Action[A]) extends WhenRole(Role.Admin, _action)
+case class WhenContributor[A](private val _action: Action[A]) extends WhenRole(Role.Contributor, _action)

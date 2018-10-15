@@ -12,7 +12,7 @@ import cats.syntax._
 import cats.implicits._
 
 
-object LoginController {
+object AuthenticationController {
   case class LoginForm(email: String, password: String)
   val loginFormMapping = Form(
     Forms.mapping(
@@ -22,7 +22,7 @@ object LoginController {
   )
 }
 
-class LoginController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc)
+class AuthenticationController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc)
   with LanguageFilterSupport with AuthenticationSupport{
 
   def index() = Action { implicit request: Request[AnyContent] =>
@@ -30,7 +30,7 @@ class LoginController @Inject()(cc: ControllerComponents)(implicit conf : Config
   }
 
   def login() = Action { implicit request: Request[AnyContent] =>
-    val optUser = LoginController.loginFormMapping.bindFromRequest.value match {
+    val optUser = AuthenticationController.loginFormMapping.bindFromRequest.value match {
       case None => None
       case Some(loginForm) =>
         DBInterface.wrap{ db =>
@@ -40,7 +40,7 @@ class LoginController @Inject()(cc: ControllerComponents)(implicit conf : Config
     optUser match {
       case None => Unauthorized(views.html.login("authentication.login.msg.genericError".some))
       case Some(user) =>
-        TemporaryRedirect("/admin").withAuthenticated(user)
+        Redirect(routes.AdminController.index).withAuthenticated(user)
     }
   }
 
@@ -48,7 +48,7 @@ class LoginController @Inject()(cc: ControllerComponents)(implicit conf : Config
     Ok(views.html.login())
   }
 
-  private def checkLogin(form: LoginController.LoginForm, db: UserPI): Option[User] = {
+  private def checkLogin(form: AuthenticationController.LoginForm, db: UserPI): Option[User] = {
     db.readByEmail(form.email).flatMap{ user =>
       if (user.password.is(form.password)) Some(user) else None
     }

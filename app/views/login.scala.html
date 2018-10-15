@@ -20,7 +20,7 @@
                 </div>
             }
 
-            @form(routes.LoginController.login) {
+            @form(routes.AuthenticationController.login) {
                 @CSRF.formField
                 <div class="form-group">
                     <label for="email">@messages("authentication.login.form.email")</label>
