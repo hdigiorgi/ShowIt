@@ -5,3 +5,8 @@ body {
 #menu-container .list-group {
     display: none;
 }
+#menu-container .menu-icon {
+    line-height: 1em;
+    padding-right: 5px;
+    width: 1.5em;
+}
