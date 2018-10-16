@@ -1,0 +1,8 @@
+@(title: String)(content: Html)
+@main(title) {
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/admin.css")">
+    @content
+    
+}{
+    <script src="@routes.Assets.versioned("javascripts/admin.js")" type="text/javascript"></script>
+}
