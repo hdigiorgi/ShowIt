@@ -12,7 +12,9 @@
     </a>
 }
 
-@admin(messages("admin.index.title")) {
+@main(messages("admin.index.title")) {
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/adminIndex.css")">
+
     <div class="container">
         <div id="menu-container" class="centered-container-100">
             <div id="main-menu" class="list-group">
@@ -45,4 +47,6 @@
             </div>
         </div>
     </div>
+} {
+    <script src="@routes.Assets.versioned("javascripts/adminIndex.js")" type="text/javascript"></script>
 }

@@ -1,0 +1,14 @@
+.filepond--image-bitmap, .filepond--image-vector{
+    width: 100%!important;
+}
+.filepond--image-clip {
+    width: 100%!important;
+}
+.filepond--image-canvas-wrapper {
+    transform: unset!important;
+    width: 100%!important;
+}
+.filepond--panel-root {
+    background-color: transparent;
+    border: 1px solid #ced4da;
+}
