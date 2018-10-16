@@ -24,9 +24,9 @@
                           "admin.index.site.title", "admin.index.site.description")
             </div>
             <div id="post-menu" class="list-group"> 
-                @menuItem("#post-menu", "fas fa-pencil-alt",
+                @menuItem(routes.AdminPostController.create().url, "fas fa-pencil-alt",
                           "admin.index.post.menu.newPost.title", "admin.index.post.menu.newPost.description")
-                @menuItem("#community-menu", "far fa-edit", 
+                @menuItem(routes.AdminPostController.index(None,None,None).url, "far fa-edit", 
                           "admin.index.post.menu.viewOrEdit.title", "admin.index.post.menu.viewOrEdit.description")
             </div>
             <div id="community-menu" class="list-group">

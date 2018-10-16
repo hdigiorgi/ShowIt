@@ -14,10 +14,10 @@ GET  /logout controllers.AuthenticationController.logout
 
 # Admin
 GET  /admin                      controllers.AdminController.index
-GET  /admin/post                 controllers.AdminPostController.index(page: Integer, order: String, search: String)
-GET  /admin/post/new             controllers.AdminPostController.postNew
-GET  /admin/post/edit/:id        controllers.AdminPostController.postEdit(id: String)
-POST /admin/post/edit/save/:id   controllers.AdminPostController.postSave(id: String)
+GET  /admin/post                 controllers.AdminPostController.index(page: Option[Integer], order: Option[String], search: Option[String])
+GET  /admin/post/new             controllers.AdminPostController.create
+GET  /admin/post/edit/:id        controllers.AdminPostController.edit(id: String)
+POST /admin/post/edit/save/:id   controllers.AdminPostController.save(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

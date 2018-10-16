@@ -6,19 +6,19 @@ import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Reque
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
 
-  def index(page: Integer, order: String, search: String) = Action { implicit request: Request[AnyContent] =>
+  def index(page: Option[Integer], order: Option[String], search: Option[String]) = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.list())
   }
 
-  def postNew() = Action { implicit request: Request[AnyContent] =>
+  def create() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.list())
   }
 
-  def postEdit(id: String) = Action { implicit request: Request[AnyContent] =>
+  def edit(id: String) = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.list())
   }
 
-  def postSave(id: String) = Action { implicit request: Request[AnyContent] =>
+  def save(id: String) = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.list())
   }
 
