@@ -22,8 +22,8 @@ object AuthenticationController {
   )
 }
 
-class AuthenticationController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc)
-  with LanguageFilterSupport with AuthenticationSupport{
+class AuthenticationController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
+  extends AbstractController(cc) with LanguageFilterSupport with AuthenticationSupport{
 
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.login())
