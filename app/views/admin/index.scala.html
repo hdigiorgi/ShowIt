@@ -2,133 +2,47 @@
 
 @()(implicit messages: Messages)
 
+@menuItem(href: String, icon: String, title: String, description: String) = {
+    <a href="@href" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100">
+            <i class="@icon fa-lg menu-icon"></i>
+            <h5 class="mb-1">@messages(title)</h5>
+        </div>
+        <p class="mb-1">@messages(description)</p>
+    </a>
+}
+
 @admin(messages("admin.index.title")) {
     <div class="container">
         <div id="menu-container" class="centered-container-100">
             <div id="main-menu" class="list-group">
-
-                <a href="#post-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="fas fa-align-left fa-lg menu-icon"></i>
-                        <h5 class="mb-1">
-                            @messages("admin.index.post.title")
-                        </h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.post.title.description")
-                    </p>
-                </a>
-
-                <a href="#community-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="fas fa-users fa-lg menu-icon"></i>
-                        <h5 class="mb-1">
-                            @messages("admin.index.community.title")
-                        </h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.community.title.description")
-                    </p>
-                </a>
-
-                <a href="#site-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="fas fa-cogs fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.site.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                            @messages("admin.index.site.description")
-                    </p>
-                </a>
+                @menuItem("#post-menu", "fas fa-align-left", 
+                          "admin.index.post.title", "admin.index.post.title.description")
+                @menuItem("#community-menu", "fas fa-users", 
+                          "admin.index.community.title", "admin.index.community.title.description")
+                @menuItem("#site-menu", "fas fa-cogs",
+                          "admin.index.site.title", "admin.index.site.description")
             </div>
-
-
-            <div id="post-menu" class="list-group">
-
-                <a href="#post-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="fas fa-pencil-alt fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.post.menu.newPost.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                            @messages("admin.index.post.menu.newPost.description")
-                    </p>
-                </a>
-
-                <a href="#community-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="far fa-edit fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.post.menu.viewOrEdit.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.post.menu.viewOrEdit.description")
-                    </p>
-                </a>
-
+            <div id="post-menu" class="list-group"> 
+                @menuItem("#post-menu", "fas fa-pencil-alt",
+                          "admin.index.post.menu.newPost.title", "admin.index.post.menu.newPost.description")
+                @menuItem("#community-menu", "far fa-edit", 
+                          "admin.index.post.menu.viewOrEdit.title", "admin.index.post.menu.viewOrEdit.description")
             </div>
-
             <div id="community-menu" class="list-group">
-
-                <a href="#post-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="fas fa-mail-bulk fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.community.menu.sendEmail.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.community.menu.sendEmail.description")
-                    </p>
-                </a>
-
-                <a href="#community-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="far fa-user fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.community.menu.users.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.community.menu.users.description")
-                    </p>
-                </a>
-
+                @menuItem("#post-menu", "fas fa-mail-bulk",
+                          "admin.index.community.menu.sendEmail.title", "admin.index.community.menu.sendEmail.description")
+                @menuItem("#community-menu", "far fa-user",
+                          "admin.index.community.menu.users.title", "admin.index.community.menu.users.description")
             </div>
-
-
             <div id="site-menu" class="list-group">
-
-                <a href="#post-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="far fa-window-maximize fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.site.data.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.site.data.description")
-                    </p>
-                </a>
-
-                <a href="#community-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="far fa-save fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.site.backup.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.site.backup.description")
-                    </p>
-                </a>
-
-                <a href="#community-menu" class="list-group-item list-group-item-action flex-column align-items-start">
-                    <div class="d-flex w-100">
-                        <i class="fas fa-server fa-lg menu-icon"></i>
-                        <h5 class="mb-1">@messages("admin.index.site.server.title")</h5>
-                    </div>
-                    <p class="mb-1">
-                        @messages("admin.index.site.server.description")
-                    </p>
-                </a>
-
+                @menuItem("#post-menu", "far fa-window-maximize",
+                          "admin.index.site.data.title", "admin.index.site.data.description")
+                @menuItem("#community-menu", "far fa-save",
+                          "admin.index.site.backup.title", "admin.index.site.backup.description")
+                @menuItem("#community-menu", "fas fa-server",
+                          "admin.index.site.server.title", "admin.index.site.server.description")
             </div>
-
-            
-
         </div>
     </div>
-
 }
