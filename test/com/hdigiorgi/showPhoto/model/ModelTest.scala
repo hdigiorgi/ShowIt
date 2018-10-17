@@ -59,8 +59,7 @@ class ModelTest extends FunSuite
 
   test("account crud") {
     DBInterface.wrapCleanDB{ db =>
-      db.user.read(User.adminId) should not be empty
-      val admin = User(User.adminId, Email("a@b.com"), Password("p"), Role.Admin)
+      val admin = User(StringId.random, Email("a@b.com"), Password("p"), Role.Admin)
       db.user.update(admin)
       db.user.read(admin.id) should contain (admin)
       db.user.delete(admin.id)

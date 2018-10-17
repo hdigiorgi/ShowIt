@@ -30,7 +30,7 @@ object DB extends DBInterface { self =>
 
   override def license: LicensePI = _license_db
 
-  override def item: ItemPI = ???
+  override def post: PostPI = ???
 
   override def site: SitePI = ???
 

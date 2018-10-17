@@ -5,6 +5,8 @@ import java.util.UUID
 
 import cats.Later
 import cats.syntax.option._
+import com.github.slugify.Slugify
+import com.hdigiorgi.showPhoto.model.post.Post
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
 
@@ -102,22 +104,7 @@ object License {
   )
 }
 
-/**
-  * Item
-  */
-class Item(id: String,
-           slug: String,
-           private val _descriptionRaw: Later[String],
-           private val _renderedDescription: Later[String],
-           private val _title: Later[String],
-           private val _summary: Later[String],
-           imageCount: Int,
-           createdAt: Instant) {
-  def descriptionRaw() = _descriptionRaw.value
-  def description() = _renderedDescription.value
-  def title() = _title.value
-  def summary = _summary.value
-}
+
 
 /**
   * Site
@@ -226,7 +213,7 @@ trait PersistentInterface[A, B]{
   def delete(key: B): Unit
 }
 trait LicensePI extends PersistentInterface[License, Grade]
-trait ItemPI extends PersistentInterface[Item, String]
+trait PostPI extends PersistentInterface[Post, String]
 trait SitePI extends PersistentInterface[Site, String]
 trait PurchasePI extends PersistentInterface[Purchase, String]
 trait FileMetaPI extends PersistentInterface[FileMeta, String]
@@ -237,7 +224,7 @@ trait UserPI extends PersistentInterface[User, StringId] {
 
 trait DBInterface {
   def license: LicensePI
-  def item: ItemPI
+  def post: PostPI
   def site: SitePI
   def purchase: PurchasePI
   def meta: MetaPI

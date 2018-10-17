@@ -9,7 +9,7 @@ import play.filters.headers.SecurityHeadersFilter
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
 
   def index(page: Option[Integer], order: Option[String], search: Option[String]) = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.admin.post.list())
+    Ok(views.html.admin.post.index())
   }
 
   def create() = WhenAdmin { Action { implicit request: Request[AnyContent] =>
@@ -17,11 +17,11 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
   def edit(id: String) = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.admin.post.list())
+    Ok(views.html.admin.post.index())
   }
 
   def save(id: String) = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.admin.post.list())
+    Ok(views.html.admin.post.index())
   }
 
 }
