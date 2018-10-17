@@ -14,10 +14,24 @@ GET  /logout controllers.AuthenticationController.logout
 
 # Admin
 GET  /admin                      controllers.AdminController.index
-GET  /admin/post                 controllers.AdminPostController.index(page: Option[Integer], order: Option[String], search: Option[String])
-GET  /admin/post/new             controllers.AdminPostController.create
-GET  /admin/post/edit/:id        controllers.AdminPostController.edit(id: String)
-POST /admin/post/edit/save/:id   controllers.AdminPostController.save(id: String)
+
+########################################################################################################################
+## Post Administration
+########################################################################################################################
+GET    /admin/post                 controllers.AdminPostController.index(page: Option[Integer], order: Option[String], search: Option[String])
+GET    /admin/post/new             controllers.AdminPostController.create
+GET    /admin/post/edit/:id        controllers.AdminPostController.edit(id: String)
+POST   /admin/post/edit/save/:id   controllers.AdminPostController.save(id: String)
+# Image
+POST   /admin/post/edit/:id/image  controllers.AdminPostController.imageProcess(id: String)
+DELETE /admin/post/edit/:id/image  controllers.AdminPostController.imageDelete(id: String)
+GET    /admin/post/edit/:id/image  controllers.AdminPostController.imageLoad(id: String, load: String)
+GET    /admin/post/edit/:id/image  controllers.AdminPostController.imageRestore(id: String, restore: String)
+GET    /admin/post/edit/:id/image  controllers.AdminPostController.imageFetch(id: String, fetch: String)
+
+
+
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
