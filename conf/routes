@@ -21,7 +21,7 @@ GET  /admin                      controllers.AdminController.index
 GET    /admin/post                 controllers.AdminPostController.index(page: Option[Integer], order: Option[String], search: Option[String])
 GET    /admin/post/new             controllers.AdminPostController.create
 GET    /admin/post/edit/:id        controllers.AdminPostController.edit(id: String)
-POST   /admin/post/edit/save/:id   controllers.AdminPostController.save(id: String)
+POST   /admin/post/edit/:id        controllers.AdminPostController.save(id: String)
 # Image
 POST   /admin/post/edit/:id/image  controllers.AdminPostController.imageProcess(id: String)
 DELETE /admin/post/edit/:id/image  controllers.AdminPostController.imageDelete(id: String)

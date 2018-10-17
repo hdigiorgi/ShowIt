@@ -36,16 +36,16 @@ $(() => {
         labelButtonProcessItem: 'Upload'
     }
     const imagesConf = Object.assign({}, sharedConf, {
-        server: "./upload/images", 
+        server: "/admin/post/edit/ID_COMES_HERE/image", 
         imagePreviewMaxFileSize: "1MB",
         imagePreviewHeight: 100,
-        maxFileSize: "5MB",
+        maxFileSize: "20MB",
         maxFiles: 3,
         allowMultiple: true
     })
 
     const fileConf = Object.assign({}, sharedConf, {
-        server: "./upload/file",
+        server: "/admin/post/edit/ID_COMES_HERE/file",
         allowImagePreview: false,
         allowImageExifOrientation: false
     })
