@@ -2,10 +2,6 @@ package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
 import java.util.UUID
-
-import cats.Later
-import cats.syntax.option._
-import com.github.slugify.Slugify
 import com.hdigiorgi.showPhoto.model.post.Post
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
@@ -232,6 +228,7 @@ trait DBInterface {
   def init(configuration: Configuration): Unit
   def configuration: Configuration
   def destroy(): Unit
+
   protected def wrapDestroy(destroy: => Unit): Unit = {
     val conf = configuration match {
       case null => None

@@ -1,7 +1,7 @@
 @import helper._
 @import com.hdigiorgi.showPhoto.model.post.Post
 
-@(post: Post)(implicit request: RequestHeader)
+@(post: Post, images: Seq[String])(implicit request: RequestHeader)
 
 @main("EDIT") {
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
@@ -16,7 +16,12 @@
 
     <div class="container">
 
-        @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm"){ }
+        @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") {
+            @for(image <- images) {
+                <input type="hidden" value="@image">
+            }
+        }
+        
 
         @form(routes.AdminPostController.save(post.id.value)) {
             @CSRF.formField

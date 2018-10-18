@@ -6,11 +6,40 @@ $(() => {
         FilePondPluginFileValidateSize 
     );
 
-    const imageProcessUrl = $("#imageProcessForm").attr("action")
+    const imageFormId = "#imageProcessForm"
+    const imageProcessUrl = $(imageFormId).attr("action")
     const imagesInputElement = document.querySelector("#images-input")
     const fileInputElement = document.querySelector("#file-input")
-    const pondImages = FilePond.create(imagesInputElement)
-    const pondFile = FilePond.create(fileInputElement)
+    function getFilePondServer(url) {
+        return {
+            process: url,
+            revert: url,
+            restore: `${url}&restore=`,
+            load: `${url}&load=`,
+            fetch: `${url}&fetch=`
+        }
+    }
+
+    function getValuesFromForm(id) {
+        const children = $(id).children()
+        var r = []
+        for(i=0; i < children.length; i++) {
+            r.push(children[i].value)
+        }
+        return r
+    }
+
+    function getFilePondFiles(id) {
+        return getValuesFromForm(id).map((source) => {
+            return {
+                source: source,
+                options: {
+                    type: 'local'
+                }
+            }
+        })
+    }
+
     const sharedConf = {
         labelMaxFileSizeExceeded: "File is too large",
         labelMaxFileSize: "Maximum file size is {filesize}",
@@ -36,21 +65,22 @@ $(() => {
         labelButtonRetryItemProcessing: 'Retry',
         labelButtonProcessItem: 'Upload'
     }
+
     const imagesConf = Object.assign({}, sharedConf, {
-        server: imageProcessUrl, 
+        server: getFilePondServer(imageProcessUrl), 
         imagePreviewMaxFileSize: "1MB",
         imagePreviewHeight: 100,
         maxFileSize: "20MB",
-        maxFiles: 3,
-        allowMultiple: true
+        allowMultiple: true,
+        files: getFilePondFiles(imageFormId)
     })
 
     const fileConf = Object.assign({}, sharedConf, {
         server: "/admin/post/edit/ID_COMES_HERE/file",
         allowImagePreview: false,
-        allowImageExifOrientation: false
+        allowImageExifOrientation: false,
     })
 
-    pondImages.setOptions(imagesConf)
-    pondFile.setOptions(fileConf)
+    FilePond.create(imagesInputElement, imagesConf)
+    FilePond.create(fileInputElement, fileConf)
 })

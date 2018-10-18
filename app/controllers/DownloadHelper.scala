@@ -20,11 +20,11 @@ object DownloadHelper {
     BlockedFilesContainer.removeBlocked(files.map(getIdFromFile))
   }
 
-  def getImageResult(file: File): Result = {
+  def getInlineResult(file: File): Result = {
     getGenericFileResult(file, inlineHeader)
   }
 
-  def getFileResult(file: File): Result = {
+  def getAttachmentResult(file: File): Result = {
     getGenericFileResult(file, attachmentHeader)
   }
 
@@ -94,7 +94,7 @@ object DownloadHelper {
         case Some((ks, count)) if count > 1 =>
           map.update(id, (ks, count - 1))
           false
-        case Some((_, count)) if count <= 0 => {
+        case Some((_, count)) if count <= 1 => {
           map.remove(id)
           true
         }
