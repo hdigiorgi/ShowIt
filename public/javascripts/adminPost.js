@@ -6,6 +6,7 @@ $(() => {
         FilePondPluginFileValidateSize 
     );
 
+    const imageProcessUrl = $("#imageProcessForm").attr("action")
     const imagesInputElement = document.querySelector("#images-input")
     const fileInputElement = document.querySelector("#file-input")
     const pondImages = FilePond.create(imagesInputElement)
@@ -36,7 +37,7 @@ $(() => {
         labelButtonProcessItem: 'Upload'
     }
     const imagesConf = Object.assign({}, sharedConf, {
-        server: "/admin/post/edit/ID_COMES_HERE/image", 
+        server: imageProcessUrl, 
         imagePreviewMaxFileSize: "1MB",
         imagePreviewHeight: 100,
         maxFileSize: "20MB",

@@ -15,6 +15,7 @@ libraryDependencies += "com.github.slugify" % "slugify" % "2.2"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.11.3"
 libraryDependencies += "org.apache.commons" % "commons-text" % "1.6"
 libraryDependencies += "com.atlassian.commonmark" % "commonmark" % "0.11.0"
+libraryDependencies += "commons-io" % "commons-io" % "2.6"
 libraryDependencies ++= Seq(
   "org.xerial" % "sqlite-jdbc" % "3.25.2",
   "com.typesafe.play" %% "play-slick" % "3.0.3",

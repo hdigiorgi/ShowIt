@@ -17,10 +17,6 @@
     <div class="container">
 
         @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm"){ }
-        @form(CSRF(routes.AdminPostController.imageDelete(post.id.value)), 'id -> "imageDeleteForm"){ }
-        @form(CSRF(routes.AdminPostController.imageLoad(post.id.value, "")), 'id -> "imageLoadForm"){ }
-        @form(CSRF(routes.AdminPostController.imageRestore(post.id.value, "")), 'id -> "imageRestoreForm"){ }
-        @form(CSRF(routes.AdminPostController.imageFetch(post.id.value, "")), 'id -> "imageFetchForm"){ }
 
         @form(routes.AdminPostController.save(post.id.value)) {
             @CSRF.formField

@@ -2,7 +2,6 @@ package controllers
 
 import java.io.File
 import java.nio.file.{Files, StandardCopyOption}
-
 import com.hdigiorgi.showPhoto.model.StringId
 import com.hdigiorgi.showPhoto.model.post.{ImageSizeType, Post}
 import filters.WhenAdmin
@@ -10,6 +9,8 @@ import javax.inject.Inject
 import play.api.Configuration
 import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
 import play.filters.headers.SecurityHeadersFilter
+import org.apache.commons.io.FileUtils
+
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
 
@@ -32,10 +33,13 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     Ok(views.html.admin.post.index())
   }
 
-  def imageProcess(id: String) = WhenAdmin { Action(parse.temporaryFile) { request =>
-    val location = Post.getImage(StringId(id), ImageSizeType.Original, id)
-    val from = request.body.path
-    Files.move(from, location.toPath, StandardCopyOption.ATOMIC_MOVE)
+  def imageProcess(id: String) = WhenAdmin { Action(parse.multipartFormData) { request =>
+    val receivedFileData = request.body.files.head
+    val receivedFileName = receivedFileData.filename
+    val receivedFile = receivedFileData.ref.path.toFile
+    val finalLocation = Post.getImage(StringId(id), ImageSizeType.Original, receivedFileName)
+    FileUtils.forceMkdirParent(finalLocation)
+    FileUtils.moveFile(receivedFile, finalLocation)
     Ok("ok")
   }}
 
