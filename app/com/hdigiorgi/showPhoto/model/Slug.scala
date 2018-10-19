@@ -43,11 +43,12 @@ object Slug {
   def ignoreAndPutRaw(value: String): Unit = new Slug(value)
 
   def fromString(s: String, customReplacements: Map[String, String] = Map()) = {
+    val replacements = customReplacements + ("-" -> "_")
     val slugficator = new Slugify()
       .withUnderscoreSeparator(true)
       .withLowerCase(true)
       .withTransliterator(true)
-      .withCustomReplacements(customReplacements.asJava)
+      .withCustomReplacements(replacements.asJava)
     val slugfied = slugficator.slugify(s)
     new Slug(slugfied)
   }

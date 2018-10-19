@@ -21,6 +21,7 @@ class SlugTest extends FunSuite with Matchers  {
     FileSlug("data.zip").withExtension("rar").value shouldBe "data.rar"
     FileSlug("data.zip").withExtension(".rar").value shouldBe "data.rar"
     FileSlug("data.zip").withExtension(".tar.gz").value shouldBe "data.tar.gz"
+    FileSlug("A-B c_d s.jpg").value shouldBe "a_b_c_d_s.jpg"
   }
 
 }

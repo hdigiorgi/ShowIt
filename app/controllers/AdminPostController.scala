@@ -58,7 +58,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
 
   def imageLoad(id: String, load: String) = WhenAdmin { Action { _ =>
     val fsi = FileSystemInterface.get.image
-    fsi.getImageWithSuggestedSize(StringId(id), SmallSize, FileSlug(load)) match {
+    fsi.getImageWithSuggestedSize(StringId(id), SmallSize, FileSlug.noSlugify(load)) match {
       case None => NotFound(load)
       case Some(file) => DownloadHelper.getInlineResult(file)
     }
