@@ -7,7 +7,8 @@ import java.time.Instant
 import com.hdigiorgi.showPhoto.model.{FileSlug, Slug, StringId}
 import javax.imageio.{ImageIO, ImageWriteParam}
 import org.apache.commons.io.{FileUtils, FilenameUtils}
-import org.im4java.core.{ConvertCmd, IMOperation, ImageCommand}
+import org.im4java.core._
+import org.im4java.process.ArrayListOutputConsumer
 import play.api.Configuration
 
 
@@ -155,8 +156,21 @@ class GenericFileDB()(implicit private val cfg: Configuration){
   }
 
   private def getSizeOfImage(file: File): ImageSize = {
-    val image = ImageIO.read(file)
-    ImageSize(image.getWidth, image.getHeight)
+    val op = new IMOperation
+    op.addImage(file.getCanonicalPath)
+    op.ping()
+    op.format("%wx%h")
+    op.addRawArgs("info:")
+    val cmd = new ImageCommand("magick")
+    val output = new ArrayListOutputConsumer()
+    cmd.setOutputConsumer(output)
+    cmd.run(op)
+    val cmdOutput = output.getOutput
+    val line = cmdOutput.get(0)
+    val arr = line.split("x")
+    val width = arr(0).toInt
+    val height = arr(1).toInt
+    ImageSize(width, height)
   }
 
   private def transformImage(original: File, destination: File, quality: Int, size: ImageSize): Either[Exception, File] = {
