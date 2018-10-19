@@ -134,14 +134,14 @@ class GenericFileDB()(implicit private val cfg: Configuration){
     val originalFileSize = getSizeOfImage(originalFile)
     SizeType.sizes.filter( size => {
       originalFileSize > size.value || size == FullSize
-    }).foldLeft(Right(Map.empty) : ProcessingResult)((acc, size) => acc match {
+    }).foldLeft(Right(Map.empty) : ProcessingResult)((acc, sizeType) => acc match {
       case Left(_) => acc
       case Right(map) =>
-        val destination = getFileLocation(elementId, size, fileName.withExtension("jpeg"))
-        val destinationSize = originalFileSize.getDownScaled(FullSize.value)
-        transformImage(originalFile, destination, size.quality, destinationSize) match {
+        val destination = getFileLocation(elementId, sizeType, fileName.withExtension("jpeg"))
+        val destinationSize = originalFileSize.getDownScaled(sizeType.value)
+        transformImage(originalFile, destination, sizeType.quality, destinationSize) match {
           case Left(e) => Left(e)
-          case Right(file) => Right(map + (size -> file))
+          case Right(file) => Right(map + (sizeType -> file))
         }
     })
   }
@@ -163,11 +163,9 @@ class GenericFileDB()(implicit private val cfg: Configuration){
       op.depth(8)
       op.format("JPEG")
       op.addImage(destination.getCanonicalPath)
-      println(op.getCmdArgs)
 
       destination.getParentFile.mkdirs()
       val cmd = new ImageCommand("magick")
-      cmd.createScript("script", op)
       cmd.run(op)
       Right(destination)
     } catch {
