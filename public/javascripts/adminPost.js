@@ -14,9 +14,9 @@ $(() => {
         return {
             process: url,
             revert: url,
-            restore: `${url}&restore=`,
             load: `${url}&load=`,
-            fetch: `${url}&fetch=`
+            restore: `${url}&load=`,
+            fetch: null
         }
     }
 
@@ -34,13 +34,14 @@ $(() => {
             return {
                 source: source,
                 options: {
-                    type: 'local'
+                    type: 'limbo'
                 }
             }
         })
     }
 
     const sharedConf = {
+        allowRevert: true,
         labelMaxFileSizeExceeded: "File is too large",
         labelMaxFileSize: "Maximum file size is {filesize}",
         labelTotalFileSizeExceeded: "Maximum total size exceeded",
@@ -70,7 +71,7 @@ $(() => {
         server: getFilePondServer(imageProcessUrl), 
         imagePreviewMaxFileSize: "1MB",
         imagePreviewHeight: 100,
-        maxFileSize: "20MB",
+        maxFileSize: "30MB",
         allowMultiple: true,
         files: getFilePondFiles(imageFormId)
     })
@@ -83,4 +84,7 @@ $(() => {
 
     FilePond.create(imagesInputElement, imagesConf)
     FilePond.create(fileInputElement, fileConf)
+
+
+
 })

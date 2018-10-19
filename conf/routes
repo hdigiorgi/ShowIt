@@ -26,11 +26,6 @@ POST   /admin/post/edit/:id        controllers.AdminPostController.save(id: Stri
 POST   /admin/post/edit/:id/image  controllers.AdminPostController.imageProcess(id: String)
 DELETE /admin/post/edit/:id/image  controllers.AdminPostController.imageDelete(id: String)
 GET    /admin/post/edit/:id/image  controllers.AdminPostController.imageLoad(id: String, load: String)
-GET    /admin/post/edit/:id/image  controllers.AdminPostController.imageRestore(id: String, restore: String)
-GET    /admin/post/edit/:id/image  controllers.AdminPostController.imageFetch(id: String, fetch: String)
-
-
-
 
 
 # Map static resources from the /public folder to the /assets URL path

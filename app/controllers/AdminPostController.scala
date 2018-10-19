@@ -43,13 +43,17 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def imageDelete(id: String) = WhenAdmin { Action { _ =>
-    Ok("ok")
-  }}
-
-
-  def imageRevert(id: String) = WhenAdmin { Action { _ =>
-    Ok("ok")
+  def imageDelete(id: String) = WhenAdmin { Action { request =>
+    val fsi = FileSystemInterface.get.image
+    request.body.asText match {
+      case None => BadRequest("empty body")
+      case Some(imageName) =>
+        if (!fsi.deleteImage(StringId(id), FileSlug.noSlugify(imageName))) {
+          NotFound(id)
+        } else {
+          Ok(id)
+        }
+    }
   }}
 
   def imageLoad(id: String, load: String) = WhenAdmin { Action { _ =>
@@ -60,12 +64,5 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def imageRestore(id: String, restore: String) = WhenAdmin { Action { _ =>
-    Ok("ok")
-  }}
-
-  def imageFetch(id: String, fetch: String) = WhenAdmin { Action { _ =>
-    Ok("ok")
-  }}
 
 }

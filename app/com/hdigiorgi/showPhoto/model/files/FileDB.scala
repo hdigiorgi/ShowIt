@@ -89,6 +89,14 @@ class GenericFileDB()(implicit private val cfg: Configuration){
     })
   }
 
+  def deleteImage(elementId: StringId, image: FileSlug): Boolean = {
+    val folder = getContainerFolder(elementId, image)
+    if(!folder.exists()) false else {
+      FileUtils.forceDelete(folder)
+      true
+    }
+  }
+
   private def getFileLocation(elementId: StringId, size: SizeType, fileName: FileSlug): File = {
     val folder = getContainerFolder(elementId, fileName)
     Paths.get( folder.getPath, size.name, fileName.value).toFile

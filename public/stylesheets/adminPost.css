@@ -18,3 +18,12 @@
 .dropdown-toggle::after {
     display:none;
 }
+.filepond--file-info-sub {
+    display: none;
+}
+.filepond--image-preview-overlay-success {
+    opacity: 0!important;
+}
+.filepond--image-preview-overlay-idle {
+    opacity: 0.9!important;
+}

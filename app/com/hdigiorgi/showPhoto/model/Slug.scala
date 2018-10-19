@@ -29,6 +29,9 @@ object FileSlug {
     val slugWithDot = normalSlug.replaceAll(f"($dotSeparator)+", ".")
     new FileSlug(slugWithDot)
   }
+
+  def noSlugify(value: String): FileSlug = new FileSlug(value)
+
 }
 
 object Slug {
