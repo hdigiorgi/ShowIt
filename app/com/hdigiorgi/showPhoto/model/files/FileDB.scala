@@ -61,9 +61,10 @@ class GenericFileDB()(implicit private val cfg: Configuration){
   }
 
   def process(tempInputFile: File, elementId: StringId, inFileName: FileSlug): ProcessingResult = {
+    val toProcess = renameWithFileExtension(tempInputFile, inFileName)
     val destinationSlug = getUniqueFileSlug(elementId, inFileName)
-    val processResult = processImageBySize(tempInputFile, elementId, destinationSlug)
-    FileUtils.forceDelete(tempInputFile)
+    val processResult = processImageBySize(toProcess, elementId, destinationSlug)
+    FileUtils.forceDelete(toProcess)
     if(processResult.isLeft){
       deleteImageDir(elementId, destinationSlug)
     }
@@ -96,6 +97,15 @@ class GenericFileDB()(implicit private val cfg: Configuration){
       FileUtils.forceDelete(folder)
       true
     }
+  }
+
+  private def renameWithFileExtension(temp: File, target: FileSlug): File = {
+    val tempBaseName = FilenameUtils.getBaseName(temp.getName)
+    val newTempName = tempBaseName + "." + target.extension
+    val newFullPath = FilenameUtils.concat(temp.getParentFile.getCanonicalPath, newTempName)
+    val newTempFile = new File(newFullPath)
+    FileUtils.moveFile(temp, newTempFile)
+    newTempFile
   }
 
   private def getFileLocation(elementId: StringId, size: SizeType, fileName: FileSlug): File = {
