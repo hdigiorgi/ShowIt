@@ -1,6 +1,8 @@
 package com.hdigiorgi.showPhoto.model
 
 import com.github.slugify.Slugify
+import org.apache.commons.io.FilenameUtils
+
 import scala.collection.JavaConverters._
 
 
@@ -11,13 +13,20 @@ case class Slug private(value: String) {
 
 case class FileSlug private(value: String) {
   override def toString: String = this.value
+  def withExtension(ext: String): FileSlug = {
+    FileSlug(FilenameUtils.getBaseName(value) + "." + ext)
+  }
+  def withPrefix(pre: String): FileSlug = {
+    val preSlug = Slug.fromString(pre)
+    FileSlug(preSlug.value + "_" + this.value)
+  }
 }
 object FileSlug {
   def apply(value: String): FileSlug = {
-    val dotSeparator = "_separator1_dot_separator2_dot_separator3_"
+    val dotSeparator = "separator1dotseparator2dotseparator3"
     if(value.contains(dotSeparator)) throw new RuntimeException(s"invalid input $dotSeparator")
     val normalSlug = Slug.fromString(value, Map("." -> dotSeparator)).value
-    val slugWithDot = normalSlug.replace(dotSeparator, ".")
+    val slugWithDot = normalSlug.replaceAll(f"($dotSeparator)+", ".")
     new FileSlug(slugWithDot)
   }
 }
