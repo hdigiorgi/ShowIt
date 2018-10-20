@@ -128,3 +128,15 @@
     position: absolute;
     top: 0;
 }
+
+
+#attachment-uploader .qq-gallery .black-gradient {
+    display: none;
+}
+#attachment-uploader .qq-gallery .qq-thumbnail-wrapper {
+    height: 2.25em;
+}
+
+#attachment-uploader .qq-gallery .qq-upload-cancel {
+    
+}

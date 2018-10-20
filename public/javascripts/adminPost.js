@@ -1,43 +1,32 @@
 $(() => {
 
-    const imageFormId = "#imageProcessForm"
-    const imageListFormId = "#imageListForm"
-    const imageProcessUrl = $(imageFormId).attr("action")
-    const imageListUrl = $(imageListFormId).attr("action")
-    const imagesInputElement = document.querySelector("#images-input")
-    const fileInputElement = document.querySelector("#file-input")
-
-    function onComplete(id, name, response) {
-        var serverPathToFile = response.filePath
-        var fileItem = this.getItemByFileId(id);
-        console.log("on complete")
-        if (response.success) {
-            console.log("on complete success")
-            var wrapper = qq(fileItem).getByClass("qq-thumbnail-wrapper")
-            wrapper.setAttribute("style", serverPathToFile);
-        }
-    }
-    
+    const imageProcessUrl = $("#imageProcessForm").attr("action")
+    const imageListUrl = $("#imageListForm").attr("action")
+    const attachmentProcessUrl = $("#attachmentProcessForm").attr("action")
+    const attachmentListUrl = $("#attachmentListForm").attr("action")
+  
     qq.supportedFeatures.imagePreviews = false;
-    var uploader = new qq.FineUploader({
-        element: document.getElementById("image-uploader"),
-        debug: true,
-        request: {
-            endpoint: imageProcessUrl
-        },
-        deleteFile: {
-            enabled: true,
-            endpoint: `${imageProcessUrl}&delete=`
-        },
-        retry: {
-            enableAuto: false,
-            showButton: true
-        },
-        session: {
-            endpoint: imageListUrl
-        }
-    })
+    function createUploader(id, processUrl, listUrl) {
+        return new qq.FineUploader({
+            element: document.getElementById(id),
+            request: {
+                endpoint: processUrl
+            },
+            deleteFile: {
+                enabled: true,
+                endpoint: `${processUrl}&delete=`
+            },
+            retry: {
+                enableAuto: false,
+                showButton: true
+            },
+            session: {
+                endpoint: listUrl
+            }
+        })
+    }
 
-    
+    createUploader("image-uploader", imageProcessUrl, imageListUrl)
+    createUploader("attachment-uploader", attachmentProcessUrl, attachmentListUrl)
 
 })

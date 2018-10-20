@@ -94,6 +94,8 @@
 
         @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") { }
         @form(routes.AdminPostController.imageList(post.id.value), 'id -> "imageListForm") { }
+        @form(CSRF(routes.AdminPostController.attachmentProcess(post.id.value)), 'id -> "attachmentProcessForm") { }
+        @form(routes.AdminPostController.attachmentList(post.id.value), 'id -> "attachmentListForm") { }
         
 
         @form(routes.AdminPostController.save(post.id.value)) {
@@ -110,7 +112,7 @@
     
             <div class="form-group">
                 <label>Archivo a vender</label>
-                <input id="file-input" type="file">
+                <div id="attachment-uploader"></div>
             </div>
 
             <div class="form-group">

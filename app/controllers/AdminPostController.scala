@@ -91,4 +91,17 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
 
+  def attachmentProcess(id: String) = WhenAdmin { Action { _ =>
+    Ok("")
+  }}
+
+  def attachmentDelete(id: String, file: String) = WhenAdmin { Action { _ =>
+    Ok("")
+  }}
+
+  def attachmentList(id: String) = WhenAdmin { Action { _ =>
+    Ok("")
+  }}
+
+
 }

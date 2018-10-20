@@ -57,7 +57,7 @@ object GenericFileDB {
   type ProcessingResult = Either[Exception, Map[SizeType, File]]
 }
 
-class GenericFileDB()(implicit private val cfg: Configuration){
+class ImageFileDB()(implicit private val cfg: Configuration){
   import GenericFileDB._
 
   def getStoredImageIds(elementId: StringId): Seq[String] = {
@@ -215,12 +215,14 @@ class GenericFileDB()(implicit private val cfg: Configuration){
   protected val filesRoot: String = cfg.get[String]("database.filesLocation")
 }
 
-class ImageFileDB()(implicit private val cfg: Configuration) extends GenericFileDB {
-  override val classification = "images"
-}
+class AttachmentFileDB()(implicit private val cfg: Configuration) {
 
-class AttachmentFileDB()(implicit private val cfg: Configuration) extends GenericFileDB {
-  override val classification = "attachments"
+  private def getContainerRoot(elementId: StringId): File = {
+    Paths.get(filesRoot, elementId.value, classification).toFile
+  }
+
+  protected val classification: String = "attachments"
+  protected val filesRoot: String = cfg.get[String]("database.filesLocation")
 }
 
 class FileSystemInterface()(implicit ofg: Configuration) {
