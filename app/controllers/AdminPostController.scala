@@ -12,25 +12,25 @@ import play.filters.headers.SecurityHeadersFilter
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
   private val maxUploadImageSize = 30 * 1024 * 1024
 
-  def index(page: Option[Integer], order: Option[String], search: Option[String]) = Action { implicit request: Request[AnyContent] =>
+  def index(page: Option[Integer], order: Option[String], search: Option[String]) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.index())
-  }
+  }}
 
   def create() = WhenAdmin { Action { implicit request: Request[AnyContent] =>
     Redirect(routes.AdminPostController.save("some_test_id"))
   }}
 
-  def edit(id: String) = Action { implicit request: Request[AnyContent] =>
+  def edit(id: String) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
     views.html.helper.form
     val testPost = Post.empty(StringId(id))
     val imagesIds = FileSystemInterface.get.image.getStoredImageIds(StringId(id))
     Ok(views.html.admin.post.edit(testPost, imagesIds))
       .withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
-  }
+  }}
 
-  def save(id: String) = Action { implicit request: Request[AnyContent] =>
+  def save(id: String) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.index())
-  }
+  }}
 
   def imageProcess(id: String) = WhenAdmin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
     val fsi = FileSystemInterface.get.image

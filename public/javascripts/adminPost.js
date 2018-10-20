@@ -1,9 +1,7 @@
 $(() => {
     FilePond.registerPlugin(
         FilePondPluginFileValidateSize,
-        FilePondPluginImageExifOrientation,
-        FilePondPluginImagePreview,
-        FilePondPluginFileValidateSize 
+        FilePondPluginFilePoster 
     );
 
     const imageFormId = "#imageProcessForm"
@@ -29,13 +27,21 @@ $(() => {
         return r
     }
 
-    function getFilePondFiles(id) {
+    function getFilePondFiles(server, id) {
         return getValuesFromForm(id).map((source) => {
             return {
                 source: source,
                 options: {
-                    type: 'limbo'
-                }
+                    type: 'limbo',
+                    file: {
+                        name: source,
+                        type: 'image/jpeg'
+                    },
+                    metadata: {
+                        poster: `${server.load}${source}`
+                    }
+                },
+                
             }
         })
     }
@@ -73,7 +79,7 @@ $(() => {
         imagePreviewHeight: 100,
         maxFileSize: "30MB",
         allowMultiple: true,
-        files: getFilePondFiles(imageFormId)
+        files: getFilePondFiles(getFilePondServer(imageProcessUrl),imageFormId)
     })
 
     const fileConf = Object.assign({}, sharedConf, {
