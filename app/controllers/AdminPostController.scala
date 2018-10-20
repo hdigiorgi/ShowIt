@@ -1,16 +1,19 @@
 package controllers
 
 import com.hdigiorgi.showPhoto.model.{FileSlug, StringId}
-import com.hdigiorgi.showPhoto.model.files.{FileSystemInterface, SmallSize}
+import com.hdigiorgi.showPhoto.model.files.{FileSystemInterface, ImageFileDB, SmallSize}
 import com.hdigiorgi.showPhoto.model.post.Post
 import filters.WhenAdmin
 import javax.inject.Inject
-import play.api.Configuration
-import play.api.mvc.{AbstractController, AnyContent, ControllerComponents, Request}
+import play.api.{Configuration, Logger}
+import play.api.libs.json.Json
+import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
+import com.hdigiorgi.showPhoto.model.files.GenericFileDB._
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
   private val maxUploadImageSize = 30 * 1024 * 1024
+  val logger: Logger = Logger(this.getClass)
 
   def index(page: Option[Integer], order: Option[String], search: Option[String]) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.index())
@@ -37,22 +40,32 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     val receivedFileData = request.body.files.head
     val receivedFileName = receivedFileData.filename
     val receivedFile = receivedFileData.ref.path.toFile
-    fsi.process(receivedFile, StringId(id), FileSlug(receivedFileName)) match {
-      case Left(e) => throw e
-      case r => Ok(fsi.getImageId(r).get)
-    }
+    val processResult = fsi.process(receivedFile, StringId(id), FileSlug(receivedFileName))
+    getProcessStatus(id, fsi, processResult)
   }}
 
-  def imageDelete(id: String) = WhenAdmin { Action { request =>
+  private def getProcessStatus(resourceId: String, fsi: ImageFileDB, pr : ProcessingResult): Result = pr match {
+    case Left(e) =>
+      logger.error("processing error", e)
+      InternalServerError(Json.obj(
+        "success" -> false
+      ))
+    case Right(files) =>
+      val imageId = fsi.getImageId(pr)
+      logger.debug(f"image ${imageId} uploaded")
+      Ok(Json.obj("success" -> true,
+        "newUuid" -> imageId,
+        "thumbnailUrl" -> routes.AdminPostController.imageLoad(resourceId, imageId.get).url
+      ))
+  }
+
+
+  def imageDelete(id: String, imageId: String) = WhenAdmin { Action { request =>
     val fsi = FileSystemInterface.get.image
-    request.body.asText match {
-      case None => BadRequest("empty body")
-      case Some(imageName) =>
-        if (!fsi.deleteImage(StringId(id), FileSlug.noSlugify(imageName))) {
-          NotFound(id)
-        } else {
-          Ok(id)
-        }
+    if (!fsi.deleteImage(StringId(id), FileSlug.noSlugify(imageId))) {
+      NotFound(id)
+    } else {
+      Ok(id)
     }
   }}
 

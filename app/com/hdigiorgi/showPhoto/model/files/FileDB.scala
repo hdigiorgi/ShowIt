@@ -53,8 +53,12 @@ trait FileInterface {
   def getFiles(container: StringId): Seq[File]
 }
 
-class GenericFileDB()(implicit private val cfg: Configuration){
+object GenericFileDB {
   type ProcessingResult = Either[Exception, Map[SizeType, File]]
+}
+
+class GenericFileDB()(implicit private val cfg: Configuration){
+  import GenericFileDB._
 
   def getStoredImageIds(elementId: StringId): Seq[String] = {
     getContainerFolders(elementId).map(_.getName)
