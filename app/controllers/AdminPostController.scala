@@ -10,6 +10,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
 import com.hdigiorgi.showPhoto.model.files.GenericFileDB._
+import org.apache.commons.io.FilenameUtils
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
   private val maxUploadImageSize = 30 * 1024 * 1024
@@ -52,12 +53,24 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
       ))
     case Right(files) =>
       val imageId = fsi.getImageId(pr)
-      logger.debug(f"image ${imageId} uploaded")
+      logger.debug(f"image $imageId uploaded")
       Ok(Json.obj("success" -> true,
         "newUuid" -> imageId,
         "thumbnailUrl" -> routes.AdminPostController.imageLoad(resourceId, imageId.get).url
       ))
   }
+
+  def imageList(postId: String) = WhenAdmin {Action { request =>
+    val imagesIds = FileSystemInterface.get.image.getStoredImageIds(StringId(postId))
+    val data = imagesIds.map(id => {
+      Map(
+        "name" -> FilenameUtils.getBaseName(id),
+        "uuid" -> id,
+        "thumbnailUrl" -> routes.AdminPostController.imageLoad(postId, id).url
+      )
+    })
+    Ok(Json.toJson(data))
+  }}
 
 
   def imageDelete(id: String, imageId: String) = WhenAdmin { Action { request =>

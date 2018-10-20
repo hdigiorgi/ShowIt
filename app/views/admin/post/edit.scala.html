@@ -5,8 +5,8 @@
 
 @main("EDIT") {
     
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/adminPost.css")">
     <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("fine-uploader/fine-uploader-gallery.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/adminPost.css")">
     <script src="@routes.Assets.versioned("fine-uploader/fine-uploader.min.js")" type="text/javascript"></script>
 
     <script type="text/template" id="qq-template">
@@ -25,38 +25,30 @@
                 <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
             </span>
             <ul class="qq-upload-list-selector qq-upload-list" role="region" aria-live="polite" aria-relevant="additions removals">
-                <li>
+                <li class="qq-upload-item">
                     <span role="status" class="qq-upload-status-text-selector qq-upload-status-text"></span>
                     <div class="qq-progress-bar-container-selector qq-progress-bar-container">
                         <div role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" class="qq-progress-bar-selector qq-progress-bar"></div>
                     </div>
                     <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
                     <div class="qq-thumbnail-wrapper">
-                        <img class="qq-thumbnail-selector" qq-max-size="120" qq-server-scale>
+                        
+                        <img class="qq-thumbnail-selector" qq-server-scale>
+                        <div class="black-gradient"> </div>
+                        <div class="qq-file-name">
+                            <span class="qq-upload-file-selector qq-upload-file"></span>
+                        </div>
+                        <button type="button" class="qq-btn qq-upload-delete-selector qq-upload-delete">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                        
+
                     </div>
                     <button type="button" class="qq-upload-cancel-selector qq-upload-cancel">X</button>
                     <button type="button" class="qq-upload-retry-selector qq-upload-retry">
                         <span class="qq-btn qq-retry-icon" aria-label="Retry"></span>
                         Retry
                     </button>
-
-                    <div class="qq-file-info">
-                        <div class="qq-file-name">
-                            <span class="qq-upload-file-selector qq-upload-file"></span>
-                            <span class="qq-edit-filename-icon-selector qq-btn qq-edit-filename-icon" aria-label="Edit filename"></span>
-                        </div>
-                        <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
-                        <span class="qq-upload-size-selector qq-upload-size"></span>
-                        <button type="button" class="qq-btn qq-upload-delete-selector qq-upload-delete">
-                            <span class="qq-btn qq-delete-icon" aria-label="Delete"></span>
-                        </button>
-                        <button type="button" class="qq-btn qq-upload-pause-selector qq-upload-pause">
-                            <span class="qq-btn qq-pause-icon" aria-label="Pause"></span>
-                        </button>
-                        <button type="button" class="qq-btn qq-upload-continue-selector qq-upload-continue">
-                            <span class="qq-btn qq-continue-icon" aria-label="Continue"></span>
-                        </button>
-                    </div>
                 </li>
             </ul>
 
@@ -89,11 +81,8 @@
 
     <div class="container">
 
-        @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") {
-            @for(image <- images) {
-                <input type="hidden" value="@image">
-            }
-        }
+        @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") { }
+        @form(routes.AdminPostController.imageList(post.id.value), 'id -> "imageListForm") { }
         
 
         @form(routes.AdminPostController.save(post.id.value)) {

@@ -1,0 +1,60 @@
+.qq-thumbnail-selector {
+    position: relative;
+    top: 50%;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.qq-upload-delete {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.qq-upload-item {
+    width: 100%!important;
+    max-width: 100%!important;
+    height: auto!important;
+}
+
+.qq-gallery .qq-thumbnail-wrapper {
+    width: 100%;
+    height: 5em;
+    border-radius: 5px;
+}
+
+.qq-uploader.qq-gallery  {
+    max-height: unset;
+    height: auto;
+}
+
+.qq-gallery .qq-upload-list{
+    height: auto;
+    max-height: unset;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.qq-gallery .qq-upload-delete i {
+    font-size: 1.5em;
+    padding: 5px;
+    opacity: 0.2;
+    color: white;
+}
+
+.qq-gallery .qq-file-name {
+    position: absolute;
+    top: 0;
+    padding: 5px 0 0 5px;
+    opacity: 0.6;
+    color: white;
+}
+
+.qq-gallery .black-gradient {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+}
