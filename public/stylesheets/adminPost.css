@@ -18,15 +18,21 @@
     height: auto!important;
 }
 
+.qq-uploader.qq-gallery {
+    min-height: unset;  
+}
+
 .qq-gallery .qq-thumbnail-wrapper {
     width: 100%;
     height: 5em;
     border-radius: 5px;
+    opacity: 1!important;
 }
 
 .qq-uploader.qq-gallery  {
     max-height: unset;
     height: auto;
+    padding: 0 0.2em 0 0.2em;
 }
 
 .qq-gallery .qq-upload-list{
@@ -36,17 +42,38 @@
     overflow-x: hidden;
 }
 
-.qq-gallery .qq-upload-delete i {
+.qq-gallery .qq-upload-list li {
+    margin: 0 0 0.5em 0;
+    box-shadow: unset;
+}
+
+.qq-gallery .cancel-button i {
     font-size: 1.5em;
     padding: 5px;
     opacity: 0.2;
     color: white;
 }
 
+.qq-gallery .qq-upload-cancel {
+    background: transparent;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+}
+
+.qq-gallery .qq-upload-cancel:hover {
+    background-color: unset;
+}
+
 .qq-gallery .qq-file-name {
     position: absolute;
     top: 0;
-    padding: 5px 0 0 5px;
+    padding: 5px 22px 0 5px;
+    width: 100%;
     opacity: 0.6;
     color: white;
 }
@@ -57,4 +84,47 @@
     height: 100%;
     width: 100%;
     background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+}
+
+.qq-gallery .qq-upload-button {
+    width: 100%;
+    background: transparent;
+    box-shadow: unset;
+    border: unset;
+    height: 3em;
+    color: grey;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qq-gallery .qq-upload-list li.qq-upload-fail {
+    background-color: #632424; 
+    box-shadow: unset;
+    border-radius: 5px;
+}
+
+.qq-gallery .qq-upload-retry,
+.qq-gallery .qq-upload-retry:hover {
+    box-shadow: unset;
+    background: transparent;
+    border: none;
+    color: white;
+    font-weight: bolder;
+}
+
+.qq-gallery .qq-upload-spinner-selector{
+    position: absolute;
+    top: 60%;
+    right: 50%;
+    font-size: 1.5em;
+    color: dimgrey;
+}
+
+.qq-gallery .qq-progress-bar-container,
+.qq-gallery .qq-progress-bar-container .progress{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
 }

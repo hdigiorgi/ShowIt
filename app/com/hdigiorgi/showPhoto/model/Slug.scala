@@ -20,6 +20,9 @@ case class FileSlug private(value: String) {
     val preSlug = Slug.fromString(pre)
     FileSlug(preSlug.value + "_" + this.value)
   }
+  def baseName: String = {
+    FilenameUtils.getBaseName(value)
+  }
   def extension : String = FilenameUtils.getExtension(value)
 }
 object FileSlug {

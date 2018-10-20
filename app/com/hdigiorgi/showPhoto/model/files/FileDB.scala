@@ -81,14 +81,14 @@ class GenericFileDB()(implicit private val cfg: Configuration){
   }
 
   def getImageWithSuggestedSize(elementId: StringId, size: SizeType, image: FileSlug): Option[File] = {
-    val targetFile = getFileLocation(elementId, size, image)
+    val targetFile = getImageLocation(elementId, size, image)
     if(targetFile.exists()) return Some(targetFile)
 
     val options = SizeType.sizes.filter(_> size).reverse ++ SizeType.sizes.filter(_< size)
     options.foldLeft(None: Option[File])((acc, size) => acc match {
       case Some(x) => Some(x)
       case None =>
-        getFileLocation(elementId, size, image) match {
+        getImageLocation(elementId, size, image) match {
           case file if file.exists() => Some(file)
           case _ => None
         }
@@ -112,9 +112,10 @@ class GenericFileDB()(implicit private val cfg: Configuration){
     newTempFile
   }
 
-  private def getFileLocation(elementId: StringId, size: SizeType, fileName: FileSlug): File = {
-    val folder = getContainerFolder(elementId, fileName)
-    Paths.get( folder.getPath, size.name, fileName.value).toFile
+  private def getImageLocation(elementId: StringId, size: SizeType, imageSlug: FileSlug): File = {
+    val folder = getContainerFolder(elementId, imageSlug)
+    val fileName = imageSlug.withExtension(finalImageExtension).value
+    Paths.get( folder.getPath, size.name, fileName).toFile
   }
 
   private def getUniqueFileSlug(elementId: StringId, fileName: FileSlug): FileSlug = {
@@ -129,7 +130,7 @@ class GenericFileDB()(implicit private val cfg: Configuration){
   private def getContainerFolder(elementId: StringId, fileName: FileSlug): File = {
     Paths.get(
       getContainerRoot(elementId).toPath.toString,
-      fileName.value
+      fileName.baseName
     ).toFile
   }
 
@@ -160,7 +161,7 @@ class GenericFileDB()(implicit private val cfg: Configuration){
     }).foldLeft(Right(Map.empty) : ProcessingResult)((acc, sizeType) => acc match {
       case Left(_) => acc
       case Right(map) =>
-        val destination = getFileLocation(elementId, sizeType, fileName.withExtension("jpeg"))
+        val destination = getImageLocation(elementId, sizeType, fileName.withExtension(finalImageExtension))
         val destinationSize = originalFileSize.getDownScaled(sizeType.value)
         transformImage(originalFile, destination, sizeType.quality, destinationSize) match {
           case Left(e) => Left(e)
@@ -210,6 +211,7 @@ class GenericFileDB()(implicit private val cfg: Configuration){
   }
 
   protected val classification: String = "images"
+  protected val finalImageExtension: String = "jpeg"
   protected val filesRoot: String = cfg.get[String]("database.filesLocation")
 }
 
