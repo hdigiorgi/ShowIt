@@ -1,7 +1,7 @@
 package controllers
 
 import com.hdigiorgi.showPhoto.model.{FileSlug, StringId}
-import com.hdigiorgi.showPhoto.model.files.{FileSystemInterface, ImageFileDB, SmallSize}
+import com.hdigiorgi.showPhoto.model.files.{FileEntry, FileSystemInterface, ImageFileDB, SmallSize}
 import com.hdigiorgi.showPhoto.model.post.Post
 import filters.WhenAdmin
 import javax.inject.Inject
@@ -12,8 +12,11 @@ import play.filters.headers.SecurityHeadersFilter
 import com.hdigiorgi.showPhoto.model.files.GenericFileDB._
 import org.apache.commons.io.FilenameUtils
 
+import scala.util.{Failure, Success}
+
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
-  private val maxUploadImageSize = 30 * 1024 * 1024
+  private val maxUploadImageSize = 50 * 1024 * 1024 // 50MB
+  private val maxUploadAttachmentSize = 1024 * 1024 * 1024 // 1GB
   val logger: Logger = Logger(this.getClass)
 
   def index(page: Option[Integer], order: Option[String], search: Option[String]) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
@@ -91,17 +94,51 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
 
-  def attachmentProcess(id: String) = WhenAdmin { Action { _ =>
-    Ok("")
+  def attachmentProcess(id: String) = WhenAdmin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
+    val fsi = FileSystemInterface.get.attachment
+    val receivedFileData = request.body.files.head
+    val receivedFileName = receivedFileData.filename
+    val receivedFile = receivedFileData.ref.path.toFile
+    fsi.addFile(StringId(id), receivedFile, receivedFileName) match {
+      case Failure(e) =>
+        logger.error("when adding attachment", e)
+        InternalServerError(e.getMessage)
+      case Success(value) =>
+        Ok(Json.obj("success" -> true,
+          "newUuid" -> value.name,
+        ))
+    }
   }}
 
   def attachmentDelete(id: String, file: String) = WhenAdmin { Action { _ =>
-    Ok("")
+    val fsi = FileSystemInterface.get.attachment
+    fsi.removeFile(StringId(id), file) match {
+      case Failure(e) =>
+        logger.error("when deleting file of attachment", e)
+        InternalServerError(e.getMessage)
+      case Success(removed) =>
+        Ok(removed.name)
+    }
   }}
 
   def attachmentList(id: String) = WhenAdmin { Action { _ =>
-    Ok("")
+    val fsi = FileSystemInterface.get.attachment
+    fsi.listFiles(StringId(id)) match {
+      case Failure(e) =>
+        logger.error("when listing attachment", e)
+        InternalServerError(e.getMessage)
+      case Success(files) =>
+        attachmentListToStatus(files)
+    }
   }}
+
+  private def attachmentListToStatus(fes: Seq[FileEntry]): Result = {
+    val map = fes.map{fe => Map(
+      "name" -> fe.name,
+      "uuid" -> fe.name
+    )}
+    Ok(Json.toJson(map))
+  }
 
 
 }

@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-text" % "1.6",
   "org.apache.commons" % "commons-compress" % "1.18",
   "commons-io" % "commons-io" % "2.6",
-  "org.typelevel" %% "cats-core" % "1.4.0",
+  "org.apache.commons" % "commons-vfs2" % "2.2",
   "org.im4java" % "im4java" % "1.4.0"
 )
 
@@ -31,7 +31,14 @@ libraryDependencies ++= Seq(
   "org.xerial" % "sqlite-jdbc" % "3.25.2",
   "com.typesafe.play" %% "play-slick" % "3.0.3",
   "com.typesafe.play" %% "play-slick-evolutions" % "3.0.3",
-  "org.jasypt" % "jasypt" % "1.9.2"
+  "org.jasypt" % "jasypt" % "1.9.2",
+  "net.lingala.zip4j" % "zip4j" % "1.3.2"
+)
+
+// Language
+libraryDependencies ++= Seq(
+  "org.typelevel" %% "cats-core" % "1.4.0",
+  "com.jsuereth" %% "scala-arm" % "2.0"
 )
 
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test

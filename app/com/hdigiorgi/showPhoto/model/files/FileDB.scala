@@ -215,16 +215,6 @@ class ImageFileDB()(implicit private val cfg: Configuration){
   protected val filesRoot: String = cfg.get[String]("database.filesLocation")
 }
 
-class AttachmentFileDB()(implicit private val cfg: Configuration) {
-
-  private def getContainerRoot(elementId: StringId): File = {
-    Paths.get(filesRoot, elementId.value, classification).toFile
-  }
-
-  protected val classification: String = "attachments"
-  protected val filesRoot: String = cfg.get[String]("database.filesLocation")
-}
-
 class FileSystemInterface()(implicit ofg: Configuration) {
   val attachment = new AttachmentFileDB()
   val image = new ImageFileDB()
