@@ -20,9 +20,7 @@ libraryDependencies ++= Seq(
 // Commons
 libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-text" % "1.6",
-  "org.apache.commons" % "commons-compress" % "1.18",
   "commons-io" % "commons-io" % "2.6",
-  "org.apache.commons" % "commons-vfs2" % "2.2",
   "org.im4java" % "im4java" % "1.4.0"
 )
 
