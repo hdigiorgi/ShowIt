@@ -97,6 +97,8 @@
 
     <div id="form-container" class="container">
 
+        <h2>Edición de publicación</h2>
+
         @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") { }
         @form(routes.AdminPostController.imageList(post.id.value), 'id -> "imageListForm") { }
         @form(CSRF(routes.AdminPostController.attachmentProcess(post.id.value)), 'id -> "attachmentProcessForm") { }

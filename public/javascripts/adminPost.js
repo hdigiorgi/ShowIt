@@ -20,7 +20,7 @@ $(() => {
         }
         if(uploadsLoaded>=2) {
             formContainer.velocity(showAnimation)
-            //loadingContainer.velocity(hideAnimation)
+            loadingContainer.velocity(hideAnimation)
         }
     }
   
@@ -54,8 +54,9 @@ $(() => {
         element: document.getElementById("contentTextArea"),
         spellChecker: false,
         toolbar: ["bold", "italic", "quote", "link", "horizontal-rule","|", 
-                  "heading-smaller", "heading-bigger","unordered-list", "ordered-list", "code", "|", 
+                  "heading","unordered-list", "ordered-list", "code", "|", 
                   "preview", "side-by-side", "fullscreen"],
+        status: false,
         indentWithTabs: false
     });
 

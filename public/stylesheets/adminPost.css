@@ -161,6 +161,8 @@
 
 #form-container {
     opacity: 0;
+    margin-bottom: 4em;
+    margin-top: 1em;
 }
 
 #form-loading {
