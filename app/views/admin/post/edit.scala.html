@@ -89,8 +89,11 @@
         </div>
     </script>
 
+    <div id="form-loading">
+        <i class="fas fa-spinner fa-pulse"></i>
+    </div>
 
-    <div class="container">
+    <div id="form-container">
 
         @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") { }
         @form(routes.AdminPostController.imageList(post.id.value), 'id -> "imageListForm") { }

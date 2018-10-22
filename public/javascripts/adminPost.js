@@ -1,9 +1,28 @@
 $(() => {
 
+    const loadingContainer = $("#form-loading");
+    const formContainer =  $("#form-container");
     const imageProcessUrl = $("#imageProcessForm").attr("action")
     const imageListUrl = $("#imageListForm").attr("action")
     const attachmentProcessUrl = $("#attachmentProcessForm").attr("action")
     const attachmentListUrl = $("#attachmentListForm").attr("action")
+    var uploadsLoaded = 0;
+
+    function onSessionRequestComplete(response, success, request) {
+        uploadsLoaded++;
+        const showAnimation = {
+            properties: {opacity: 1},
+            options: {duration: 1000, delay: 500}
+        }
+        const hideAnimation = {
+            properties: {opacity: 0},
+            options: {duration: 500}
+        }
+        if(uploadsLoaded>=2) {
+            formContainer.velocity(showAnimation)
+            //loadingContainer.velocity(hideAnimation)
+        }
+    }
   
     qq.supportedFeatures.imagePreviews = false;
     function createUploader(id, processUrl, listUrl) {
@@ -22,6 +41,9 @@ $(() => {
             },
             session: {
                 endpoint: listUrl
+            },
+            callbacks: {
+                onSessionRequestComplete: onSessionRequestComplete
             }
         })
     }

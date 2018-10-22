@@ -159,3 +159,13 @@
     background-color: #011f0e;
 }
 
+#form-container {
+    opacity: 0;
+}
+
+#form-loading {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    font-size: 3em;
+}
