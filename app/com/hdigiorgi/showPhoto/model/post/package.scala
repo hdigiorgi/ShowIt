@@ -17,7 +17,7 @@ object PublicationStatus {
   val Unpublished = PublicationStatus("UNPUBLISHED")
 }
 
-case class SafeHtml(value: String)
+case class SafeHtml private (value: String)
 object SafeHtml {
 
   def fromUnsafeHtml(unsafe: String): SafeHtml = {
@@ -34,6 +34,8 @@ object SafeHtml {
     fromUnsafeHtml(unsafeHtml)
   }
 
+  def fromAlreadySafeHtml(safeHtml: String): SafeHtml = SafeHtml(safeHtml)
+
   val empty = SafeHtml("")
 }
 
@@ -42,21 +44,77 @@ object Title {
   val empty = Title("")
 }
 
-case class Post(id: StringId,
-                slug: Slug,
-                contentRendered: SafeHtml,
-                title: Title,
-                creationTime: Instant,
-                modificationTime: Instant,
-                status: PublicationStatus,
-                contentRawLater: Later[String]) {
-  def contentRaw: String = contentRawLater.value
+class Post private (_inId: Option[StringId] = None,
+                    _inTitle: Option[Title] = None,
+                    _inSlug: Option[Slug] = None,
+                    _inCreationTime: Option[Instant] = None,
+                    _inPublicationStatus: Option[PublicationStatus] = None,
+                    _inRawContent: Option[Later[String]] = None,
+                    _inRenderedContent: Option[SafeHtml] = None) {
+  val id: StringId = _inId.getOrElse(StringId.random)
+
+  private var _title = _inTitle.getOrElse(Title(""))
+  def title: Title = _title
+  def setTitle(title: Title): Post = {
+    _title = title
+    this.setSlug(Slug(title.value))
+  }
+
+  private var _customSlug: Slug = _inSlug.getOrElse(Slug.empty)
+  def slug: Slug = _customSlug
+  def setSlug(slug: Slug): Post = {
+    _customSlug = slug
+    this
+  }
+
+  private var _rawContent = Later(new String())
+  def rawContent: String = _rawContent.value
+  def setRawContent(contentRaw: String): Unit = {
+    _rawContent = Later(contentRaw)
+    _renderedContent = SafeHtml.fromUnsafeMarkdown(_rawContent.value)
+  }
+  def setRawContent(contentRaw: Later[String]): Unit = {
+    _rawContent = contentRaw
+  }
+
+  private var _creationTime = _inCreationTime.getOrElse(Instant.now())
+  def creationTime: Instant = _creationTime
+  def setCreationTime(ct: Instant): Post = {
+    _creationTime = ct
+    this
+  }
+
+  private var _publicationStatus = _inPublicationStatus.getOrElse(PublicationStatus.Unpublished)
+  def publicationStatus: PublicationStatus = _publicationStatus
+  def setPublicationStatus(status : PublicationStatus): Unit = _publicationStatus = status
+
+  private var _renderedContent: SafeHtml = _inRenderedContent.getOrElse(SafeHtml.empty)
+  def renderedContent: SafeHtml = _renderedContent
+
+  override def toString: String = f"Post(${this.id.value},${this.title.value})"
+
+  override def equals(that: Any): Boolean =
+    that match {
+      case that: Post => this.id.equals(that.id) &&
+        this.title.equals(that.title) &&
+        this.slug.equals(that.slug) &&
+        this.creationTime.getEpochSecond == that.creationTime.getEpochSecond &&
+        this.renderedContent.equals(that.renderedContent) &&
+        this.publicationStatus.equals(that.publicationStatus)
+      case _ => false
+    }
+
+  override def hashCode: Int =  this.id.value.hashCode
 }
 
 object Post {
-  def empty(id: StringId = StringId.random): Post = {
-    new Post(id = id, slug = Slug.empty, contentRendered = SafeHtml.empty, title= Title.empty,
-      creationTime = Instant.now(), modificationTime = Instant.now(), status = PublicationStatus.Unpublished,
-      contentRawLater = Later.apply(""))
+
+  def apply(): Post = new Post(_inId = Some(StringId.random))
+  def apply(id: StringId): Post = new Post(_inId = Some(id))
+
+  def apply(id: StringId, title: Title, slug: Slug, creationTime: Instant, rawContent: Later[String],
+            renderedContent: SafeHtml): Post = {
+    new Post(_inId = Some(id), _inTitle = Some(title), _inSlug = Some(slug),
+             _inCreationTime = Some(creationTime), _inRawContent = Some(rawContent))
   }
 }

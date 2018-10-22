@@ -13,6 +13,7 @@ class SQLiteUser(tag: Tag) extends Table[SQLiteUserType.Tuple](tag, "USER") {
   def email = column[String]("EMAIL")
   def password = column[String]("PASSWORD")
   def role = column[Int]("ROLE")
+  def emailIdx = index("email_idx", email, unique = true)
   override def * = (id, email, password, role)
 }
 

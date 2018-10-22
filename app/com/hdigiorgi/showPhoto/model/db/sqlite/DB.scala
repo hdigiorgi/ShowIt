@@ -7,6 +7,7 @@ import com.hdigiorgi.showPhoto.model.ExecutionContext._
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.db.sqlite.license._
 import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLiteMetaPI
+import com.hdigiorgi.showPhoto.model.db.sqlite.post.SQLitePostPI
 import com.hdigiorgi.showPhoto.model.db.sqlite.user.SQLiteUserPI
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
@@ -26,11 +27,12 @@ object DB extends DBInterface { self =>
   private var _license_db: SQLiteLicensePI = _
   private var _meta_db: SQLiteMetaPI = _
   private var _user_db: SQLiteUserPI = _
+  private var _post_db: SQLitePostPI = _
   private var _initialized = false
 
   override def license: LicensePI = _license_db
 
-  override def post: PostPI = ???
+  override def post: PostPI = _post_db
 
   override def site: SitePI = ???
 
@@ -64,6 +66,7 @@ object DB extends DBInterface { self =>
     _license_db = null
     _meta_db = null
     _user_db = null
+    _post_db = null
     _initialized = false
   }
 
@@ -76,6 +79,7 @@ object DB extends DBInterface { self =>
       _license_db = new SQLiteLicensePI().init()
       _meta_db = new SQLiteMetaPI().init()
       _user_db = new SQLiteUserPI().init()
+      _post_db = new SQLitePostPI().init()
     }
   }
 

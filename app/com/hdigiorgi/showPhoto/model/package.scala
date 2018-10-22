@@ -209,13 +209,15 @@ trait PersistentInterface[A, B]{
   def delete(key: B): Unit
 }
 trait LicensePI extends PersistentInterface[License, Grade]
-trait PostPI extends PersistentInterface[Post, String]
 trait SitePI extends PersistentInterface[Site, String]
 trait PurchasePI extends PersistentInterface[Purchase, String]
 trait FileMetaPI extends PersistentInterface[FileMeta, String]
 trait MetaPI extends PersistentInterface[Meta, String]
 trait UserPI extends PersistentInterface[User, StringId] {
   def readByEmail(email: String): Option[User]
+}
+trait PostPI extends PersistentInterface[Post, StringId] {
+  def readBySlug(slug: Slug): Option[Post]
 }
 
 trait DBInterface {
@@ -243,7 +245,7 @@ trait DBInterface {
   }
 }
 object DBInterface {
-  def DB: DBInterface = db.sqlite.DB
+  private def DB: DBInterface = db.sqlite.DB
 
   def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
     DB.init(configuration)
@@ -256,5 +258,12 @@ object DBInterface {
     DB.init(configuration)
     op(DB)
   }
+
+  def getDB()(implicit configuration: Configuration): DBInterface = {
+    DB.init(configuration)
+    this.DB
+  }
+
+  def post(implicit configuration: Configuration) = getDB.post
 
 }

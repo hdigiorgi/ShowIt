@@ -44,7 +44,7 @@ object Slug {
     fromString(value)
   }
 
-  def ignoreAndPutRaw(value: String): Unit = new Slug(value)
+  def noSlugify(value: String): Slug = new Slug(value)
 
   def fromString(s: String, customReplacements: Map[String, String] = Map()) = {
     val replacements = customReplacements + ("-" -> "_")

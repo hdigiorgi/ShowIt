@@ -29,7 +29,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
 
   def edit(id: String) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
     views.html.helper.form
-    val testPost = Post.empty(StringId(id))
+    val testPost = Post()
     val imagesIds = FileSystemInterface.get.image.getStoredImageIds(StringId(id))
     Ok(views.html.admin.post.edit(testPost, imagesIds))
       .withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
