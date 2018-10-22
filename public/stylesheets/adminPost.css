@@ -134,9 +134,28 @@
     display: none;
 }
 #attachment-uploader .qq-gallery .qq-thumbnail-wrapper {
-    height: 2.25em;
+    height: 2em;
 }
 
-#attachment-uploader .qq-gallery .qq-upload-cancel {
-    
+#attachment-uploader .qq-gallery .qq-thumbnail-wrapper {
+    background: #22332b;
 }
+
+#attachment-uploader .qq-gallery .cancel-button i {
+    padding-top: 3px;
+}
+
+#attachment-uploader .qq-gallery .qq-upload-spinner-selector {
+    top: 0.1em;
+    display: block;
+    font-size: 1.5em;
+}
+
+#attachment-uploader .progress {
+    background: #457577
+}
+
+#attachment-uploader .progress-bar {
+    background-color: #011f0e;
+}
+
