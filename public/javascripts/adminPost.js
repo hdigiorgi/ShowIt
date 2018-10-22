@@ -50,5 +50,13 @@ $(() => {
 
     createUploader("image-uploader", imageProcessUrl, imageListUrl)
     createUploader("attachment-uploader", attachmentProcessUrl, attachmentListUrl)
+    var mde = new SimpleMDE({ 
+        element: document.getElementById("contentTextArea"),
+        spellChecker: false,
+        toolbar: ["bold", "italic", "quote", "link", "horizontal-rule","|", 
+                  "heading-smaller", "heading-bigger","unordered-list", "ordered-list", "code", "|", 
+                  "preview", "side-by-side", "fullscreen"],
+        indentWithTabs: false
+    });
 
 })

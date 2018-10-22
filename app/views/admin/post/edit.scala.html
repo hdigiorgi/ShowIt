@@ -5,8 +5,10 @@
 
 @main("EDIT") {
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
     <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("fine-uploader/fine-uploader-gallery.css")">
     <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/adminPost.css")">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="@routes.Assets.versioned("fine-uploader/fine-uploader.min.js")" type="text/javascript"></script>
 
     <script type="text/template" id="qq-template">
@@ -93,7 +95,7 @@
         <i class="fas fa-spinner fa-pulse"></i>
     </div>
 
-    <div id="form-container">
+    <div id="form-container" class="container">
 
         @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") { }
         @form(routes.AdminPostController.imageList(post.id.value), 'id -> "imageListForm") { }
@@ -120,7 +122,7 @@
 
             <div class="form-group">
                 <label>Descripción de la publicación</label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+                <textarea class="form-control" id="contentTextArea" rows="5"></textarea>
             </div>
             
             <button type="submit" class="btn btn-primary float-right">
