@@ -3,8 +3,11 @@ package com.hdigiorgi.showPhoto.model
 import play.api.test._
 import org.scalatest._
 import Matchers._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
-class SlugTest extends FunSuite with Matchers  {
+@RunWith(classOf[JUnitRunner])
+class SlugTest extends FunSuite with Matchers {
 
   test("normal slug") {
     Slug("").value shouldBe ""
@@ -24,7 +27,7 @@ class SlugTest extends FunSuite with Matchers  {
     FileSlug("A-B c_d s.jpg").value shouldBe "a_b_c_d_s.jpg"
     FileSlug("data.zip").withPrefix("prefix").value shouldBe "prefix_data.zip"
     FileSlug("data.zip").withPrefix("12").value shouldBe "12_data.zip"
-    FileSlug("basename.of.data").baseName shouldBe "basename"
+    FileSlug("basename.of.data").baseName shouldBe "basename.of"
   }
 
 }

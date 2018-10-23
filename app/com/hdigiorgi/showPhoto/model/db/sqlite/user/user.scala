@@ -21,11 +21,12 @@ class SQLiteUserPI() extends UserPI { self =>
   private val table = TableQuery[SQLiteUser]
 
 
-  override def insert(element: User): Unit = ???
+  override def insert(element: User): Unit = DB.runSyncThrowIfNothingAffected{
+    table += toTuple(element)
+  }
 
-  override def update(element: User): Unit = {
-    val insertOrUpdate = table.insertOrUpdate(toTuple(element))
-    DB.runSync(insertOrUpdate)
+  override def update(element: User): Unit = DB.runSyncThrowIfNothingAffected {
+    table.update(toTuple(element))
   }
 
   override def read(key: StringId): Option[User] = {
@@ -42,7 +43,7 @@ class SQLiteUserPI() extends UserPI { self =>
 
   override def delete(key: StringId): Unit = {
     val delete = table.filter(_.id === key.value).delete
-    DB.runSync(delete)
+    DB.runSyncThrowIfNothingAffected(delete)
   }
 
   def init(): SQLiteUserPI = {
@@ -61,11 +62,11 @@ class SQLiteUserPI() extends UserPI { self =>
 
   private def ensureUserExist(): Unit = {
     User.defaultUsers.map{ defaultUser =>
-      (read(defaultUser.id), defaultUser)
+      (readByEmail(defaultUser.email.value), defaultUser)
     } foreach {
       case (Some(_),_) => ()
       case (None, defaultUser) =>
-        update(defaultUser)
+        insert(defaultUser)
     }
   }
 

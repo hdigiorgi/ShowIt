@@ -39,4 +39,10 @@ libraryDependencies ++= Seq(
   "com.jsuereth" %% "scala-arm" % "2.0"
 )
 
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+// Test
+libraryDependencies ++= Seq(
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.scalactic" %% "scalactic" % "3.0.5",
+  "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+)
+

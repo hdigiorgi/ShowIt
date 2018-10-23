@@ -3,10 +3,13 @@ import org.scalatestplus.play.guice._
 import play.api.test._
 import org.scalatest._
 import Matchers._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class ModelTest extends FunSuite
                 with GuiceOneAppPerTest with Injecting
-                with test.UseTestConfig with Matchers {
+                with test.UseTestConfig with Matchers{
 
   test("Smoke license persistence") {
     DBInterface.wrapCleanDB { db =>
