@@ -16,6 +16,8 @@ object SQLitePostType {
   type CreationTime = Long; val CreationTimeColumnName = "CREATION_TIME"
   type RawContent = String; val RawContentColumnName = "RAW_CONTENT"
   type RenderedContent = String; val RenderedContentName = "RENDERED_CONTENT"
+
+  type TupleWithoutId = (Title, Slug, CreationTime, RawContent, RenderedContent)
   type Tuple = (Id, Title, Slug, CreationTime, RawContent, RenderedContent)
   type MiniTuple = (Id, Title, Slug, CreationTime, RenderedContent)
 }
@@ -34,10 +36,17 @@ class SQLitePost(tag: Tag) extends Table[SQLitePostType.Tuple](tag, SQLitePostTy
 class SQLitePostPI() extends PostPI {
   private val table = TableQuery[SQLitePost]
 
+  override def insert(element: Post): Unit = {
+    val insert = table += toTuple(element)
+    DB.runSyncThrowIfNothingAffected(insert)
+  }
+
   override def update(element: Post): Unit = {
-    val tuple = toTuple(element)
-    val insertOrUpdate = table.insertOrUpdate(tuple)
-    DB.runSync(insertOrUpdate)
+    val q = for {
+      post <- table if post.id === element.id.value
+    } yield post
+    val update = q.update(toTuple(element))
+    DB.runSyncThrowIfNothingAffected(update)
   }
 
   override def read(key: StringId): Option[Post] = read(_.id === key.value)
@@ -59,6 +68,13 @@ class SQLitePostPI() extends PostPI {
   private def readRawContent(key: String): Option[String] = {
     val q = table.filter(_.id === key).map(_.rawContent).result
     DB.runSync(q).headOption
+  }
+
+  private def toTupleWithoutId(post: Post): SQLitePostType.TupleWithoutId = {
+    toTuple(post) match {
+      case (_, title, slug, creationTime, rawContent, renderedContent) =>
+        (title, slug, creationTime, rawContent, renderedContent)
+    }
   }
 
   private def toTuple(post: Post): SQLitePostType.Tuple = {

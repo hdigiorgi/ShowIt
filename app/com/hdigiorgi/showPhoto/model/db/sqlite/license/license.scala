@@ -13,6 +13,9 @@ class SQLiteLicense(tag: Tag) extends Table[(Int, Float, Boolean)](tag, "LICENSE
 class SQLiteLicensePI() extends LicensePI { self =>
   val tableQuery = TableQuery[SQLiteLicense]
 
+
+  override def insert(element: License): Unit = ???
+
   override def update(element: License): Unit = {
     val insertOrUpdate = tableQuery.insertOrUpdate(toTuple(element))
     DB.runSync(insertOrUpdate)

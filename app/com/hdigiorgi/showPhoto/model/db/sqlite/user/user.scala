@@ -20,6 +20,9 @@ class SQLiteUser(tag: Tag) extends Table[SQLiteUserType.Tuple](tag, "USER") {
 class SQLiteUserPI() extends UserPI { self =>
   private val table = TableQuery[SQLiteUser]
 
+
+  override def insert(element: User): Unit = ???
+
   override def update(element: User): Unit = {
     val insertOrUpdate = table.insertOrUpdate(toTuple(element))
     DB.runSync(insertOrUpdate)

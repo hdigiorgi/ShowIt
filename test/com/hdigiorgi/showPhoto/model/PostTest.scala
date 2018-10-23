@@ -4,6 +4,7 @@ import play.api.test._
 import org.scalatest._
 import Matchers._
 import com.hdigiorgi.showPhoto.model.post.{Post, Title}
+import org.sqlite.SQLiteException
 
 class PostTest extends FunSuite
                with GuiceOneAppPerTest with Injecting
@@ -22,7 +23,7 @@ class PostTest extends FunSuite
       val db = dbi.post
       val post = Post().setTitle(Title("some title"))
       db.read(post.id) shouldBe empty
-      db.update(post)
+      db.insert(post)
       val readPost = db.read(post.id)
       readPost should not be empty
       readPost.get shouldEqual post
@@ -37,8 +38,8 @@ class PostTest extends FunSuite
       val db = dbi.post
       val post1 = Post().setTitle(Title("test title"))
       val post2 = Post().setTitle(Title("other title"))
-      db.update(post1)
-      db.update(post2)
+      db.insert(post1)
+      db.insert(post2)
       val rPost1 = db.readBySlug(Slug.noSlugify("test_title"))
       val rPost2 = db.readBySlug(Slug.noSlugify("other_title"))
       rPost1.get shouldEqual post1
@@ -48,17 +49,13 @@ class PostTest extends FunSuite
 
   test("same slug should fail") {
     DBInterface.wrapCleanDB{ dbi =>
-      val db = dbi.post
+      val db = DBInterface.post
       val post1 = Post(StringId("post1")).setTitle(Title("title"))
-      db.update(post1)
+      db.insert(post1)
 
       val post2 = Post(StringId("post2")).setTitle(Title("title"))
-      an [Exception] should be thrownBy db.update(post2)
-
+      an [SQLiteException] should be thrownBy db.insert(post2)
     }
   }
-
-
-
 
 }

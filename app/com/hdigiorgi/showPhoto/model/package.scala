@@ -204,6 +204,7 @@ case class Meta(entry: String, value: String)
   * Persistence
   */
 trait PersistentInterface[A, B]{
+  def insert(element: A): Unit
   def update(element: A): Unit
   def read(key: B): Option[A]
   def delete(key: B): Unit
@@ -231,7 +232,7 @@ trait DBInterface {
   def configuration: Configuration
   def destroy(): Unit
 
-  protected def wrapDestroy(destroy: => Unit): Unit = {
+  protected def wrapDestroy[A](destroy: => A): A = {
     val conf = configuration match {
       case null => None
       case _ => configuration.getOptional[String]("unsecure.allow_db_destroy")
@@ -248,10 +249,8 @@ object DBInterface {
   private def DB: DBInterface = db.sqlite.DB
 
   def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
-    DB.init(configuration)
-    val r = op(DB)
-    DB.destroy()
-    r
+    DB.init(configuration); DB.destroy(); DB.init(configuration)
+    op(DB)
   }
 
   def wrap[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
@@ -264,6 +263,6 @@ object DBInterface {
     this.DB
   }
 
-  def post(implicit configuration: Configuration) = getDB.post
+  def post(implicit configuration: Configuration): PostPI = getDB.post
 
 }

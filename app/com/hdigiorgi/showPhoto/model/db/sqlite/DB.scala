@@ -9,6 +9,7 @@ import com.hdigiorgi.showPhoto.model.db.sqlite.license._
 import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLiteMetaPI
 import com.hdigiorgi.showPhoto.model.db.sqlite.post.SQLitePostPI
 import com.hdigiorgi.showPhoto.model.db.sqlite.user.SQLiteUserPI
+import org.sqlite.{SQLiteErrorCode, SQLiteException}
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
 import slick.jdbc.SQLiteProfile
@@ -124,6 +125,12 @@ object DB extends DBInterface { self =>
   def runSync[R](a: DBIOAction[R, NoStream, Nothing], duration: Duration = Duration.Inf ): R = {
     val run = db.run(a)
     Await.result(run, duration)
+  }
+
+  def runSyncThrowIfNothingAffected(a: DBIOAction[Int, NoStream, Nothing], duration: Duration = Duration.Inf ): Int = {
+    val r: Int = runSync(a, duration)
+    if(r <= 0) throw new SQLiteException("Query didn't change anything", SQLiteErrorCode.getErrorCode(-1))
+    r
   }
 
   def run[R](a: DBIOAction[R, NoStream, Nothing] ): Future[R] = db.run(a)

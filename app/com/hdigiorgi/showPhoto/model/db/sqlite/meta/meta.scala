@@ -17,6 +17,9 @@ class SQLiteMeta(tag: Tag) extends Table[SQLiteMetaType.Tuple](tag, "META") {
 class SQLiteMetaPI() extends MetaPI {self =>
   val table = TableQuery[SQLiteMeta]
 
+
+  override def insert(element: Meta): Unit = ???
+
   override def update(element: Meta): Unit = {
     val insertOrUpdate = table.insertOrUpdate(toTuple(element))
     DB.runSync(insertOrUpdate)
