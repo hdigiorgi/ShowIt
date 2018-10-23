@@ -5,7 +5,7 @@ import org.scalatest._
 import Matchers._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.hdigiorgi.showPhoto.model.post.{Post, Title}
+import com.hdigiorgi.showPhoto.model.post.{Post, Published, Title, Unpublished}
 import org.sqlite.SQLiteException
 
 
@@ -15,33 +15,43 @@ class PostTest extends FunSuite
                with test.UseTestConfig with Matchers {
 
   test("interface") {
-    val post = Post(StringId("id1"))
-    val samePost = Post(StringId("id1")).setCreationTime(post.creationTime)
+    val post = Post("id1")
+    val samePost = post.withCreationTime(post.creationTime)
     post shouldEqual samePost
-    post.setTitle(Title("hello title"))
-    post.slug.value shouldEqual "hello_title"
+    val titled = post.withTitle(Title("hello title"))
+    titled.slug.value shouldEqual "hello_title"
+  }
+
+  test("markdown support") {
+    val post = Post("id").withRawContent("# title")
+    post.rawContent shouldEqual "# title"
+    post.renderedContent.value shouldEqual "<h1>title</h1>"
+    wrapCleanPostDB{db =>
+      db.insert(post)
+      val read = db.read("id").get
+      read.rawContent shouldEqual post.rawContent
+      read.renderedContent shouldEqual post.renderedContent
+    }
   }
 
   test("basic crud") {
-    DBInterface.wrapCleanDB{ dbi =>
-      val db = dbi.post
-      val post = Post().setTitle(Title("some title"))
+    wrapCleanPostDB{ db =>
+      val post = Post().withTitle(Title("some title"))
       db.read(post.id) shouldBe empty
       db.insert(post)
       val readPost = db.read(post.id)
       readPost should not be empty
       readPost.get shouldEqual post
-      post.setTitle(Title("new title 2"))
-      db.update(post)
-      db.read(post.id).get shouldEqual post
+      val postNewTitle = post.withTitle(Title("new title 2"))
+      db.update(postNewTitle)
+      db.read(post.id).get shouldEqual postNewTitle
     }
   }
 
   test("read slug") {
-    DBInterface.wrapCleanDB{ dbi =>
-      val db = dbi.post
-      val post1 = Post().setTitle(Title("test title"))
-      val post2 = Post().setTitle(Title("other title"))
+    wrapCleanPostDB{ db =>
+      val post1 = Post().withTitle(Title("test title"))
+      val post2 = Post().withTitle(Title("other title"))
       db.insert(post1)
       db.insert(post2)
       val rPost1 = db.readBySlug(Slug.noSlugify("test_title"))
@@ -52,13 +62,26 @@ class PostTest extends FunSuite
   }
 
   test("same slug should fail") {
-    DBInterface.wrapCleanDB{ dbi =>
-      val db = DBInterface.post
-      val post1 = Post(StringId("post1")).setTitle(Title("title"))
+    wrapCleanPostDB{ db =>
+      val post1 = Post(StringId("post1")).withTitle(Title("title"))
       db.insert(post1)
 
-      val post2 = Post(StringId("post2")).setTitle(Title("title"))
+      val post2 = Post(StringId("post2")).withTitle(Title("title"))
       an [SQLiteException] should be thrownBy db.insert(post2)
+    }
+  }
+
+  test("publication status") {
+    wrapCleanPostDB { db =>
+      val id = StringId("post_publication_status")
+      db.insert(Post(id))
+      val post = db.read(id).get
+      post.publicationStatus shouldBe Unpublished
+      db.update(post.togglePublicationStatus)
+      val read = db.read(id).get
+      post.id shouldEqual read.id
+      post.publicationStatus.toggle shouldBe read.publicationStatus
+      read.publicationStatus shouldBe Published
     }
   }
 

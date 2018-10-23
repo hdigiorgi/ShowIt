@@ -11,7 +11,10 @@ final case class InvalidModelException(private val message: String = "")
 
 
 case class StringId(value: String)
-object StringId { def random: StringId = StringId(UUID.randomUUID().toString) }
+object StringId {
+  def random: StringId = StringId(UUID.randomUUID().toString)
+  implicit def fromString(s: String): StringId = StringId(s)
+}
 case class IntId(value: Int)
 object IntId { def random: IntId = IntId(new java.security.SecureRandom().nextInt()) }
 case class Email(value: String)
@@ -248,15 +251,7 @@ trait DBInterface {
 object DBInterface {
   private def DB: DBInterface = db.sqlite.DB
 
-  def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
-    DB.init(configuration); DB.destroy(); DB.init(configuration)
-    op(DB)
-  }
-
-  def wrap[A](op: DBInterface => A)(implicit configuration: Configuration): A = {
-    DB.init(configuration)
-    op(DB)
-  }
+  def wrap[A](op: DBInterface => A)(implicit configuration: Configuration): A = op(getDB())
 
   def getDB()(implicit configuration: Configuration): DBInterface = {
     DB.init(configuration)
@@ -264,5 +259,4 @@ object DBInterface {
   }
 
   def post(implicit configuration: Configuration): PostPI = getDB.post
-
 }

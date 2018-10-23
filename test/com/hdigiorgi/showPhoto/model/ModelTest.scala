@@ -12,13 +12,13 @@ class ModelTest extends FunSuite
                 with test.UseTestConfig with Matchers{
 
   test("Smoke license persistence") {
-    DBInterface.wrapCleanDB { db =>
+    wrapCleanDB { db =>
       assert( true)
     }
   }
 
   test("crud license") {
-    DBInterface.wrapCleanDB{ db =>
+    wrapCleanDB{ db =>
       val licenses = List (
         License(Grade(111), Free, Enabled),
         License(Grade(222), Price(3), Enabled),
@@ -49,7 +49,7 @@ class ModelTest extends FunSuite
   }
 
   test("crud meta") {
-    DBInterface.wrapCleanDB { db =>
+    wrapCleanDB { db =>
       db.meta.read("A") shouldBe empty
       db.meta.update(Meta("A", "SOMETHING"))
       db.meta.read("A") should contain (Meta("A", "SOMETHING"))
@@ -61,7 +61,7 @@ class ModelTest extends FunSuite
   }
 
   test("account crud") {
-    DBInterface.wrapCleanDB{ db =>
+    wrapCleanDB{ db =>
       val admin = User(StringId.random, Email("a@b.com"), Password("p"), Role.Admin)
       db.user.update(admin)
       db.user.read(admin.id) should contain (admin)

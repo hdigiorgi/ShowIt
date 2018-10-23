@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.Later
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.db.sqlite.DB
-import com.hdigiorgi.showPhoto.model.post.{Post, SafeHtml, Title}
+import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus, SafeHtml, Title}
 import slick.jdbc.SQLiteProfile.api._
 
 object SQLitePostType {
@@ -15,11 +15,12 @@ object SQLitePostType {
   type Slug = String; val SlugColumnName = "SLUG"
   type CreationTime = Long; val CreationTimeColumnName = "CREATION_TIME"
   type RawContent = String; val RawContentColumnName = "RAW_CONTENT"
-  type RenderedContent = String; val RenderedContentName = "RENDERED_CONTENT"
+  type RenderedContent = String; val RenderedContentColumnName = "RENDERED_CONTENT"
+  type PublicationStatus = String; val PublicationStatusColumnName = "PUBLICATION_STATUS"
 
-  type TupleWithoutId = (Title, Slug, CreationTime, RawContent, RenderedContent)
-  type Tuple = (Id, Title, Slug, CreationTime, RawContent, RenderedContent)
-  type MiniTuple = (Id, Title, Slug, CreationTime, RenderedContent)
+  type TupleWithoutId = (Title, Slug, CreationTime, RawContent, RenderedContent, PublicationStatus)
+  type Tuple = (Id, Title, Slug, CreationTime, RawContent, RenderedContent, PublicationStatus)
+  type MiniTuple = (Id, Title, Slug, CreationTime, RenderedContent, PublicationStatus)
 }
 
 class SQLitePost(tag: Tag) extends Table[SQLitePostType.Tuple](tag, SQLitePostType.TableName) {
@@ -28,9 +29,11 @@ class SQLitePost(tag: Tag) extends Table[SQLitePostType.Tuple](tag, SQLitePostTy
   def slug = column[SQLitePostType.Slug](SQLitePostType.SlugColumnName, O.Unique)
   def creationTime = column[SQLitePostType.CreationTime](SQLitePostType.CreationTimeColumnName)
   def rawContent= column[SQLitePostType.RawContent](SQLitePostType.RawContentColumnName)
-  def renderedContent = column[SQLitePostType.RenderedContent](SQLitePostType.RawContentColumnName)
+  def renderedContent = column[SQLitePostType.RenderedContent](SQLitePostType.RenderedContentColumnName)
+  def publicationStatus = column[SQLitePostType.PublicationStatus](SQLitePostType.PublicationStatusColumnName)
 
-  override def * = (id, title, slug, creationTime, rawContent, renderedContent)
+
+  override def * = (id, title, slug, creationTime, rawContent, renderedContent, publicationStatus)
 }
 
 class SQLitePostPI() extends PostPI {
@@ -60,7 +63,7 @@ class SQLitePostPI() extends PostPI {
 
   private def read[A](f: SQLitePost => Rep[Boolean]): Option[Post] = {
     val q = table.filter(f).map(p => {
-      (p.id, p.title, p.slug, p.creationTime, p.renderedContent)
+      (p.id, p.title, p.slug, p.creationTime, p.renderedContent, p.publicationStatus)
     }).result
     DB.runSync(q).headOption.map(fromTuple)
   }
@@ -72,32 +75,31 @@ class SQLitePostPI() extends PostPI {
 
   private def toTupleWithoutId(post: Post): SQLitePostType.TupleWithoutId = {
     toTuple(post) match {
-      case (_, title, slug, creationTime, rawContent, renderedContent) =>
-        (title, slug, creationTime, rawContent, renderedContent)
+      case (_, title, slug, creationTime, rawContent, renderedContent, publicationStatus) =>
+        (title, slug, creationTime, rawContent, renderedContent, publicationStatus)
     }
   }
 
   private def toTuple(post: Post): SQLitePostType.Tuple = {
     (post.id.value, post.title.value, post.slug.value, post.creationTime.getEpochSecond,
-      post.rawContent, post.renderedContent.value)
+      post.rawContent, post.renderedContent.value, post.publicationStatus.name)
   }
 
   private def fromTuple(tuple: SQLitePostType.MiniTuple): Post = tuple match {
-    case(id, title, slug, creationTime, renderedContent) =>
-      fromTuple((id, title, slug, creationTime, null, renderedContent))
+    case(id, title, slug, creationTime, renderedContent, publicationStatus) =>
+      fromTuple((id, title, slug, creationTime, null, renderedContent, publicationStatus))
   }
 
   private def fromTuple(tuple: SQLitePostType.Tuple): Post = tuple match {
-    case(id, title, slug, creationTime, rawContent, renderedContent) =>
+    case(id, title, slug, creationTime, rawContent, renderedContent, publicationStatus) =>
       val laterRawContent = Option(rawContent) match {
         case Some(_) => Later(renderedContent)
-        case None => Later(readRawContent(id).getOrElse(""))
+        case None => Later(readRawContent(id).get)
       }
-      Post(StringId(id),
-        Title(title),Slug(slug),
-        Instant.ofEpochSecond(creationTime),
-        laterRawContent,
-        SafeHtml.fromAlreadySafeHtml(renderedContent))
+      Post(id = StringId(id), title = Title(title), slug = Slug(slug),
+        creationTime = Instant.ofEpochSecond(creationTime), rawContent = laterRawContent,
+        renderedContent = SafeHtml.fromAlreadySafeHtml(renderedContent),
+        publicationStatus = PublicationStatus(publicationStatus))
   }
 
   def init(): SQLitePostPI = {

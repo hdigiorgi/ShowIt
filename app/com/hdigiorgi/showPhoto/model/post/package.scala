@@ -11,11 +11,14 @@ import org.jsoup.safety.Whitelist
 import org.apache.commons.text.StringEscapeUtils
 
 
-case class PublicationStatus(status: String)
-object PublicationStatus {
-  val Published = PublicationStatus("PUBLISHED")
-  val Unpublished = PublicationStatus("UNPUBLISHED")
+case class PublicationStatus(name: String){
+  def toggle: PublicationStatus = this match {
+    case Published => Unpublished
+    case _ => Published
+  }
 }
+object Published extends PublicationStatus("PUBLISHED")
+object Unpublished extends PublicationStatus("UNPUBLISHED")
 
 case class SafeHtml private (value: String)
 object SafeHtml {
@@ -51,42 +54,56 @@ class Post private (_inId: Option[StringId] = None,
                     _inPublicationStatus: Option[PublicationStatus] = None,
                     _inRawContent: Option[Later[String]] = None,
                     _inRenderedContent: Option[SafeHtml] = None) {
+
   val id: StringId = _inId.getOrElse(StringId.random)
 
   private var _title = _inTitle.getOrElse(Title(""))
   def title: Title = _title
-  def setTitle(title: Title): Post = {
-    _title = title
-    this.setSlug(Slug(title.value))
+  def withTitle(title: Title): Post = {
+    val post = new Post(this)
+    post._title = title
+    post._slug = Slug(title.value)
+    post
   }
 
-  private var _customSlug: Slug = _inSlug.getOrElse(Slug.empty)
-  def slug: Slug = _customSlug
-  def setSlug(slug: Slug): Post = {
-    _customSlug = slug
+  private var _slug: Slug = _inSlug.getOrElse(Slug.empty)
+  def slug: Slug = _slug
+  def withSlug(slug: Slug): Post = {
+    val post = new Post(this)
+    post._slug = slug
     this
   }
 
-  private var _rawContent = Later(new String())
+  private var _rawContent = _inRawContent.getOrElse(Later(new String()))
   def rawContent: String = _rawContent.value
-  def setRawContent(contentRaw: String): Unit = {
-    _rawContent = Later(contentRaw)
-    _renderedContent = SafeHtml.fromUnsafeMarkdown(_rawContent.value)
+  def withRawContent(contentRaw: Later[String]): Post = {
+    val post = new Post(this)
+    post._rawContent = contentRaw
+    post
   }
-  def setRawContent(contentRaw: Later[String]): Unit = {
-    _rawContent = contentRaw
+  def withRawContent(rawContent: String): Post = {
+    val post = new Post(this)
+    post._rawContent = Later(rawContent)
+    post._renderedContent = SafeHtml.fromUnsafeMarkdown(rawContent)
+    post
   }
 
   private var _creationTime = _inCreationTime.getOrElse(Instant.now())
   def creationTime: Instant = _creationTime
-  def setCreationTime(ct: Instant): Post = {
-    _creationTime = ct
-    this
+  def withCreationTime(ct: Instant): Post = {
+    val post = new Post(this)
+    post._creationTime = ct
+    post
   }
 
-  private var _publicationStatus = _inPublicationStatus.getOrElse(PublicationStatus.Unpublished)
+  private var _publicationStatus = _inPublicationStatus.getOrElse(Unpublished)
   def publicationStatus: PublicationStatus = _publicationStatus
-  def setPublicationStatus(status : PublicationStatus): Unit = _publicationStatus = status
+  def withPublicationStatus(status : PublicationStatus): Post = {
+    val post = new Post(this)
+    post._publicationStatus = status
+    post
+  }
+  def togglePublicationStatus: Post = withPublicationStatus(_publicationStatus.toggle)
 
   private var _renderedContent: SafeHtml = _inRenderedContent.getOrElse(SafeHtml.empty)
   def renderedContent: SafeHtml = _renderedContent
@@ -105,6 +122,13 @@ class Post private (_inId: Option[StringId] = None,
     }
 
   override def hashCode: Int =  this.id.value.hashCode
+
+  private def this(post: Post) {
+    this(_inId = Some(post.id), _inTitle = Some(post.title), _inSlug = Some(post.slug),
+         _inCreationTime = Some(post.creationTime), _inPublicationStatus = Some(post.publicationStatus),
+         _inRawContent = Some(Later(post.rawContent)), _inRenderedContent = Some(post.renderedContent))
+  }
+
 }
 
 object Post {
@@ -113,8 +137,9 @@ object Post {
   def apply(id: StringId): Post = new Post(_inId = Some(id))
 
   def apply(id: StringId, title: Title, slug: Slug, creationTime: Instant, rawContent: Later[String],
-            renderedContent: SafeHtml): Post = {
-    new Post(_inId = Some(id), _inTitle = Some(title), _inSlug = Some(slug),
-             _inCreationTime = Some(creationTime), _inRawContent = Some(rawContent))
+            renderedContent: SafeHtml, publicationStatus: PublicationStatus): Post = {
+    new Post(_inId = Some(id), _inTitle = Some(title), _inSlug = Some(slug), _inCreationTime = Some(creationTime),
+             _inRenderedContent = Some(renderedContent), _inRawContent = Some(rawContent),
+             _inPublicationStatus = Some(publicationStatus))
   }
 }
