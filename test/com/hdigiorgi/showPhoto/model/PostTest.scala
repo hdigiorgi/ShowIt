@@ -1,4 +1,7 @@
 package com.hdigiorgi.showPhoto.model
+import java.time.Instant
+import java.util.UUID
+
 import org.scalatestplus.play.guice._
 import play.api.test._
 import org.scalatest._
@@ -82,6 +85,24 @@ class PostTest extends FunSuite
       post.id shouldEqual read.id
       post.publicationStatus.toggle shouldBe read.publicationStatus
       read.publicationStatus shouldBe Published
+    }
+  }
+
+
+  test("post fetching order") {
+    val toInsert = Range(10,0).map{ i =>
+      Post(i.toString)
+        .withCreationTime(Instant.ofEpochSecond(i*1000))
+        .withSlug(i.toString)
+    }
+    val insertedPage1 = toInsert.take(5)
+    val insertedPage2 = toInsert.drop(5)
+    wrapCleanPostDB{ db =>
+      toInsert foreach db.insert
+      val readPage1 = db.readPaginated(Page(number=0, size= 5))
+      val readPage2 = db.readPaginated(Page(number=1, size=5))
+      insertedPage1 shouldEqual readPage1
+      insertedPage2 shouldEqual readPage2
     }
   }
 

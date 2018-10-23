@@ -203,6 +203,19 @@ object User {
   */
 case class Meta(entry: String, value: String)
 
+trait Order
+object Ascending extends Order
+object Descending extends Order
+
+case class Page(number: Int, size: Int, order: Order = Descending) {
+  def drop: Int = size * number
+  def take: Int = size
+}
+object Page {
+  val FirstDec: Page = Page(1,0, Descending)
+  val First: Page = FirstDec
+}
+
 /**
   * Persistence
   */
@@ -221,6 +234,7 @@ trait UserPI extends PersistentInterface[User, StringId] {
   def readByEmail(email: String): Option[User]
 }
 trait PostPI extends PersistentInterface[Post, StringId] {
+  def readPaginated(page: Page): Seq[Post]
   def readBySlug(slug: Slug): Option[Post]
 }
 

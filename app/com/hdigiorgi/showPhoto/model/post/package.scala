@@ -71,7 +71,7 @@ class Post private (_inId: Option[StringId] = None,
   def withSlug(slug: Slug): Post = {
     val post = new Post(this)
     post._slug = slug
-    this
+    post
   }
 
   private var _rawContent = _inRawContent.getOrElse(Later(new String()))
@@ -108,7 +108,7 @@ class Post private (_inId: Option[StringId] = None,
   private var _renderedContent: SafeHtml = _inRenderedContent.getOrElse(SafeHtml.empty)
   def renderedContent: SafeHtml = _renderedContent
 
-  override def toString: String = f"Post(${this.id.value},${this.title.value})"
+  override def toString: String = f"Post(${this.id.value},${this.slug.value})"
 
   override def equals(that: Any): Boolean =
     that match {

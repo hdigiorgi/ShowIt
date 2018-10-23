@@ -59,4 +59,5 @@ object Slug {
 
   val empty = Slug("")
 
+  implicit def toSlug(s: String): Slug = Slug(s)
 }
