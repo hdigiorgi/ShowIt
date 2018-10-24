@@ -9,7 +9,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class ModelTest extends FunSuite
                 with GuiceOneAppPerTest with Injecting
-                with test.UseTestConfig with Matchers{
+                with test.TestBase with Matchers{
 
   test("Smoke license persistence") {
     wrapCleanDB { db =>

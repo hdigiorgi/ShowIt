@@ -2,9 +2,7 @@ package com.hdigiorgi.showPhoto.model
 
 import com.github.slugify.Slugify
 import org.apache.commons.io.FilenameUtils
-
 import scala.collection.JavaConverters._
-
 
 case class Slug private(value: String) {
   def isEmpty: Boolean = Slug.empty.value.equals(this.value)

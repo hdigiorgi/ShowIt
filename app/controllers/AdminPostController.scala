@@ -1,8 +1,8 @@
 package controllers
 
-import com.hdigiorgi.showPhoto.model.{FileSlug, StringId}
+import com.hdigiorgi.showPhoto.model.{DBInterface, FileSlug, StringId}
 import com.hdigiorgi.showPhoto.model.files.{FileEntry, FileSystemInterface, ImageFileDB, SmallSize}
-import com.hdigiorgi.showPhoto.model.post.Post
+import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
 import filters.WhenAdmin
 import javax.inject.Inject
 import play.api.{Configuration, Logger}
@@ -24,15 +24,18 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
   def create() = WhenAdmin { Action { implicit request: Request[AnyContent] =>
-    Redirect(routes.AdminPostController.save("some_test_id"))
+    val post = PostManager().firsPostIfUnpublishedCreateNewOtherwise()
+    Redirect(routes.AdminPostController.edit(post.id))
   }}
 
   def edit(id: String) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
-    views.html.helper.form
-    val testPost = Post()
-    val imagesIds = FileSystemInterface.get.image.getStoredImageIds(StringId(id))
-    Ok(views.html.admin.post.edit(testPost, imagesIds))
-      .withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
+    DBInterface().post.read(id) match {
+      case None => NotFound("")
+      case Some(post) =>
+        val imagesIds = FileSystemInterface.get.image.getStoredImageIds(StringId(id))
+        Ok(views.html.admin.post.edit(post, imagesIds))
+          .withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
+    }
   }}
 
   def save(id: String) = WhenAdmin {Action { implicit request: Request[AnyContent] =>

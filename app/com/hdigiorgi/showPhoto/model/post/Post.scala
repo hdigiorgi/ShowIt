@@ -45,6 +45,7 @@ object SafeHtml {
 case class Title(value: String)
 object Title {
   val empty = Title("")
+  implicit def fromString(s: String): Title = Title(s)
 }
 
 class Post private (_inId: Option[StringId] = None,

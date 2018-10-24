@@ -2,7 +2,8 @@ package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
 import java.util.UUID
-import com.hdigiorgi.showPhoto.model.post.Post
+
+import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus}
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
 
@@ -14,6 +15,7 @@ case class StringId(value: String)
 object StringId {
   def random: StringId = StringId(UUID.randomUUID().toString)
   implicit def fromString(s: String): StringId = StringId(s)
+  implicit def toString(s: StringId): String = s.value
 }
 case class IntId(value: Int)
 object IntId { def random: IntId = IntId(new java.security.SecureRandom().nextInt()) }
@@ -266,6 +268,8 @@ object DBInterface {
   private def DB: DBInterface = db.sqlite.DB
 
   def wrap[A](op: DBInterface => A)(implicit configuration: Configuration): A = op(getDB())
+
+  def apply()(implicit configuration: Configuration): DBInterface = getDB()
 
   def getDB()(implicit configuration: Configuration): DBInterface = {
     DB.init(configuration)

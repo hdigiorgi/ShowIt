@@ -2,14 +2,17 @@ package test
 import com.hdigiorgi.showPhoto.model.{DBInterface, PostPI}
 import com.hdigiorgi.showPhoto.model.DBInterface.DB
 import com.typesafe.config.ConfigFactory
-import org.scalatestplus.play.guice.GuiceFakeApplicationFactory
+import org.scalatest.{FunSuite, Matchers}
+import org.scalatestplus.play.guice.{GuiceFakeApplicationFactory, GuiceOneAppPerTest}
 import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.Injecting
 
 import scala.collection.JavaConverters._
 
-trait UseTestConfig extends GuiceFakeApplicationFactory {
-  import com.hdigiorgi.showPhoto.model.StringId._
+trait TestBase extends FunSuite
+               with GuiceOneAppPerTest with Injecting with Matchers
+               with GuiceFakeApplicationFactory {
 
   override def fakeApplication(): Application = {
     val config = ConfigFactory.load("application.test.conf")

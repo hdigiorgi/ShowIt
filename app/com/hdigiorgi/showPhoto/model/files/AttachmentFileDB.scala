@@ -31,10 +31,10 @@ class AttachmentFileDB()(implicit private val cfg: Configuration) {
   }
 
   def listFiles(id: StringId): Try[Seq[FileEntry]] = Try {
-    zip(id).getFileHeaders.asScala.map{ header =>
+    optZip(id).map{_.getFileHeaders.asScala.map{ header =>
       val fileHeader = header.asInstanceOf[FileHeader]
       FileEntry(fileHeader.getFileName, fileHeader.getUncompressedSize)
-    }
+    }}.getOrElse(Seq())
   }
 
   private val compressionParams = {
@@ -57,6 +57,11 @@ class AttachmentFileDB()(implicit private val cfg: Configuration) {
       zipLocation.getParentFile.mkdir()
     }
     new ZipFile(zipLocation)
+  }
+
+  private def optZip(id: StringId): Option[ZipFile] = {
+    val z = zip(id)
+    if(z.getFile.exists()) Some(z) else None
   }
 
   private def getZipLocation(id: StringId): File = {

@@ -1,11 +1,5 @@
 package com.hdigiorgi.showPhoto.model
 import java.time.Instant
-import java.util.UUID
-
-import org.scalatestplus.play.guice._
-import play.api.test._
-import org.scalatest._
-import Matchers._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.hdigiorgi.showPhoto.model.post.{Post, Published, Title, Unpublished}
@@ -13,9 +7,7 @@ import org.sqlite.SQLiteException
 
 
 @RunWith(classOf[JUnitRunner])
-class PostTest extends FunSuite
-               with GuiceOneAppPerTest with Injecting
-               with test.UseTestConfig with Matchers {
+class PostTest extends test.TestBase{
 
   test("interface") {
     val post = Post("id1")
