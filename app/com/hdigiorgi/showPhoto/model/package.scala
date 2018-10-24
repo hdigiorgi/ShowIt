@@ -10,7 +10,15 @@ import play.api.Configuration
 final case class InvalidModelException(private val message: String = "")
   extends Exception(message)
 
+class Message(id: String) {
+  def message()(implicit i18n: play.api.i18n.Messages): String = i18n(id)
+}
 
+case class ErrorMessage(private val id: String) extends Message(id)
+
+/**
+  * ID
+  */
 case class StringId(value: String)
 object StringId {
   def random: StringId = StringId(UUID.randomUUID().toString)

@@ -1,9 +1,11 @@
 package controllers
 
-import com.hdigiorgi.showPhoto.model.{DBInterface, FileSlug, StringId}
+import cats.data.Validated
+import cats.data.Validated.{Invalid, Valid}
+import com.hdigiorgi.showPhoto.model.{DBInterface, ErrorMessage, FileSlug, StringId}
 import com.hdigiorgi.showPhoto.model.files.{FileEntry, FileSystemInterface, ImageFileDB, SmallSize}
 import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
-import filters.WhenAdmin
+import filters.{LanguageFilterSupport, WhenAdmin}
 import javax.inject.Inject
 import play.api.{Configuration, Logger}
 import play.api.libs.json.Json
@@ -12,9 +14,10 @@ import play.filters.headers.SecurityHeadersFilter
 import com.hdigiorgi.showPhoto.model.files.GenericFileDB._
 import org.apache.commons.io.FilenameUtils
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
-class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration) extends AbstractController(cc) {
+class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
+  extends AbstractController(cc) with LanguageFilterSupport {
   private val maxUploadImageSize = 50 * 1024 * 1024 // 50MB
   private val maxUploadAttachmentSize = 1024 * 1024 * 1024 // 1GB
   val logger: Logger = Logger(this.getClass)
@@ -38,8 +41,24 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def save(id: String) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.admin.post.index())
+  def saveTitle(postId: String): WhenAdmin[AnyContent] =
+    saveFromString(postId, "title", PostManager().saveTitle(postId, _))
+
+  def saveContent(postId: String): WhenAdmin[AnyContent] =
+    saveFromString(postId, "content", PostManager().saveContent(postId, _))
+
+  private def saveFromString(postId: String, field: String, savef: String => Validated[ErrorMessage, _]) =
+    WhenAdmin {Action { implicit request: Request[AnyContent] =>
+    Try(request.body.asJson.get \ field) match {
+      case Failure(e) =>
+        logger.error("can't parse request", e)
+        BadRequest(e.getMessage)
+      case Success(content) =>
+        savef(content.as[String]) match {
+          case Invalid(msg) => Conflict(msg.message)
+          case Valid(_) => Ok("")
+        }
+    }
   }}
 
   def imageProcess(id: String) = WhenAdmin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>

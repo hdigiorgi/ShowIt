@@ -1,9 +1,12 @@
 package com.hdigiorgi.showPhoto.model.post
 
-import com.hdigiorgi.showPhoto.model.{Slug, StringId}
+import com.hdigiorgi.showPhoto.model._
 import java.time.Instant
 
+import cats.implicits._
 import cats.Later
+import cats.data.Validated
+import cats.data.Validated.{Invalid, Valid}
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.jsoup.Jsoup
@@ -42,10 +45,36 @@ object SafeHtml {
   val empty = SafeHtml("")
 }
 
-case class Title(value: String)
+case class Title private (value: String) {
+  import Title._
+
+  def validate(postId: StringId, db: PostPI): Validated[ErrorMessage, Title] = {
+    val r = for {
+      _ <- validateLength()
+      r <- validateExistingSlug(postId, db)
+    } yield r
+    r.toValidated
+  }
+
+  private def validateExistingSlug(postId: StringId, db: PostPI): Either[ErrorMessage, Title] = {
+    val read = db.readBySlug(Slug(this.value))
+    if (read.exists(_.id != postId)) LeadAlreadyExistingSlug else Right(this)
+  }
+
+  private def validateLength(): Either[ErrorMessage, Title] = {
+    if(value.length<4) return ToShort
+    if(value.length>100) return ToLong
+    Right(this)
+  }
+}
+
 object Title {
   val empty = Title("")
   implicit def fromString(s: String): Title = Title(s)
+
+  private val ToShort = Left(ErrorMessage("title.validation.toShort"))
+  private val ToLong = Left(ErrorMessage("title.validation.toLong"))
+  private val LeadAlreadyExistingSlug = Left(ErrorMessage("title.validation.existingSlug"))
 }
 
 class Post private (_inId: Option[StringId] = None,

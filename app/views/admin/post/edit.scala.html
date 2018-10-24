@@ -105,8 +105,8 @@
         @form(routes.AdminPostController.attachmentList(post.id.value), 'id -> "attachmentListForm") { }
         
 
-        @form(routes.AdminPostController.save(post.id.value)) {
-            @CSRF.formField
+        <div>
+
             <div class="form-group">
                 <label>Título</label>
                 <input type="text" class="form-control form-control-lg" id="exampleInputEmail1" placeholder="Escribi el titulo">
@@ -147,7 +147,7 @@
                 </div>
               </div>
 
-        } @* end form *@
+        </div>  @* end form *@
 
     </div>
 
