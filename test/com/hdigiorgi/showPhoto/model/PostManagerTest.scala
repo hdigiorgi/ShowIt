@@ -41,7 +41,14 @@ class PostManagerTest extends TestBase {
   }
 
   test("update content") {
-
+    wrapPostManager{ pm =>
+      val post = pm.firsPostIfUnpublishedCreateNewOtherwise()
+      pm.saveTitle(post.id, "some exiting title")
+      pm.saveContent(post.id, "awesome content")
+      pm.publish(post.id) shouldBe PostManager.ErrorMessages.NoImages
+      RandomImage.genAndSave(pm.imageDb, post.id)
+      pm.publish(post.id).isRight shouldBe true
+    }
   }
 
 }
