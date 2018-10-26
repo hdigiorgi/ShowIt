@@ -1,13 +1,11 @@
 package com.hdigiorgi.showPhoto.model
 import java.time.Instant
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+
+import com.hdigiorgi.showPhoto.UnitTestBase
 import com.hdigiorgi.showPhoto.model.post.{Post, Published, Title, Unpublished}
 import org.sqlite.SQLiteException
 
-
-@RunWith(classOf[JUnitRunner])
-class PostTest extends test.TestBase{
+class PostUnitTest extends UnitTestBase{
 
   test("interface") {
     val post = Post("id1")

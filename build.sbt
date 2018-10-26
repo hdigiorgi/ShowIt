@@ -44,6 +44,9 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.scalactic" %% "scalactic" % "3.0.5",
   "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-  "com.github.javafaker" % "javafaker" % "0.16"
+  "com.github.javafaker" % "javafaker" % "0.16",
+  "org.scalawebtest" %% "scalawebtest-core" % "2.0.1" % "test",
+  "org.seleniumhq.selenium" % "selenium-java" % "3.6.0" % "test",
+  "org.seleniumhq.selenium" % "htmlunit-driver" % "2.27" % "test"
 )
 

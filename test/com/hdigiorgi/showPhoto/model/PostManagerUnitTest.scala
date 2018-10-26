@@ -1,13 +1,10 @@
 package com.hdigiorgi.showPhoto.model
 
-import java.time.{Duration, Instant}
-
-import cats.data.Validated.{Invalid, Valid}
+import com.hdigiorgi.showPhoto.UnitTestBase
 import com.hdigiorgi.showPhoto.model.files.RandomImage
 import com.hdigiorgi.showPhoto.model.post._
-import test.TestBase
 
-class PostManagerTest extends TestBase {
+class PostManagerUnitTest extends UnitTestBase {
   test("first post if unpublished") {
     wrapCleanDB{ db =>
       val pm = PostManager(db)

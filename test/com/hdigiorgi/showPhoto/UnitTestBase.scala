@@ -1,4 +1,4 @@
-package test
+package com.hdigiorgi.showPhoto
 import java.io.File
 
 import com.hdigiorgi.showPhoto.model.{DBInterface, PostPI}
@@ -9,15 +9,17 @@ import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
 import org.scalatest.{FunSuite, Matchers, PrivateMethodTester}
 import org.scalatestplus.play.guice.{GuiceFakeApplicationFactory, GuiceOneAppPerTest}
+import org.scalawebtest.core.IntegrationFunSpec
 import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.ControllerComponents
 import play.api.test.Injecting
 
 import scala.collection.JavaConverters._
 
-trait TestBase extends FunSuite
+trait UnitTestBase extends FunSuite
                with GuiceOneAppPerTest with Injecting with Matchers
-               with GuiceFakeApplicationFactory with PrivateMethodTester{
+               with GuiceFakeApplicationFactory with PrivateMethodTester {
 
   override def fakeApplication(): Application = {
     val config = ConfigFactory.load("application.test.conf")
@@ -29,6 +31,8 @@ trait TestBase extends FunSuite
 
   private val allowDatabaseDeletion = "unsecure.allow_db_destroy" -> "allow"
   protected implicit val configuration: Configuration = fakeApplication().configuration
+  protected implicit val controllerComponents: ControllerComponents =
+    fakeApplication().injector.instanceOf(classOf[ControllerComponents])
 
   protected def deleteFiles()(implicit configuration: Configuration): Unit = {
     val location1 = new File(new AttachmentFileDB().location)

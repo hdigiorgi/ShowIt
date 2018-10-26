@@ -1,15 +1,16 @@
 package com.hdigiorgi.showPhoto.model
+
+import com.hdigiorgi.showPhoto.UnitTestBase
 import org.scalatestplus.play.guice._
 import play.api.test._
 import org.scalatest._
-import Matchers._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ModelTest extends FunSuite
+class ModelUnitTest extends FunSuite
                 with GuiceOneAppPerTest with Injecting
-                with test.TestBase with Matchers{
+                with UnitTestBase with Matchers{
 
   test("Smoke license persistence") {
     wrapCleanDB { db =>
