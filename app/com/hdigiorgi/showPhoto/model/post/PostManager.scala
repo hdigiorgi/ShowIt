@@ -4,9 +4,9 @@ import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB}
 import com.hdigiorgi.showPhoto.model._
 import play.api.Configuration
 
-class PostManager(private val db: PostPI,
-                  private val imageDb: ImageFileDB,
-                  private val attachmentDb: AttachmentFileDB) {
+class PostManager(val db: PostPI,
+                  val imageDb: ImageFileDB,
+                  val attachmentDb: AttachmentFileDB) {
   import PostManager.ErrorMessages
 
   def firstPostIfUnpublished: Option[Post] = {

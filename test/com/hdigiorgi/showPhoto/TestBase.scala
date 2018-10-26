@@ -1,8 +1,12 @@
 package test
+import java.io.File
+
 import com.hdigiorgi.showPhoto.model.{DBInterface, PostPI}
 import com.hdigiorgi.showPhoto.model.DBInterface.DB
+import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB}
 import com.hdigiorgi.showPhoto.model.post.PostManager
 import com.typesafe.config.ConfigFactory
+import org.apache.commons.io.FileUtils
 import org.scalatest.{FunSuite, Matchers, PrivateMethodTester}
 import org.scalatestplus.play.guice.{GuiceFakeApplicationFactory, GuiceOneAppPerTest}
 import play.api.{Application, Configuration}
@@ -26,25 +30,28 @@ trait TestBase extends FunSuite
   private val allowDatabaseDeletion = "unsecure.allow_db_destroy" -> "allow"
   protected implicit val configuration: Configuration = fakeApplication().configuration
 
-  def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = this.synchronized {
+  protected def deleteFiles()(implicit configuration: Configuration): Unit = {
+    val location1 = new File(new AttachmentFileDB().location)
+    val location2 = new File(new ImageFileDB().location)
+    if(location1.exists()) FileUtils.deleteDirectory(location1)
+    if(location2.exists()) FileUtils.deleteDirectory(location2)
+  }
+
+  protected def wrapCleanDB[A](op: DBInterface => A)(implicit configuration: Configuration): A = this.synchronized {
     val db = DBInterface.getDB()
     db.init(configuration)
     db.destroy()
+    deleteFiles()
     db.init(configuration)
     op(db)
   }
 
-  def wrapCleanPostDB[A](op: PostPI => A)(implicit configuration: Configuration): A = {
+  protected def wrapCleanPostDB[A](op: PostPI => A)(implicit configuration: Configuration): A = {
     wrapCleanDB(dbi => op(dbi.post))
   }
 
-  def wrapPostManager[A](op: PostManager => A): A = wrapCleanDB{ db =>
+  protected  def wrapPostManager[A](op: PostManager => A): A = wrapCleanDB{ db =>
     op(PostManager(db))
-  }
-
-  def getVal[A](obj: Object, name: Symbol): A = {
-    val privateMethod = PrivateMethod[A](name)
-    obj invokePrivate privateMethod()
   }
 
 }

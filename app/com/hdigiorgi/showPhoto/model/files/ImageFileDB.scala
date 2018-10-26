@@ -103,12 +103,16 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     }
   }
 
+  def location: String = filesRoot
+
   private def renameWithFileExtension(temp: File, target: FileSlug): File = {
     val tempBaseName = FilenameUtils.getBaseName(temp.getName)
     val newTempName = tempBaseName + "." + target.extension
     val newFullPath = FilenameUtils.concat(temp.getParentFile.getCanonicalPath, newTempName)
     val newTempFile = new File(newFullPath)
-    FileUtils.moveFile(temp, newTempFile)
+    if(!temp.getCanonicalPath.equals(newTempFile.getCanonicalPath)){
+      FileUtils.moveFile(temp, newTempFile)
+    }
     newTempFile
   }
 

@@ -37,6 +37,8 @@ class AttachmentFileDB()(implicit private val cfg: Configuration) {
     }}.getOrElse(Seq())
   }
 
+  def location: String = filesRoot
+
   private val compressionParams = {
     val zipParameters = new ZipParameters()
     zipParameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE)

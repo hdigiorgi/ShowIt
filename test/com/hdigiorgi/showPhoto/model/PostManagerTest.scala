@@ -3,6 +3,7 @@ package com.hdigiorgi.showPhoto.model
 import java.time.{Duration, Instant}
 
 import cats.data.Validated.{Invalid, Valid}
+import com.hdigiorgi.showPhoto.model.files.RandomImage
 import com.hdigiorgi.showPhoto.model.post._
 import test.TestBase
 
@@ -33,7 +34,9 @@ class PostManagerTest extends TestBase {
       pm.saveTitle(post.id, "Some VALID title").isRight shouldBe true
       pm.unpublish(post.id) shouldBe PublicationStatus.ErrorMessages.AlreadyInThatState
       pm.publish(post.id) shouldBe PostManager.ErrorMessages.NoImages
-
+      RandomImage.genAndSave(pm.imageDb, post.id)
+      pm.publish(post.id).isRight shouldBe true
+      pm.publish(post.id) shouldBe PublicationStatus.ErrorMessages.AlreadyInThatState
     }
   }
 
