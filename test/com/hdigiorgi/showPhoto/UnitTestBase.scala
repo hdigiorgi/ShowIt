@@ -13,7 +13,8 @@ import org.scalawebtest.core.IntegrationFunSpec
 import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.ControllerComponents
-import play.api.test.Injecting
+import play.api.test.{Injecting, TestServer}
+import play.test
 
 import scala.collection.JavaConverters._
 
@@ -21,16 +22,10 @@ trait UnitTestBase extends FunSuite
                with GuiceOneAppPerTest with Injecting with Matchers
                with GuiceFakeApplicationFactory with PrivateMethodTester {
 
-  override def fakeApplication(): Application = {
-    val config = ConfigFactory.load("application.test.conf")
-    val configStringSet =
-      config.entrySet().asScala.map { entry => (entry.getKey, entry.getValue()) }
-    val configMap = configStringSet.toMap + allowDatabaseDeletion
-    GuiceApplicationBuilder().configure(configMap).build()
-  }
+  override def fakeApplication(): Application = UnitTestBase.fakeApplication()
 
-  private val allowDatabaseDeletion = "unsecure.allow_db_destroy" -> "allow"
-  protected implicit val configuration: Configuration = fakeApplication().configuration
+  protected val application: Application = fakeApplication()
+  protected implicit val configuration: Configuration = application.configuration
   protected implicit val controllerComponents: ControllerComponents =
     fakeApplication().injector.instanceOf(classOf[ControllerComponents])
 
@@ -58,4 +53,17 @@ trait UnitTestBase extends FunSuite
     op(PostManager(db))
   }
 
+}
+
+
+object UnitTestBase {
+  def fakeApplication(): Application = {
+    val config = ConfigFactory.load("application.test.conf")
+    val configStringSet =
+      config.entrySet().asScala.map { entry => (entry.getKey, entry.getValue()) }
+    val configMap = configStringSet.toMap + allowDatabaseDeletion
+    GuiceApplicationBuilder().configure(configMap).build()
+  }
+
+  private val allowDatabaseDeletion = "unsecure.allow_db_destroy" -> "allow"
 }
