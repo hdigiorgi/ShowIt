@@ -47,7 +47,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def saveContent(postId: String): WhenAdmin[AnyContent] =
     saveFromString(postId, "content", PostManager().saveContent(postId, _))
 
-  private def saveFromString(postId: String, field: String, savef: String => Validated[ErrorMessage, _]) =
+  private def saveFromString(postId: String, field: String, savef: String => Either[ErrorMessage, _]) =
     WhenAdmin {Action { implicit request: Request[AnyContent] =>
     Try(request.body.asJson.get \ field) match {
       case Failure(e) =>
@@ -55,8 +55,8 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
         BadRequest(e.getMessage)
       case Success(content) =>
         savef(content.as[String]) match {
-          case Invalid(msg) => Conflict(msg.message)
-          case Valid(_) => Ok("")
+          case Left(msg) => Conflict(msg.message)
+          case Right(_) => Ok("")
         }
     }
   }}

@@ -15,13 +15,24 @@ import org.apache.commons.text.StringEscapeUtils
 
 
 case class PublicationStatus(name: String){
+  import PublicationStatus.ErrorMessages._
+
   def toggle: PublicationStatus = this match {
     case Published => Unpublished
     case _ => Published
   }
+  def validateToggle(to: PublicationStatus): Either[ErrorMessage, PublicationStatus] = {
+    if(this == to) return AlreadyInThatState
+    Right(this)
+  }
 }
 object Published extends PublicationStatus("PUBLISHED")
 object Unpublished extends PublicationStatus("UNPUBLISHED")
+object PublicationStatus {
+  object ErrorMessages {
+    val AlreadyInThatState = Left(PubStatusErrorMsg("validations.status.alreadyInThatState"))
+  }
+}
 
 case class SafeHtml private (value: String)
 object SafeHtml {
@@ -46,14 +57,13 @@ object SafeHtml {
 }
 
 case class Title private (value: String) {
-  import Title._
+  import Title.ErrorMessages._
 
-  def validate(postId: StringId, db: PostPI): Validated[ErrorMessage, Title] = {
-    val r = for {
+  def validate(postId: StringId, db: PostPI): Either[ErrorMessage, Title] = {
+    for {
       _ <- validateLength()
       r <- validateExistingSlug(postId, db)
     } yield r
-    r.toValidated
   }
 
   private def validateExistingSlug(postId: StringId, db: PostPI): Either[ErrorMessage, Title] = {
@@ -62,19 +72,24 @@ case class Title private (value: String) {
   }
 
   private def validateLength(): Either[ErrorMessage, Title] = {
-    if(value.length<4) return ToShort
-    if(value.length>100) return ToLong
+    if(value.length <= 3) return ToShort
+    if(value.length > 100) return ToLong
+    if(Slug(value).value.length <= 3) return LeadToShortSlug
     Right(this)
   }
 }
 
 object Title {
   val empty = Title("")
-  implicit def fromString(s: String): Title = Title(s)
+  implicit def fromString(s: String): Title = Title(s.trim)
 
-  private val ToShort = Left(ErrorMessage("title.validation.toShort"))
-  private val ToLong = Left(ErrorMessage("title.validation.toLong"))
-  private val LeadAlreadyExistingSlug = Left(ErrorMessage("title.validation.existingSlug"))
+  object ErrorMessages {
+    val ToShort = Left(TitleErrorMsg("validations.title.toShort"))
+    val ToLong = Left(TitleErrorMsg("validations.title.toLong"))
+    val LeadAlreadyExistingSlug = Left(TitleErrorMsg("validations.title.existingSlug"))
+    val LeadToShortSlug = Left(TitleErrorMsg("validations.title.shortSlug"))
+  }
+
 }
 
 class Post private (_inId: Option[StringId] = None,
@@ -118,7 +133,7 @@ class Post private (_inId: Option[StringId] = None,
     post
   }
 
-  private var _creationTime = _inCreationTime.getOrElse(Instant.now())
+  private var _creationTime = _inCreationTime.getOrElse(Post.strictMonotonicInstant)
   def creationTime: Instant = _creationTime
   def withCreationTime(ct: Instant): Post = {
     val post = new Post(this)
@@ -171,5 +186,19 @@ object Post {
     new Post(_inId = Some(id), _inTitle = Some(title), _inSlug = Some(slug), _inCreationTime = Some(creationTime),
              _inRenderedContent = Some(renderedContent), _inRawContent = Some(rawContent),
              _inPublicationStatus = Some(publicationStatus))
+  }
+
+
+
+  private var _instant = Instant.now()
+  private def strictMonotonicInstant: Instant = _instant.synchronized{
+    val now = Instant.now()
+    val diff = now.toEpochMilli - _instant.toEpochMilli
+    _instant = if(diff <= 0) {
+      Instant.ofEpochMilli(now.toEpochMilli + Math.abs(diff) + 1)
+    } else {
+      now
+    }
+    Instant.ofEpochMilli(_instant.toEpochMilli)
   }
 }

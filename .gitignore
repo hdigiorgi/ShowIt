@@ -1,3 +1,7 @@
+.ensime*
+pc.stdout.log
+ensime-*
+
 .idea
 /ALL_DATA
 /TEST_DATA

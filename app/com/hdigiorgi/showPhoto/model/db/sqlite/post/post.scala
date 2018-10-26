@@ -89,7 +89,7 @@ class SQLitePostPI() extends PostPI {
   }
 
   private def toTuple(post: Post): SQLitePostType.Tuple = {
-    (post.id.value, post.title.value, post.slug.value, post.creationTime.getEpochSecond,
+    (post.id.value, post.title.value, post.slug.value, post.creationTime.toEpochMilli,
       post.rawContent, post.renderedContent.value, post.publicationStatus.name)
   }
 
@@ -105,7 +105,7 @@ class SQLitePostPI() extends PostPI {
         case None => Later(readRawContent(id).get)
       }
       Post(id = StringId(id), title = Title(title), slug = Slug(slug),
-        creationTime = Instant.ofEpochSecond(creationTime), rawContent = laterRawContent,
+        creationTime = Instant.ofEpochMilli(creationTime), rawContent = laterRawContent,
         renderedContent = SafeHtml.fromAlreadySafeHtml(renderedContent),
         publicationStatus = PublicationStatus(publicationStatus))
   }

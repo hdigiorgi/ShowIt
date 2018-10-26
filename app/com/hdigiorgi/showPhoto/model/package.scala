@@ -10,11 +10,14 @@ import play.api.Configuration
 final case class InvalidModelException(private val message: String = "")
   extends Exception(message)
 
-class Message(id: String) {
+class ErrorMessage(origin: Symbol, private val msgSuffixId: String) {
+  def id = f"errorMessage.$origin.$msgSuffixId"
   def message()(implicit i18n: play.api.i18n.Messages): String = i18n(id)
 }
-
-case class ErrorMessage(private val id: String) extends Message(id)
+case class PostErrorMsg(private val _id: String) extends ErrorMessage('post, _id)
+case class ImageErrorMsg(private val _id: String) extends ErrorMessage('image, _id)
+case class TitleErrorMsg(private val _id: String) extends ErrorMessage('title, _id)
+case class PubStatusErrorMsg(private val _id: String) extends ErrorMessage('publicationStatus, _id)
 
 /**
   * ID
