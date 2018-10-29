@@ -3,6 +3,7 @@ package filters
 import com.hdigiorgi.showPhoto.model._
 import akka.stream.Materializer
 import com.google.inject.Inject
+import controllers.routes
 import play.api.Configuration
 import play.api.libs.typedmap.TypedKey
 import play.api.mvc.request.{Cell, RequestAttrKey}
@@ -25,6 +26,9 @@ class AuthenticationSupportHolder(val user: Option[User]) {
 class AuthenticationResultHolder(val originalResult: Result) {
   def withAuthenticated(user: User)(implicit rh: RequestHeader): Result = {
     originalResult.addingToSession((AuthenticationFilter.idKeyName, user.id.value))
+  }
+  def deauthenticate()(implicit rh: RequestHeader): Result = {
+    originalResult.removingFromSession(AuthenticationFilter.idKeyName)
   }
 }
 
@@ -69,7 +73,7 @@ class WhenRole[A](role: Role, action: Action[A]) extends Action[A] with Authenti
     if (request.role >= role) {
       action(request)
     } else {
-      Future.successful(play.api.mvc.Results.Unauthorized(views.html.error.unauthorized()))
+      Future.successful(Results.Redirect(routes.AuthenticationController.index()))
     }
   }
 

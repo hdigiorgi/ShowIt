@@ -1,15 +1,21 @@
 package com.hdigiorgi.showPhoto.integration
 
 import com.hdigiorgi.showPhoto.IntegrationTestBase
-import play.api.test.TestServer
 
 class LoginIntegration extends IntegrationTestBase {
+  logAsAdmin()
 
-  val login = url("/login")
+  test("logout") {
+    logOut()
+    currentUrl should be (url("/"))
+    go to adminUrl
+    currentUrl should be (loginUrl)
+  }
 
   test("Show login form") {
-    TestServer(0)
-    go to login
-    pageTitle.toLowerCase should be ("login")
+    logAsAdmin()
+    currentUrl should be (adminUrl)
+    pageTitle.toLowerCase should be ("administration")
   }
+
 }

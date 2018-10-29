@@ -1,6 +1,6 @@
 package controllers
 
-import com.hdigiorgi.showPhoto.model.{DBInterface, Password, User, UserPI}
+import com.hdigiorgi.showPhoto.model._
 import filters.{AuthenticationSupport, LanguageFilterSupport}
 import javax.inject._
 import play.api._
@@ -26,7 +26,10 @@ class AuthenticationController @Inject()(cc: ControllerComponents)(implicit conf
   extends AbstractController(cc) with LanguageFilterSupport with AuthenticationSupport{
 
   def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.login())
+    request.role match {
+      case Role.Guest => Ok(views.html.login())
+      case _ => Redirect(routes.AdminController.index())
+    }
   }
 
   def login() = Action { implicit request: Request[AnyContent] =>
@@ -40,12 +43,12 @@ class AuthenticationController @Inject()(cc: ControllerComponents)(implicit conf
     optUser match {
       case None => Unauthorized(views.html.login("authentication.login.msg.genericError".some))
       case Some(user) =>
-        Redirect(routes.AdminController.index).withAuthenticated(user)
+        Redirect(routes.AdminController.index()).withAuthenticated(user)
     }
   }
 
   def logout() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.login())
+    Redirect(routes.HomeController.index()).deauthenticate()
   }
 
   private def checkLogin(form: AuthenticationController.LoginForm, db: UserPI): Option[User] = {

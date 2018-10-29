@@ -1,20 +1,45 @@
 package com.hdigiorgi.showPhoto
 
 
-import org.scalatest.{AppendedClues, FunSuite, Matchers}
+import com.gargoylesoftware.htmlunit.SilentCssErrorHandler
+import org.openqa.selenium.WebDriver
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
+import org.scalatest.{AppendedClues, FunSuite, Matchers, ScreenshotCapturer}
 
 import scala.language.postfixOps
-import org.scalatest.selenium.{Firefox, HtmlUnit}
+import org.scalatest.selenium._
 import play.api.Application
 import play.api.test.TestServer
 import play.core.server.DevServerStart
 
-trait IntegrationTestBase extends FunSuite with Matchers  with HtmlUnit{
+trait IntegrationTestBase extends FunSuite with Matchers with WebBrowser with Driver{
   import IntegrationTestBase._
   protected val host = f"http://localhost:$PORT"
   protected def url(path: String): String = f"$host$path"
+  protected val loginUrl: String = url("/login")
+  protected val logoutUrl: String = url("/logout")
+  protected val adminUrl: String = url("/admin")
   protected val application: Application = UnitTestBase.fakeApplication()
+  override implicit val webDriver: HtmlUnitDriver = new ITWebDriver()
   initServer(application)
+
+  protected def logAsAdmin(): Unit = {
+    go to loginUrl
+    pageTitle.toLowerCase should be ("login")
+    emailField("email-input").value = "me@hdigiorgi.com"
+    pwdField("password-input").value = "password"
+    click on id("login-submit-button")
+  }
+
+  protected def logOut(): Unit = {
+    go to logoutUrl
+  }
+
+}
+
+class ITWebDriver extends HtmlUnitDriver {
+  this.getWebClient.setCssErrorHandler(new SilentCssErrorHandler)
+  this.setJavascriptEnabled(true)
 }
 
 object IntegrationTestBase {
