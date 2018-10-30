@@ -11,7 +11,7 @@ final case class InvalidModelException(private val message: String = "")
   extends Exception(message)
 
 class ErrorMessage(origin: Symbol, private val msgSuffixId: String) {
-  def id = f"errorMessage.$origin.$msgSuffixId"
+  def id = f"errorMessage.${origin.name}.$msgSuffixId"
   def message()(implicit i18n: play.api.i18n.Messages): String = i18n(id)
 }
 case class PostErrorMsg(private val _id: String) extends ErrorMessage('post, _id)

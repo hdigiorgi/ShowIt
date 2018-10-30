@@ -84,10 +84,10 @@ object Title {
   implicit def fromString(s: String): Title = Title(s.trim)
 
   object ErrorMessages {
-    val ToShort = Left(TitleErrorMsg("validations.title.toShort"))
-    val ToLong = Left(TitleErrorMsg("validations.title.toLong"))
-    val LeadAlreadyExistingSlug = Left(TitleErrorMsg("validations.title.existingSlug"))
-    val LeadToShortSlug = Left(TitleErrorMsg("validations.title.shortSlug"))
+    val ToShort = Left(TitleErrorMsg("validations.toShort"))
+    val ToLong = Left(TitleErrorMsg("validations.toLong"))
+    val LeadAlreadyExistingSlug = Left(TitleErrorMsg("validations.existingSlug"))
+    val LeadToShortSlug = Left(TitleErrorMsg("validations.shortSlug"))
   }
 
 }

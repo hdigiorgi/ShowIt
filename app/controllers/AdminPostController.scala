@@ -49,14 +49,14 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
 
   private def saveFromString(postId: String, field: String, savef: String => Either[ErrorMessage, _]) =
     WhenAdmin {Action { implicit request: Request[AnyContent] =>
-    Try(request.body.asJson.get \ field) match {
+    Try((request.body.asJson.get \ field).as[String]) match {
       case Failure(e) =>
         logger.error("can't parse request", e)
         BadRequest(e.getMessage)
       case Success(content) =>
-        savef(content.as[String]) match {
+        savef(content) match {
           case Left(msg) => Conflict(msg.message)
-          case Right(_) => Ok("")
+          case Right(_) => Ok("{}")
         }
     }
   }}

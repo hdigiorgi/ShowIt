@@ -171,3 +171,11 @@
     left: 45%;
     font-size: 3em;
 }
+
+.input-indicator {
+    display: inline;
+}
+
+.input-indicator .ok {
+    color: #0c0;
+}

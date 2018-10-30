@@ -103,13 +103,17 @@
         @form(routes.AdminPostController.imageList(post.id.value), 'id -> "imageListForm") { }
         @form(CSRF(routes.AdminPostController.attachmentProcess(post.id.value)), 'id -> "attachmentProcessForm") { }
         @form(routes.AdminPostController.attachmentList(post.id.value), 'id -> "attachmentListForm") { }
+        @form(CSRF(routes.AdminPostController.saveTitle(post.id.value)), 'id -> "saveTitleForm") { }
+        @form(CSRF(routes.AdminPostController.saveContent(post.id.value)), 'id -> "saveContentForm") { }
         
 
         <div>
 
             <div class="form-group">
                 <label>Título</label>
-                <input type="text" class="form-control form-control-lg" id="exampleInputEmail1" placeholder="Escribi el titulo">
+                <div id="titleIndications" class="input-indicator"></div>
+                <input id="titleInput" name="title" type="text" class="form-control form-control-lg" placeholder="Escribi el titulo"
+                       value="@{post.title.value}" autocomplete="off">
             </div>
 
             <div class="form-group">
@@ -124,7 +128,8 @@
 
             <div class="form-group">
                 <label>Descripción de la publicación</label>
-                <textarea class="form-control" id="contentTextArea" rows="5"></textarea>
+                <div id="contentIndications" class="input-indicator"></div>
+                <textarea class="form-control" id="contentTextArea" rows="5" autocomplete="off">@post.rawContent</textarea>
             </div>
             
             <button type="submit" class="btn btn-primary float-right">
