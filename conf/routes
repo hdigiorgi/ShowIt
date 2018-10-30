@@ -38,5 +38,5 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 ########################################################################################################################
 GET /                        controllers.PostController.index(page: Int = 0)
 GET /image/:id/:size/:name   controllers.PostController.image(id: String, size: String, name: String)
-GET /image/:id/:name         controllers.PostController.image(id: String, name: String)
+GET /image/:id/:name         controllers.PostController.smallImage(id: String, name: String)
 GET /:slug                   controllers.PostController.post(slug: String)

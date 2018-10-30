@@ -24,7 +24,7 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
     }
   }
 
-  def image(postId: String, imageName: String): Action[AnyContent] = image(postId, SmallSize.name, imageName)
+  def smallImage(postId: String, imageName: String): Action[AnyContent] = image(postId, SmallSize.name, imageName)
 
   def post(slug: String) = Action { _ =>
     Ok("post")
