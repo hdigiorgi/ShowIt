@@ -1,13 +1,6 @@
-# Routes
-# This file defines all application routes (Higher priority routes first)
-# https://www.playframework.com/documentation/latest/ScalaRouting
-# ~~~~
-
-# An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
-GET     /hello                      controllers.HomeController.hello(name: String)
-
-# Login
+########################################################################################################################
+## Login
+########################################################################################################################
 GET  /login  controllers.AuthenticationController.index
 POST /login  controllers.AuthenticationController.login
 GET  /logout controllers.AuthenticationController.logout
@@ -39,3 +32,11 @@ GET    /admin/post/edit/:id/file/attachment   controllers.AdminPostController.at
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+########################################################################################################################
+## Post display
+########################################################################################################################
+GET /                        controllers.PostController.index(page: Int = 0)
+GET /image/:id/:size/:name   controllers.PostController.image(id: String, size: String, name: String)
+GET /image/:id/:name         controllers.PostController.image(id: String, name: String)
+GET /:slug                   controllers.PostController.post(slug: String)

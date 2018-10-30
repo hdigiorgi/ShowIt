@@ -48,7 +48,7 @@ class AuthenticationController @Inject()(cc: ControllerComponents)(implicit conf
   }
 
   def logout() = Action { implicit request: Request[AnyContent] =>
-    Redirect(routes.HomeController.index()).deauthenticate()
+    Redirect(routes.PostController.index()).deauthenticate()
   }
 
   private def checkLogin(form: AuthenticationController.LoginForm, db: UserPI): Option[User] = {

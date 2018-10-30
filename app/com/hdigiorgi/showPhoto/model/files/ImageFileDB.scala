@@ -18,6 +18,9 @@ case class SizeType(name: String, value: Integer, quality: Integer) {
 }
 object SizeType {
   val sizes = Seq(FullSize, MediumSize, SmallSize)
+  def fromString(name: String): SizeType = {
+    sizes.find(_.name.equalsIgnoreCase(name)).getOrElse(SmallSize)
+  }
 }
 object FullSize extends SizeType("full", 2560, 50)
 object MediumSize extends SizeType("medium", 1280, 40)

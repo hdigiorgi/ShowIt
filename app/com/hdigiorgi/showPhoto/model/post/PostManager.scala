@@ -1,13 +1,30 @@
 package com.hdigiorgi.showPhoto.model.post
 
-import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB}
+import java.io.File
+
+import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeType}
 import com.hdigiorgi.showPhoto.model._
 import play.api.Configuration
 
 class PostManager(val db: PostPI,
                   val imageDb: ImageFileDB,
                   val attachmentDb: AttachmentFileDB) {
-  import PostManager.ErrorMessages
+  import PostManager.ErrorMessages._
+
+  def posts(page: Int): Seq[Post] = {
+    db.readPaginated(Page(page, 10))
+  }
+
+  def image(postId: StringId, imageSize: String, imageName: String): Either[ErrorMessage, File] = {
+    val post = readPost(postId)
+    if(post.isLeft) return Left(post.left.get)
+    if(post.right.get.publicationStatus.isUnpublished) return PostIsUnpublished
+    val sizeType = SizeType.fromString(imageSize)
+    imageDb.getImageWithSuggestedSize(postId, sizeType, FileSlug(imageName)) match {
+      case None => ImageNotFound
+      case Some(file) => Right(file)
+    }
+  }
 
   def firstPostIfUnpublished: Option[Post] = {
     db.readPaginated(Page(number = 0, size = 1)) match {
@@ -74,7 +91,7 @@ class PostManager(val db: PostPI,
 
   private def readPost(postId: String): Either[ErrorMessage, Post] = {
     db.read(postId) match {
-      case None => ErrorMessages.UnexistentPost
+      case None => UnexistentPost
       case Some(post) => Right(post)
     }
   }
@@ -88,7 +105,7 @@ class PostManager(val db: PostPI,
 
   private def validatePostImages(p: Post): Either[ErrorMessage, Post] = {
     imageDb.getStoredImageIds(p.id) match {
-      case Seq() => ErrorMessages.NoImages
+      case Seq() => NoImages
       case _ => Right(p)
     }
   }
@@ -106,8 +123,10 @@ object PostManager {
   }
 
   object ErrorMessages {
-    val UnexistentPost = Left(PostErrorMsg("validations.post.unexistent"))
-    val NoImages = Left(ImageErrorMsg("validations.post.noImages"))
+    val UnexistentPost = Left(PostErrorMsg("validations.unexistent"))
+    val PostIsUnpublished = Left(PostErrorMsg("error.unpublished"))
+    val NoImages = Left(ImageErrorMsg("validations.noImages"))
+    val ImageNotFound = Left(ImageErrorMsg("error.imageNotFound"))
   }
 
 }
