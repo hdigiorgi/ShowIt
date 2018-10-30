@@ -141,3 +141,82 @@ $(() => {
     setupTitleSave()
 
 })
+
+$(() => {
+    const publishButton = $("#publishButton"); 
+    const publishUrl = $("#publishForm").attr("action")
+    const unpublishButton = $("#unpublishButton")
+    const unpublishUrl = $("#unpublishForm").attr("action")
+    const loadingButton = $("#publicationLoadingButton")
+    const publishIndications = $("#publishIndications")
+    loadingButton.hide()
+
+    function showUnpublishButton() {
+        loadingButton.hide()
+        publishButton.removeClass("UNPUBLISHED")
+        publishButton.addClass("PUBLISHED")
+        unpublishButton.removeClass("UNPUBLISHED")
+        unpublishButton.addClass("PUBLISHED")
+    }
+
+    function showPublishButton() {
+        loadingButton.hide()
+        publishButton.removeClass("PUBLISHED")
+        publishButton.addClass("UNPUBLISHED")
+        unpublishButton.removeClass("PUBLISHED")
+        unpublishButton.addClass("UNPUBLISHED")
+    }
+
+    function showLoading() {
+        loadingButton.show()
+    }
+
+    function hideError() {
+        publishIndications.empty()
+    }
+
+    function showError(error) {
+        publishIndications.empty()
+        publishIndications.append(`<span class="badge badge-warning">${error}</span>`)
+    }
+
+    function onPublishSuccess() {
+        hideError()
+        showUnpublishButton()
+    }
+
+    function onPublishFailure(e) {
+        showPublishButton()
+        showError(e)
+    }
+
+    function onUnpublishSuccess() {
+        hideError()
+        showPublishButton()
+    }
+
+    function onUnpublishFailure(e) {
+        showUnpublishButton()
+        showError(e)
+    }
+
+    function sendPOST(url, success, error) {
+        showLoading()
+        $.ajax({
+            type: "POST",
+            url: url,
+            dataType: 'json',
+        })
+        .done(() => success())
+        .fail((f) => error(f.responseText))
+    }
+
+    publishButton.click(() => {
+        sendPOST(publishUrl, onPublishSuccess, onPublishFailure)
+    })
+
+    unpublishButton.click(() => {
+        sendPOST(unpublishUrl, onUnpublishSuccess, onUnpublishFailure)
+    })
+
+})

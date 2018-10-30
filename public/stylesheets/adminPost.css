@@ -198,5 +198,8 @@
 #unpublishButton.UNPUBLISHED {
     display: none;
 }
+#publishIndications {
+    clear: both;
+}
 
 
