@@ -18,11 +18,14 @@ GET  /admin                      controllers.AdminController.index
 ########################################################################################################################
 ## Post Administration
 ########################################################################################################################
-GET    /admin/post                         controllers.AdminPostController.index(page: Option[Integer], order: Option[String], search: Option[String])
-GET    /admin/post/new                     controllers.AdminPostController.create
-GET    /admin/post/edit/:id                controllers.AdminPostController.edit(id: String)
-POST   /admin/post/save_title/:id          controllers.AdminPostController.saveTitle(id: String)
-POST   /admin/post/save_content/:id        controllers.AdminPostController.saveContent(id: String)
+GET    /admin/post                      controllers.AdminPostController.index(page: Option[Integer], order: Option[String], search: Option[String])
+GET    /admin/post/new                  controllers.AdminPostController.create
+GET    /admin/post/edit/:id             controllers.AdminPostController.edit(id: String)
+POST   /admin/post/save_title/:id       controllers.AdminPostController.saveTitle(id: String)
+POST   /admin/post/save_content/:id     controllers.AdminPostController.saveContent(id: String)
+POST   /admin/post/publish/:id          controllers.AdminPostController.publish(id: String)
+POST   /admin/post/unpuslih/:id         controllers.AdminPostController.unpublish(id: String)
+POST   /admin/post/delete/:id           controllers.AdminPostController.delete(id: String)
 # Image
 POST   /admin/post/edit/:id/image       controllers.AdminPostController.imageProcess(id: String)
 DELETE /admin/post/edit/:id/image       controllers.AdminPostController.imageDelete(id: String, delete: String)

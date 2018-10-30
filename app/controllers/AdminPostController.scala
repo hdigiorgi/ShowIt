@@ -14,6 +14,7 @@ import play.filters.headers.SecurityHeadersFilter
 import com.hdigiorgi.showPhoto.model.files.GenericFileDB._
 import org.apache.commons.io.FilenameUtils
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
@@ -160,6 +161,31 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
       "uuid" -> fe.name
     )}
     Ok(Json.toJson(map))
+  }
+
+  def publish(id: String) = Wrap { implicit req =>
+    simpleResponse(PostManager().publish(id))
+  }
+
+  def unpublish(id: String) = Wrap { implicit req =>
+    simpleResponse(PostManager().unpublish(id))
+  }
+
+  def delete(id: String) = Wrap { implicit req =>
+    simpleResponse(PostManager().delete(id))
+  }
+
+  private def simpleResponse(r: Either[ErrorMessage, Post])(implicit i18n: play.api.i18n.Messages): Result = {
+    r match {
+      case Left(msg) => Conflict(msg.message)
+      case Right(_) => Ok("{}")
+    }
+  }
+
+  object Wrap {
+    def apply(f:  Request[AnyContent]=> Result): WhenAdmin[AnyContent] = WhenAdmin { Action { request =>
+      f(request)
+    }}
   }
 
 

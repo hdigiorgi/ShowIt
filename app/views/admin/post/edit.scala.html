@@ -105,6 +105,8 @@
         @form(routes.AdminPostController.attachmentList(post.id.value), 'id -> "attachmentListForm") { }
         @form(CSRF(routes.AdminPostController.saveTitle(post.id.value)), 'id -> "saveTitleForm") { }
         @form(CSRF(routes.AdminPostController.saveContent(post.id.value)), 'id -> "saveContentForm") { }
+        @form(CSRF(routes.AdminPostController.publish(post.id.value)), 'id -> "publishForm") { }
+        @form(CSRF(routes.AdminPostController.unpublish(post.id.value)), 'id -> "unpublishForm") { }
         
 
         <div>
@@ -132,27 +134,56 @@
                 <textarea class="form-control" id="contentTextArea" rows="5" autocomplete="off">@post.rawContent</textarea>
             </div>
             
-            <button type="submit" class="btn btn-primary float-right">
-                <i class="fas fa-check"></i>
+            <button id="unpublishButton" class="btn btn-secondary float-right @post.publicationStatus.name" >
+                <i class="fas fa-archive"></i>
+                Despublicar
+            </button>
+            
+            <button id="publishButton" class="btn btn-primary float-right @post.publicationStatus.name"  >
+                <i class="fas fa-globe-americas"></i>
                 Publicar
             </button>
-            <div class="btn-group float-right">
+            
+            <div class="btn-group float-right more-ops-button">
                 <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="#">
+                        <i class="fas fa-eye"></i>
+                        Ver publicacion
+                    </a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModalConfirmation">
                         <i class="far fa-trash-alt"></i>
                         Borrar
                     </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="far fa-save"></i>
-                        Guardar
-                        </a>
                 </div>
               </div>
 
         </div>  @* end form *@
+
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteModalConfirmation" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmacion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Estas seguro que queres eliminar la publicacion?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger">Borrar</button>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- Delete Modal -->
 
     </div>
 

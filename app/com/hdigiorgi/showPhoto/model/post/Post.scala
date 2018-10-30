@@ -25,6 +25,8 @@ case class PublicationStatus(name: String){
     if(this == to) return AlreadyInThatState
     Right(this)
   }
+  def isPublished: Boolean = this == Published
+  def isUnpublished: Boolean = this == Unpublished
 }
 object Published extends PublicationStatus("PUBLISHED")
 object Unpublished extends PublicationStatus("UNPUBLISHED")

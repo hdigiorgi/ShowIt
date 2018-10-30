@@ -179,3 +179,24 @@
 .input-indicator .ok {
     color: #0c0;
 }
+
+.dropdown-toggle::after {
+    display:none;
+}
+
+.more-ops-button {
+    padding-right: 2px;
+}
+.more-ops-button .dropdown-toggle::after {
+    display:none;
+}
+
+#publishButton.PUBLISHED {
+    display: none;
+}
+
+#unpublishButton.UNPUBLISHED {
+    display: none;
+}
+
+

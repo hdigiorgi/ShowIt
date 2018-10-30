@@ -65,6 +65,13 @@ class PostManager(val db: PostPI,
     updated
   }
 
+  def delete(postId: String): Either[ErrorMessage, Post] = for {
+    post <- readPost(postId)
+  } yield {
+    db.delete(postId)
+    post
+  }
+
   private def readPost(postId: String): Either[ErrorMessage, Post] = {
     db.read(postId) match {
       case None => ErrorMessages.UnexistentPost
