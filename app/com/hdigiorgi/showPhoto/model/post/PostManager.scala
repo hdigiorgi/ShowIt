@@ -6,6 +6,8 @@ import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeT
 import com.hdigiorgi.showPhoto.model._
 import play.api.Configuration
 
+case class PostWithImages(post: Post, images: Seq[String])
+
 class PostManager(val db: PostPI,
                   val imageDb: ImageFileDB,
                   val attachmentDb: AttachmentFileDB) {
@@ -13,6 +15,12 @@ class PostManager(val db: PostPI,
 
   def posts(page: Int): Seq[Post] = {
     db.readPaginated(Page(page, 10))
+  }
+
+  def postsWithImageIds(page: Int): Seq[PostWithImages] = {
+    posts(page).map{post =>
+      PostWithImages(post, imageDb.getStoredImageIds(post.id))
+    }
   }
 
   def image(postId: StringId, imageSize: String, imageName: String): Either[ErrorMessage, File] = {

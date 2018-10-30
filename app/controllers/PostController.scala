@@ -2,7 +2,7 @@ package controllers
 
 import com.google.inject.Singleton
 import com.hdigiorgi.showPhoto.model.files.SmallSize
-import com.hdigiorgi.showPhoto.model.post.PostManager
+import com.hdigiorgi.showPhoto.model.post.{Post, PostManager, PostWithImages}
 import filters.{AuthenticationSupport, LanguageFilterSupport}
 import javax.inject.Inject
 import play.api.Configuration
@@ -14,7 +14,8 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
   extends AbstractController(cc) with LanguageFilterSupport {
 
   def index(page: Int) = Action {
-    NotFound
+    val postData: Seq[PostWithImages] = PostManager().postsWithImageIds(page)
+    Ok(views.html.index(postData))
   }
 
   def image(postId: String, size: String, imageName: String) = Action { implicit r =>

@@ -4,3 +4,39 @@
     justify-content: center;
     min-height: 100vh;
 }
+
+.landing-image-grid-container {
+    padding: 0;
+}
+
+.landing-image-grid-container .cols {
+    padding: 0;
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+}
+
+.landing-image-grid-container img{
+    object-fit: cover;
+    height: 300px;
+    width: 100%;
+}
+
+.bodyBackground {
+    overflow: hidden;
+    min-height: 100vh;
+    min-width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.bodyBackground .content {
+    filter: blur(10px);
+    transform: scale(1.2);
+    width:100%;
+    height:100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}

@@ -1,9 +1,32 @@
-@(name: String)
+@import com.hdigiorgi.showPhoto.model.post.{Post, PostManager, PostWithImages}
+
+@(postsData: Seq[PostWithImages])
+
+@imageItem(data: PostWithImages) = {
+    <div class="col-6 col-md-4 cols">
+        <a href="@routes.PostController.post(data.post.id.value)">
+            <img src="@routes.PostController.smallImage(data.post.id.value,data.images.head)"/>
+        </a>
+    </div>
+}
 
 @main("Hello") {
-  <section id="top">
-      <div class="wrapper">
-          <h1>Hello World, @name</h1>
-      </div>
-  </section>
+    <div class="bodyBackground"><div class="content"></div></div>
+    @if(postsData.nonEmpty) {
+        <style>
+            .bodyBackground .content {
+                background-image: url('@routes.PostController.smallImage(postsData.head.post.id.value, postsData.head.images.head)');
+            }
+        </style>
+    }   
+
+    <div class="container landing-image-grid-container">
+        <div class="row">
+            @for(postData <- postsData) {
+                @imageItem(postData)
+            }
+        </div>
+    </div>
+
+    
 }{ }
