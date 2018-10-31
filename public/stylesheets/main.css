@@ -84,7 +84,21 @@
     color: #000000c2;
 }
 #site-data-heading h1 {
+    margin-top: 0.20em;
     font-weight: 800;
+}
+#site-data-heading p {
+    margin-bottom: 0.5em;
+}
+#site-data-heading .links {
+    margin-bottom: 1em;
+}
+#site-data-heading .link {
+    color: unset;
+    font-size: 1.6em;
+}
+#site-data-heading .link{
+    text-decoration: none;
 }
 
 @media (max-width: 576px){
@@ -99,6 +113,9 @@
     }
     #site-data-heading p {
         font-size: 0.85em;
+    }
+    #site-data-heading .link {
+        font-size: 1.3em;
     }
 }
 

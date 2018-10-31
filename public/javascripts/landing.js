@@ -30,7 +30,6 @@ $(window).on("load",() => {
     const background = soft(last, 0, 0.3)
     e.css("color", intensify(first, 255, 0.95))
     e.css("background-color", background)
-    $('head').append(`<meta name="theme-color" content="${background}">`);
   }
 
   const firstImage = $(".landing-image-grid-container img").first()
