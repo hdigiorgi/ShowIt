@@ -13,11 +13,11 @@ class PostManager(val db: PostPI,
                   val attachmentDb: AttachmentFileDB) {
   import PostManager.ErrorMessages._
 
-  def posts(page: Int): Seq[Post] = {
+  def posts(page: Int): PaginatedResult[Post] = {
     db.readPaginated(Page(page, 12))
   }
 
-  def postsWithImageIds(page: Int): Seq[PostWithImages] = {
+  def postsWithImageIds(page: Int): PaginatedResult[PostWithImages] = {
     posts(page).map{post =>
       PostWithImages(post, imageDb.getStoredImageIds(post.id))
     }
@@ -35,9 +35,8 @@ class PostManager(val db: PostPI,
   }
 
   def firstPostIfUnpublished: Option[Post] = {
-    db.readPaginated(Page(number = 0, size = 1)) match {
-      case Seq() => None
-      case Seq(post, _*) => post.publicationStatus match {
+    db.readPaginated(Page(index = 0, size = 1)).firstOption.flatMap{ post =>
+      post.publicationStatus match {
         case Unpublished => Some(post)
         case _ => None
       }

@@ -13,8 +13,10 @@ import play.api.mvc._
 class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
   extends AbstractController(cc) with LanguageFilterSupport {
 
-  def index(page: Int) = Action {
-    val postData: Seq[PostWithImages] = PostManager().postsWithImageIds(page)
+  def index() = indexPage(0)
+
+  def indexPage(page: Int) = Action {
+    val postData = PostManager().postsWithImageIds(page)
     Ok(views.html.index(postData))
   }
 

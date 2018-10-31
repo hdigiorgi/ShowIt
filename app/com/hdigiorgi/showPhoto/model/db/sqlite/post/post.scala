@@ -56,12 +56,14 @@ class SQLitePostPI() extends PostPI {
 
   override def readBySlug(slug: Slug): Option[Post] = read(_.slug === slug.value)
 
-  override def readPaginated(page: Page): Seq[Post] = {
+  override def readPaginated(page: Page): PaginatedResult[Post] = {
     val q = table.sortBy{ p => page.order match {
       case Ascending => p.creationTime.asc
       case Descending => p.creationTime.desc
     }}.drop(page.drop).take(page.take).result
-    DB.runSync(q).map(fromTuple)
+    val elements = DB.runSync(q).map(fromTuple)
+    val count = DB.runSync(table.length.result)
+    PaginatedResult(elements, page, count)
   }
 
   override def delete(key: StringId): Unit = {

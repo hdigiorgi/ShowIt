@@ -1,6 +1,7 @@
 @import com.hdigiorgi.showPhoto.model.post.{Post, PostManager, PostWithImages}
+@import com.hdigiorgi.showPhoto.model._
 
-@(postsData: Seq[PostWithImages])
+@(paginated: PaginatedResult[PostWithImages])
 
 @imageItem(data: PostWithImages) = {
     <div class="col-6 col-md-4 cols">
@@ -12,32 +13,37 @@
 
 @main("Hello") {
     <div class="bodyBackground"><div class="content"></div></div>
-    @if(postsData.nonEmpty) {
+    @if(paginated.nonEmpty) {
         <style>
             .bodyBackground .content {
-                background-image: url('@routes.PostController.smallImage(postsData.head.post.id.value, postsData.head.images.head)');
+                background-image: url('@routes.PostController.smallImage(paginated.first.post.id.value, paginated.first.images.head)');
             }
         </style>
     }
 
     <div class="container landing-image-grid-container">
         <div class="row">
-            @for(postData <- postsData) {
+            @for(postData <- paginated.elements) {
                 @imageItem(postData)
             }
         </div>
     </div>
 
 
-    <div class="bottom-pagination">
-        <ul class="pagination">
-            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-        </ul>
-    </div>
-
+    @if(paginated.nonEmpty) {
+        <div class="bottom-pagination">
+            <ul class="pagination">
+                @defining((paginated.previousPage(1), paginated.page, paginated.nextPage(1))) { case (previous, current, next) =>
+                    @if(previous.isDefined) {
+                        <li class="page-item"><a class="page-link" href="@routes.PostController.indexPage(previous.get.index)">Previous</a></li>
+                    }
+                    <li class="page-item"><a class="page-link" href="#">@current.page</a></li>
+                    @if(next.isDefined) {
+                        <li class="page-item"><a class="page-link" href="@routes.PostController.indexPage(next.get.index)">Next</a></li>
+                    }  
+                }
+            </ul>
+        </div>
+    }
     
 }{ }

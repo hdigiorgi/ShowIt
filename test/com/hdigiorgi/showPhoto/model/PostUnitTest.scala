@@ -89,10 +89,12 @@ class PostUnitTest extends UnitTestBase{
     val insertedPage2 = toInsert.drop(5)
     wrapCleanPostDB{ db =>
       toInsert foreach db.insert
-      val readPage1 = db.readPaginated(Page(number=0, size= 5))
-      val readPage2 = db.readPaginated(Page(number=1, size=5))
+      val readPage1 = db.readPaginated(Page(index=0, size= 5)).elements
+      val readPage2 = db.readPaginated(Page(index=1, size=5)).elements
+      val readPage6 = db.readPaginated(Page(index=5, size=5)).elements
       insertedPage1 shouldEqual readPage1
       insertedPage2 shouldEqual readPage2
+      readPage6 shouldEqual Seq.empty
     }
   }
 

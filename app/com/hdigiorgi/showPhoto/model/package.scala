@@ -220,13 +220,34 @@ trait Order
 object Ascending extends Order
 object Descending extends Order
 
-case class Page(number: Int, size: Int, order: Order = Descending) {
-  def drop: Int = size * number
+case class Page(index: Int, size: Int, order: Order = Descending) {
+  def drop: Int = size * index
   def take: Int = size
+  def +(n: Int): Page = Page(index + n, size, order)
+  def -(n: Int): Page = Page(index - n, size, order)
+  def page: Int = index + 1
 }
 object Page {
   val FirstDec: Page = Page(1,0, Descending)
   val First: Page = FirstDec
+}
+
+case class PaginatedResult[A](elements: Seq[A], page: Page, totalElements: Long) {
+  def map[B](f: A => B): PaginatedResult[B] = {
+    PaginatedResult[B](elements.map(f), page, totalElements)
+  }
+  def isEmpty: Boolean = elements.isEmpty
+  def nonEmpty: Boolean = elements.nonEmpty
+  def first: A = elements.head
+  def firstOption: Option[A] = elements.headOption
+  def nextPage(n: Integer = 1): Option[Page] = {
+    if((page.index + n) <= totalIndexes) Some(page + n) else None
+  }
+  def previousPage(n: Integer = 1): Option[Page] = {
+    if((page.index - n) >= 0) Some(page - 1) else None
+  }
+  def totalPages: Long = (totalElements.toFloat / page.size.toFloat).ceil.toLong
+  def totalIndexes: Long = totalPages -1
 }
 
 /**
@@ -247,7 +268,7 @@ trait UserPI extends PersistentInterface[User, StringId] {
   def readByEmail(email: String): Option[User]
 }
 trait PostPI extends PersistentInterface[Post, StringId] {
-  def readPaginated(page: Page): Seq[Post]
+  def readPaginated(page: Page): PaginatedResult[Post]
   def readBySlug(slug: Slug): Option[Post]
 }
 
