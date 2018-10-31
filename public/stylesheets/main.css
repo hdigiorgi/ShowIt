@@ -17,16 +17,32 @@
     border-style: solid;
     border-color: transparent;
 }
-
 .landing-image-grid-container img{
     object-fit: cover;
     height: 300px;
     width: 100%;
 }
+.landing-image-grid-container .cols:hover .title,
+.landing-image-grid-container .cols .title-hover{
+    opacity: 1;
+}
+.landing-image-grid-container .title {
+    opacity: 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    background: #0000005e;
+    color: #ffffffba;
+    transition: 0.3s;
+}
 
 @media (max-width: 576px){
     .landing-image-grid-container img {
         height: 150px;
+    }
+    .title {
+        font-size: 0.75em;
     }
 }
 

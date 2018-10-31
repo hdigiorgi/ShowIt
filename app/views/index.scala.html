@@ -8,6 +8,9 @@
         <a href="@routes.PostController.post(data.post.id.value)">
             <img src="@data.imageUrl"/>
         </a>
+        <div class="title">
+            @data.post.title.value
+        </div>
     </div>
 }
 
@@ -46,4 +49,6 @@
         </div>
     }
     
-}{ }
+}{ 
+    <script src="@routes.Assets.versioned("javascripts/landing.js")" type="text/javascript"></script>
+}
