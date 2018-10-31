@@ -1,4 +1,4 @@
-$(() => {
+$(window).on("load",() => {
   /* mouse hover on mobile*/
   $(".landing-image-grid-container .cols").on("touchstart touchend", function(e){
     const target = $(e.currentTarget).children(".title")
@@ -27,8 +27,10 @@ $(() => {
     const e = $("#site-data-heading")
     const first = palette[0]
     const last = palette[palette.length-1]
+    const background = soft(last, 0, 0.3)
     e.css("color", intensify(first, 255, 0.95))
-    e.css("background-color", soft(last, 0, 0.3))
+    e.css("background-color", background)
+    $('head').append(`<meta name="theme-color" content="${background}">`);
   }
 
   const firstImage = $(".landing-image-grid-container img").first()
