@@ -53,6 +53,7 @@
     position: fixed;
     top: 0;
     left: 0;
+    z-index: -1;
 }
 .bodyBackground .content {
     filter: blur(10px);
@@ -75,10 +76,25 @@
 }
 
 .bottom-pagination .page-item .page-link {
-    background-color: #fff9;
-    color: #202020;
+    background-color: #ffff;
+    color: rgba(6, 6, 6, 0.66);;
 }
 .bottom-pagination .page-item .page-link:hover {
     background-color: #fffc;
 }
 
+#site-data-heading-container {
+    padding: 2px;
+}
+#site-data-heading{
+    width:100%;
+    overflow: hidden;
+    text-align: center;
+    background-color: #ffffff8c;
+    color: #000000c2;
+}
+
+body {
+    opacity: 0;
+    transition: 2s;
+}
