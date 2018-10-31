@@ -14,7 +14,7 @@ class PostManager(val db: PostPI,
   import PostManager.ErrorMessages._
 
   def posts(page: Int): Seq[Post] = {
-    db.readPaginated(Page(page, 10))
+    db.readPaginated(Page(page, 12))
   }
 
   def postsWithImageIds(page: Int): Seq[PostWithImages] = {
