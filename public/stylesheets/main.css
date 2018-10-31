@@ -8,7 +8,9 @@
 .landing-image-grid-container {
     padding: 0;
 }
-
+.landing-image-grid-container .row {
+    margin: 0;
+}
 .landing-image-grid-container .cols {
     padding: 0;
     border-width: 2px;
@@ -22,7 +24,11 @@
     width: 100%;
 }
 
-
+@media (max-width: 576px){
+    .landing-image-grid-container img {
+        height: 150px;
+    }
+}
 
 .bodyBackground {
     overflow: hidden;
@@ -59,3 +65,4 @@
 .bottom-pagination .page-item .page-link:hover {
     background-color: #fffc;
 }
+

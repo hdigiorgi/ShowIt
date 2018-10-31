@@ -4,9 +4,16 @@ import java.io.File
 
 import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeType}
 import com.hdigiorgi.showPhoto.model._
+import controllers.routes
 import play.api.Configuration
 
-case class PostWithImages(post: Post, images: Seq[String])
+case class PostWithImages(post: Post, images: Seq[String]) {
+  lazy val imageUrl: String = {
+    val drop = Math.min(images.size -1, (Math.random()*images.size).ceil.toInt -1)
+    val imageId = images.drop(drop).headOption.getOrElse("")
+    routes.PostController.smallImage(post.id, imageId).url
+  }
+}
 
 class PostManager(val db: PostPI,
                   val imageDb: ImageFileDB,

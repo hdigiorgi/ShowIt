@@ -6,7 +6,7 @@
 @imageItem(data: PostWithImages) = {
     <div class="col-6 col-md-4 cols">
         <a href="@routes.PostController.post(data.post.id.value)">
-            <img src="@routes.PostController.smallImage(data.post.id.value,data.images.head)"/>
+            <img src="@data.imageUrl"/>
         </a>
     </div>
 }
@@ -16,7 +16,7 @@
     @if(paginated.nonEmpty) {
         <style>
             .bodyBackground .content {
-                background-image: url('@routes.PostController.smallImage(paginated.first.post.id.value, paginated.first.images.head)');
+                background-image: url('@paginated.first.imageUrl');
             }
         </style>
     }
@@ -35,11 +35,11 @@
             <ul class="pagination">
                 @defining((paginated.previousPage(1), paginated.page, paginated.nextPage(1))) { case (previous, current, next) =>
                     @if(previous.isDefined) {
-                        <li class="page-item"><a class="page-link" href="@routes.PostController.indexPage(previous.get.index)">Previous</a></li>
+                        <li class="page-item"><a class="page-link" href="@routes.PostController.index(Some(previous.get.index))">Previous</a></li>
                     }
                     <li class="page-item"><a class="page-link" href="#">@current.page</a></li>
                     @if(next.isDefined) {
-                        <li class="page-item"><a class="page-link" href="@routes.PostController.indexPage(next.get.index)">Next</a></li>
+                        <li class="page-item"><a class="page-link" href="@routes.PostController.index(Some(next.get.index))">Next</a></li>
                     }  
                 }
             </ul>
