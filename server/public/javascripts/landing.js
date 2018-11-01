@@ -1,9 +1,4 @@
 $(window).on("load",() => {
-  /* mouse hover on mobile*/
-  $(".landing-image-grid-container .cols").on("touchstart touchend", function(e){
-    const target = $(e.currentTarget).children(".title")
-    $(target).toggleClass("title-hover");
-  });
 
   function intensify(color, limit, alpha) {
     const max = Math.max(color[0],color[1],color[2])
