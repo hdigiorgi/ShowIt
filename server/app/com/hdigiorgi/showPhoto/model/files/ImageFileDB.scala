@@ -4,9 +4,11 @@ import java.io.File
 import java.nio.file.{Path, Paths}
 import java.time.Instant
 
+import scala.collection.JavaConverters._
 import com.hdigiorgi.showPhoto.model.{FileSlug, Slug, StringId}
 import javax.imageio.{ImageIO, ImageWriteParam}
 import org.apache.commons.io.{FileUtils, FilenameUtils}
+import org.apache.commons.lang3.StringUtils
 import org.im4java.core._
 import org.im4java.process.ArrayListOutputConsumer
 import play.api.Configuration
@@ -44,7 +46,11 @@ case class ImageSize(x: Integer, y: Integer) {
   def <(value: Integer): Boolean = {
     this.x < value || this.y < value
   }
+}
 
+case class Color(r: Integer, g: Integer, b: Integer, a: Integer = 255) {
+  def rgb: String = f"rgb($r,$g,$b)"
+  def rgba: String = f"rgba($r,$g,$b,$a)"
 }
 
 trait ImageTransformationError
@@ -174,6 +180,30 @@ class ImageFileDB()(implicit private val cfg: Configuration){
           case Left(e) => Left(e)
           case Right(file) => Right(map + (sizeType -> file))
         }
+    })
+  }
+
+  // magick <image> +dither -colors 5 -define histogram:unique-colors=true -format "%c" histogram:info:
+  private def getGradient(file: File): Unit = {
+    val op = new IMOperation
+    op.addImage(file.getCanonicalPath)
+    op.dither()
+    op.colors(5)
+    op.define("histogram:unique-colors=true")
+    op.format("%c")
+    op.addRawArgs("histogram:info:")
+    val cmd = new ImageCommand("magick")
+    val output = new ArrayListOutputConsumer()
+    cmd.setOutputConsumer(output)
+    cmd.run(op)
+    val cmdOutput = output.getOutput
+  }
+
+  private def getHistogramInfoColors(array: java.util.ArrayList[String]): Seq[Color] = {
+    array.asScala.map(line => {
+      val rgbString = StringUtils.substringBetween(line,"srgb(", ")")
+      val rgbInteger = rgbString.split(",").map(_.toInt)
+      Color(rgbInteger(0), rgbInteger(1), rgbInteger(2))
     })
   }
 
