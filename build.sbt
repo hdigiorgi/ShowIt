@@ -62,6 +62,10 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
 ).enablePlugins(PlayScala).dependsOn(appJVM).dependsOn(client)
 
 lazy val client = (project in file("client")).settings(sharedSettings).settings(
+  libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.4",
+  libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.6",
+  scalaJSUseMainModuleInitializer := true,
+  (mainClass in Compile) := Some("com.hdigiorgi.showit.Main"),
   artifactPath in(Compile, fastOptJS)             := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "app.js",
   artifactPath in(Compile, fullOptJS)             := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "app.js",
   artifactPath in(Compile, packageJSDependencies) := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "dependency.js"
