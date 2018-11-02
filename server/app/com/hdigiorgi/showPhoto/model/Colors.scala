@@ -23,7 +23,12 @@ class Color private(_r: Integer, _g: Integer, _b: Integer, _a: Integer) {
     r > threshold || g > threshold || g > threshold
   }
   def isDark: Boolean = !isBright
-  def brigthness: Integer = Seq(r,g,b).foldLeft(0)(Math.max(_,_))
+  def -(x: Integer) = Color(r-x, g-x, b-x)
+  def +(x: Integer) = Color(r+x, g+x, b+x)
+  lazy val brigthness: Integer = Seq(r,g,b).foldLeft(0)(Math.max(_,_))
+  lazy val vibrance: Integer = Seq(r,g,b).combinations(2).toSeq.map{ case List(a,b) =>
+      Math.abs(a-b)
+  }.max
 }
 object Color {
   def apply(r: Integer, g: Integer, b: Integer, a: Integer = 255): Color = {
@@ -41,28 +46,18 @@ object Color {
 
   def fromCommaSeparatedOpt(input: String): Option[Color] = Try(fromCommaSeparated(input)).toOption
 
-  def increaseContrast(a: Color, b: Color, margin: Integer): (Color, Color) = {
-    val brightnessDiff = Math.abs(a.brigthness-b.brigthness)
-    val contrast = Math.max(brightnessDiff - margin, margin)
-    (
-      Color(a.r - contrast, a.g - contrast, a.b - contrast),
-      Color(a.r + contrast, a.g + contrast, a.b + contrast)
-    )
-  }
-
   object BrightnessOrdering extends Ordering[Color] {
-    override def compare(x: Color, y: Color): Int = {
-      x.brigthness compareTo y.brigthness
-    }
+    override def compare(x: Color, y: Color): Int = x.brigthness compareTo y.brigthness
+  }
+  object VibranceOrdering extends Ordering[Color] {
+    override def compare(x: Color, y: Color): Int = x.vibrance compareTo y.vibrance
   }
 
   val BLACK = Color(0,0,0)
   val WHITE = Color(255,255,255)
 }
 
-case class Palette(private val _inColors: List[Color]) {
-
-  lazy val colors: List[Color] = _inColors.sorted(Color.BrightnessOrdering)
+case class Palette(colors: List[Color]) {
 
   def saveToFile(destination: File): Unit = {
     val paletteString = colors.map(_.commaSeparated)
@@ -75,18 +70,20 @@ case class Palette(private val _inColors: List[Color]) {
   }
 
   def calculate(): (Color, Color) = {
-    val (dark, bright) = (colors.head, colors.last)
-    val (darkest, brightest) = Color.increaseContrast(bright, dark,50)
-    if(brightest.isBright && darkest.isBright) {
-      (Color.BLACK, darkest)
-    } else if (brightest.isDark && darkest.isDark) {
-      (Color.WHITE, darkest)
+    val darkColorCount = colors.count(_.isDark)
+    val lightColorCount = colors.length - darkColorCount
+    val orderedByVibrance = colors.sorted(Color.VibranceOrdering)
+    val orderedByBrightness = colors.sorted(Color.BrightnessOrdering)
+    val vibrant = orderedByVibrance.last
+    val dark = orderedByBrightness.head
+    if(lightColorCount > darkColorCount) {
+      (dark-50, vibrant+100)
     } else {
-      (brightest, darkest)
+      (vibrant+50, dark-100)
     }
   }
 
-  lazy val (vibrant, background) = calculate()
+  lazy val (foreground, background) = calculate()
 
 }
 object Palette {
