@@ -18,19 +18,34 @@
     @if(paginated.nonEmpty) {
         @defining(paginated.first) {firstPost =>
             <div class="bodyBackground"><div class="content"></div></div>
-            <style>
-                .bodyBackground .content {
-                    background-image: url('@firstPost.randomImage.smallSizeUrl');
-                }
-                #site-data-heading {
-                    color: @firstPost.randomImage.palette.foreground.withAlpha(220).rgba;
-                    background-color: @firstPost.randomImage.palette.background.withAlpha(35).rgba;
-                }
-            </style>
+
+            @defining((
+                firstPost.randomImage.palette.foreground.withAlpha(220).rgba,
+                firstPost.randomImage.palette.background.withAlpha(35).rgba
+            )){ case (foreground, background) =>
+                <style>
+                    .bodyBackground .content {
+                        background-image: url('@firstPost.randomImage.smallSizeUrl');
+                    }
+                    #site-data-heading {
+                        color: @foreground;
+                        background-color: @background;
+                    }
+                    #profile-photo-container {
+                        border-color: @foreground;
+                        box-shadow: 0px 0px 16px 1px @foreground;
+                    }
+                </style>
+            }
+            
+            
             <div class="container landing-image-grid-container">
                 <div id="site-data-heading-container">
                     <div id="site-data-heading">
                         <h1>SITE NAME</h1>
+                        <div id="profile-photo-container">
+
+                        </div>
                         <p>
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
                         </p>
@@ -77,6 +92,4 @@
     }
 
     
-}{ 
-    <script src="@routes.Assets.versioned("color-thief.min.js")" type="text/javascript"></script>
-}
+}{ }
