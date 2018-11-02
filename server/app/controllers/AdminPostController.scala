@@ -3,7 +3,7 @@ package controllers
 import cats.data.Validated
 import cats.data.Validated.{Invalid, Valid}
 import com.hdigiorgi.showPhoto.model.{DBInterface, ErrorMessage, FileSlug, StringId}
-import com.hdigiorgi.showPhoto.model.files.{FileEntry, FileSystemInterface, ImageFileDB, SmallSize}
+import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
 import filters.{LanguageFilterSupport, WhenAdmin}
 import javax.inject.Inject
@@ -11,10 +11,7 @@ import play.api.{Configuration, Logger}
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
-import com.hdigiorgi.showPhoto.model.files.GenericFileDB._
 import org.apache.commons.io.FilenameUtils
-
-import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
@@ -71,18 +68,18 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     getProcessStatus(id, fsi, processResult)
   }}
 
-  private def getProcessStatus(resourceId: String, fsi: ImageFileDB, pr : ProcessingResult): Result = pr match {
-    case Left(e) =>
-      logger.error("processing error", e)
+  private def getProcessStatus(resourceId: String, fsi: ImageFileDB, pr : Try[Seq[Image]]): Result = pr match {
+    case Failure(t) =>
+      logger.error("processing error", t)
       InternalServerError(Json.obj(
         "success" -> false
       ))
-    case Right(files) =>
-      val imageId = fsi.getImageId(pr)
-      logger.debug(f"image $imageId uploaded")
+    case Success(images) =>
+      val image = images(0)
+      logger.debug(f"image ${image.id} uploaded")
       Ok(Json.obj("success" -> true,
-        "newUuid" -> imageId,
-        "thumbnailUrl" -> routes.AdminPostController.imageLoad(resourceId, imageId.get).url
+        "newUuid" -> image.id,
+        "thumbnailUrl" -> routes.AdminPostController.imageLoad(resourceId, image.id).url
       ))
   }
 
@@ -112,7 +109,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     val fsi = FileSystemInterface.get.image
     fsi.getImageWithSuggestedSize(StringId(id), SmallSize, FileSlug.noSlugify(load)) match {
       case None => NotFound(load)
-      case Some(file) => DownloadHelper.getInlineResult(file)
+      case Some(image) => DownloadHelper.getInlineResult(image.file)
     }
   }}
 

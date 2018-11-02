@@ -10,6 +10,8 @@ import com.hdigiorgi.showPhoto.model.{FileSlug, StringId}
 import javax.imageio.ImageIO
 import org.apache.commons.io.FileUtils
 
+import scala.util.Try
+
 object RandomImage {
 
   def gen(): File = {
@@ -26,10 +28,10 @@ object RandomImage {
     saveBufferToFile(name, buffer)
   }
 
-  def genAndSave(db: ImageFileDB ,id: StringId): GenericFileDB.ProcessingResult = storeImage(db, gen(), id)
+  def genAndSave(db: ImageFileDB ,id: StringId): Try[Seq[Image]] = storeImage(db, gen(), id)
 
   private def genBufferedImage(width: Int, height: Int): BufferedImage = {
-    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
     for(y <- Range(0, height)) {
       for(x <- Range(0, width)) {
         val a: Int = (Math.random()*256).toInt
@@ -50,7 +52,7 @@ object RandomImage {
     destination
   }
 
-  private def storeImage(db: ImageFileDB, file: File, id: StringId): GenericFileDB.ProcessingResult ={
+  private def storeImage(db: ImageFileDB, file: File, id: StringId): Try[Seq[Image]] ={
     db.process(file, id, FileSlug(file.getName))
   }
 

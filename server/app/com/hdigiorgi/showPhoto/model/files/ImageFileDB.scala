@@ -1,17 +1,21 @@
 package com.hdigiorgi.showPhoto.model.files
 
-import java.io.File
+import java.io.{File, PrintWriter}
 import java.nio.file.{Path, Paths}
 import java.time.Instant
 
 import scala.collection.JavaConverters._
 import com.hdigiorgi.showPhoto.model.{FileSlug, Slug, StringId}
+import controllers.routes
 import javax.imageio.{ImageIO, ImageWriteParam}
 import org.apache.commons.io.{FileUtils, FilenameUtils}
 import org.apache.commons.lang3.StringUtils
 import org.im4java.core._
 import org.im4java.process.ArrayListOutputConsumer
 import play.api.Configuration
+
+import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 
 case class SizeType(name: String, value: Integer, quality: Integer) {
@@ -51,6 +55,44 @@ case class ImageSize(x: Integer, y: Integer) {
 case class Color(r: Integer, g: Integer, b: Integer, a: Integer = 255) {
   def rgb: String = f"rgb($r,$g,$b)"
   def rgba: String = f"rgba($r,$g,$b,$a)"
+  def commaSeparated: String = f"$r,$g,$b"
+}
+object Color {
+  def fromCommaSeparated(input: String): Color = {
+    val values = input.split(",").map(_.toInt)
+    Color(values(0), values(1), values(2))
+  }
+  def fromCommaSeparatedOpt(input: String): Option[Color] = Try(fromCommaSeparated(input)).toOption
+
+}
+
+case class Palette(colors: Seq[Color]) {
+  def saveToFile(destination: File): Unit = {
+    val paletteString = colors.map(_.commaSeparated)
+    destination.getParentFile.mkdirs()
+    val pw = new PrintWriter(destination)
+    paletteString foreach { color =>
+      pw.println(color)
+    }
+    pw.close()
+  }
+}
+object Palette {
+  def readFromFile(origin: File): Palette = {
+    val source = Source.fromFile(origin)
+    val colors = source.getLines().map(Color.fromCommaSeparatedOpt).filter(_.isDefined).map(_.get).toSeq
+    source.close()
+    Palette(colors)
+  }
+}
+
+case class Image(file: File,
+                 elementId: String,
+                 sizeType: SizeType,
+                 fileSlug: FileSlug,
+                 palette: Palette) {
+  lazy val url: String = routes.PostController.image(elementId, sizeType.name, fileSlug.value).url
+  def id: String= fileSlug.value
 }
 
 trait ImageTransformationError
@@ -62,43 +104,50 @@ trait FileInterface {
   def getFiles(container: StringId): Seq[File]
 }
 
-object GenericFileDB {
-  type ProcessingResult = Either[Exception, Map[SizeType, File]]
-}
-
 class ImageFileDB()(implicit private val cfg: Configuration){
-  import GenericFileDB._
+
+  def location: String = filesRoot
 
   def getStoredImageIds(elementId: StringId): Seq[String] = {
     getContainerFolders(elementId).map(_.getName)
   }
 
-  def process(tempInputFile: File, elementId: StringId, inFileName: FileSlug): ProcessingResult = {
+  def process(tempInputFile: File, elementId: StringId, inFileName: FileSlug): Try[Seq[Image]] = {
     val toProcess = renameWithFileExtension(tempInputFile, inFileName)
     val destinationSlug = getUniqueFileSlug(elementId, inFileName)
-    val processResult = processImageBySize(toProcess, elementId, destinationSlug)
+    val imageProcessResult = processImageBySize(toProcess, elementId, destinationSlug)
+    val paletteProcessResult = processImagePalette(elementId, destinationSlug)
+    val processResult = imageProcessResult.flatMap(_ => paletteProcessResult)
     FileUtils.forceDelete(toProcess)
-    if(processResult.isLeft){
-      deleteImageDir(elementId, destinationSlug)
+
+    processResult match {
+      case Failure(t) =>
+        deleteImageDir(elementId, destinationSlug)
+        Failure(t)
+      case Success(_) =>
+        imageProcessResult.flatMap(sizesToImages(elementId, destinationSlug, _))
     }
-    processResult
   }
 
-  def getImageId(result: ProcessingResult): Option[String] = result match {
-    case Left(_) => None
-    case Right(map) => Some(map.head._2.getName)
+  def getImageWithSuggestedSize(elementId: StringId, size: SizeType, imageSlug: FileSlug): Option[Image] = {
+    for {
+      (file, size) <- getImageFileWithSuggestedSize(elementId, size, imageSlug)
+      palette <- getPalette(elementId, imageSlug).toOption
+    } yield {
+      Image(file, elementId, size, imageSlug, palette)
+    }
   }
 
-  def getImageWithSuggestedSize(elementId: StringId, size: SizeType, image: FileSlug): Option[File] = {
+  def getImageFileWithSuggestedSize(elementId: StringId, size: SizeType, image: FileSlug): Option[(File, SizeType)] = {
     val targetFile = getImageLocation(elementId, size, image)
-    if(targetFile.exists()) return Some(targetFile)
+    if(targetFile.exists()) return Some((targetFile, size))
 
     val options = SizeType.sizes.filter(_> size).reverse ++ SizeType.sizes.filter(_< size)
-    options.foldLeft(None: Option[File])((acc, size) => acc match {
+    options.foldLeft(None: Option[(File, SizeType)])((acc, size) => acc match {
       case Some(x) => Some(x)
       case None =>
         getImageLocation(elementId, size, image) match {
-          case file if file.exists() => Some(file)
+          case file if file.exists() => Some((file, size))
           case _ => None
         }
     })
@@ -112,7 +161,16 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     }
   }
 
-  def location: String = filesRoot
+  private def sizesToImages(elementId: StringId, slug: FileSlug, sizes: Seq[SizeType]): Try[Seq[Image]] = {
+    Try {
+      sizes.map { size =>
+        getImageWithSuggestedSize(elementId, size, slug) match {
+          case None => throw new RuntimeException("can't find image for that size")
+          case Some(image) => image
+        }
+      }
+    }
+  }
 
   private def renameWithFileExtension(temp: File, target: FileSlug): File = {
     val tempBaseName = FilenameUtils.getBaseName(temp.getName)
@@ -123,6 +181,12 @@ class ImageFileDB()(implicit private val cfg: Configuration){
       FileUtils.moveFile(temp, newTempFile)
     }
     newTempFile
+  }
+
+  private def getPaletteLocation(elementId: StringId, imageSlug: FileSlug): File = {
+    val folder = getContainerFolder(elementId, imageSlug)
+    val fileName = "palette.txt"
+    Paths.get(folder.getPath, fileName).toFile
   }
 
   private def getImageLocation(elementId: StringId, size: SizeType, imageSlug: FileSlug): File = {
@@ -167,44 +231,63 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     }
   }
 
-  private def processImageBySize(originalFile: File, elementId: StringId, fileName: FileSlug): ProcessingResult = {
+  private def processImageBySize(originalFile: File, elementId: StringId, fileName: FileSlug): Try[Seq[SizeType]] = {
     val originalFileSize = getSizeOfImage(originalFile)
     SizeType.sizes.filter( size => {
       originalFileSize > size.value || size == FullSize
-    }).foldLeft(Right(Map.empty) : ProcessingResult)((acc, sizeType) => acc match {
-      case Left(_) => acc
-      case Right(map) =>
+    }).foldLeft(Success(Seq.empty) : Try[Seq[SizeType]])((acc, sizeType) => acc match {
+      case Failure(_) => acc
+      case Success(seq) =>
         val destination = getImageLocation(elementId, sizeType, fileName.withExtension(finalImageExtension))
         val destinationSize = originalFileSize.getDownScaled(sizeType.value)
         transformImage(originalFile, destination, sizeType.quality, destinationSize) match {
-          case Left(e) => Left(e)
-          case Right(file) => Right(map + (sizeType -> file))
+          case Failure(thr) => Failure(thr)
+          case Success(file) => Success(sizeType +: seq)
         }
     })
   }
 
-  // magick <image> +dither -colors 5 -define histogram:unique-colors=true -format "%c" histogram:info:
-  private def getGradient(file: File): Unit = {
-    val op = new IMOperation
-    op.addImage(file.getCanonicalPath)
-    op.dither()
-    op.colors(5)
-    op.define("histogram:unique-colors=true")
-    op.format("%c")
-    op.addRawArgs("histogram:info:")
-    val cmd = new ImageCommand("magick")
-    val output = new ArrayListOutputConsumer()
-    cmd.setOutputConsumer(output)
-    cmd.run(op)
-    val cmdOutput = output.getOutput
+  private def processImagePalette(elementId: StringId, fileName: FileSlug): Try[Palette] = {
+    val imageFileOpt = getImageFileWithSuggestedSize(elementId, SmallSize, fileName)
+    if(imageFileOpt.isEmpty) return Failure(new Exception("no image found"))
+    val palette = getPaletteFromImage(imageFileOpt.get._1)
+    if(palette.isFailure) return palette
+    val destination = getPaletteLocation(elementId, fileName)
+    Try(palette.get.saveToFile(destination)).flatMap(_ => palette)
   }
 
-  private def getHistogramInfoColors(array: java.util.ArrayList[String]): Seq[Color] = {
-    array.asScala.map(line => {
+  private def getPalette(elementId: StringId, fileName: FileSlug): Try[Palette] = {
+    Try {
+      val location = getPaletteLocation(elementId, fileName)
+      Palette.readFromFile(location)
+    }
+  }
+
+  // magick <image> +dither -colors 5 -define histogram:unique-colors=true -format "%c" histogram:info:
+  private def getPaletteFromImage(file: File): Try[Palette] = {
+    Try{
+      val op = new IMOperation
+      op.addImage(file.getCanonicalPath)
+      op.addRawArgs("+dither")
+      op.colors(5)
+      op.define("histogram:unique-colors=true")
+      op.format("\"%c\"")
+      op.addRawArgs("histogram:info:")
+      val cmd = new ImageCommand("magick")
+      val output = new ArrayListOutputConsumer()
+      cmd.setOutputConsumer(output)
+      cmd.run(op)
+      val cmdOutput = output.getOutput
+      getHistogramInfoColors(cmdOutput)
+    }
+  }
+
+  private def getHistogramInfoColors(array: java.util.ArrayList[String]): Palette = {
+    val colors = array.asScala.map(line => {
       val rgbString = StringUtils.substringBetween(line,"srgb(", ")")
-      val rgbInteger = rgbString.split(",").map(_.toInt)
-      Color(rgbInteger(0), rgbInteger(1), rgbInteger(2))
+      Color.fromCommaSeparated(rgbString)
     })
+    Palette(colors)
   }
 
   private def getSizeOfImage(file: File): ImageSize = {
@@ -225,8 +308,8 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     ImageSize(width, height)
   }
 
-  private def transformImage(original: File, destination: File, quality: Int, size: ImageSize): Either[Exception, File] = {
-    try {
+  private def transformImage(original: File, destination: File, quality: Int, size: ImageSize): Try[File] = {
+    Try{
       val op = new IMOperation
       op.addImage(original.getCanonicalPath)
       op.resize(size.x, size.y)
@@ -241,9 +324,7 @@ class ImageFileDB()(implicit private val cfg: Configuration){
       destination.getParentFile.mkdirs()
       val cmd = new ImageCommand("magick")
       cmd.run(op)
-      Right(destination)
-    } catch {
-      case e: Exception => Left(e)
+      destination
     }
   }
 

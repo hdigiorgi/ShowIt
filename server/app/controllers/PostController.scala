@@ -21,7 +21,7 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
   def image(postId: String, size: String, imageName: String) = Action { implicit r =>
     PostManager().image(postId, size, imageName) match {
       case Left(errorMessage) => NotFound(errorMessage.message())
-      case Right(file) => DownloadHelper.getInlineResult(file)
+      case Right(image) => DownloadHelper.getInlineResult(image.file)
     }
   }
 
@@ -30,7 +30,6 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
   def post(slug: String) = Action { _ =>
     Ok("post")
   }
-
 
 }
 

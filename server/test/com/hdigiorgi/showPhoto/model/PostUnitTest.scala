@@ -3,8 +3,11 @@ import java.time.Instant
 
 import com.hdigiorgi.showPhoto.UnitTestBase
 import com.hdigiorgi.showPhoto.model.post.{Post, Published, Title, Unpublished}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.sqlite.SQLiteException
 
+@RunWith(classOf[JUnitRunner])
 class PostUnitTest extends UnitTestBase{
 
   test("interface") {

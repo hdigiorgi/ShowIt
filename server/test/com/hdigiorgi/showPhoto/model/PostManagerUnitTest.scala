@@ -3,7 +3,12 @@ package com.hdigiorgi.showPhoto.model
 import com.hdigiorgi.showPhoto.UnitTestBase
 import com.hdigiorgi.showPhoto.model.files.RandomImage
 import com.hdigiorgi.showPhoto.model.post._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+import scala.util.Success
+
+@RunWith(classOf[JUnitRunner])
 class PostManagerUnitTest extends UnitTestBase {
   test("first post if unpublished") {
     wrapCleanDB{ db =>
@@ -31,8 +36,8 @@ class PostManagerUnitTest extends UnitTestBase {
       pm.saveTitle(post.id, "Some VALID title").isRight shouldBe true
       pm.unpublish(post.id) shouldBe PublicationStatus.ErrorMessages.AlreadyInThatState
       pm.publish(post.id) shouldBe PostManager.ErrorMessages.NoImages
-      RandomImage.genAndSave(pm.imageDb, post.id)
-      pm.publish(post.id).isRight shouldBe true
+      RandomImage.genAndSave(pm.imageDb, post.id) should matchPattern { case Success(_) => }
+      pm.publish(post.id) should matchPattern { case Right(_) => }
       pm.publish(post.id) shouldBe PublicationStatus.ErrorMessages.AlreadyInThatState
     }
   }
@@ -43,8 +48,8 @@ class PostManagerUnitTest extends UnitTestBase {
       pm.saveTitle(post.id, "some exiting title")
       pm.saveContent(post.id, "awesome content")
       pm.publish(post.id) shouldBe PostManager.ErrorMessages.NoImages
-      RandomImage.genAndSave(pm.imageDb, post.id)
-      pm.publish(post.id).isRight shouldBe true
+      RandomImage.genAndSave(pm.imageDb, post.id) should matchPattern { case Success(_) => }
+      pm.publish(post.id) should matchPattern { case Right(_) => }
     }
   }
 
