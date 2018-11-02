@@ -1,20 +1,15 @@
 package com.hdigiorgi.showPhoto.model.files
 
-import java.io.{File, PrintWriter}
+import java.io.File
 import java.nio.file.{Path, Paths}
 import java.time.Instant
-
 import scala.collection.JavaConverters._
-import com.hdigiorgi.showPhoto.model.{FileSlug, Slug, StringId}
-import controllers.routes
-import javax.imageio.{ImageIO, ImageWriteParam}
+import com.hdigiorgi.showPhoto.model._
 import org.apache.commons.io.{FileUtils, FilenameUtils}
 import org.apache.commons.lang3.StringUtils
 import org.im4java.core._
 import org.im4java.process.ArrayListOutputConsumer
 import play.api.Configuration
-
-import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 
@@ -52,49 +47,6 @@ case class ImageSize(x: Integer, y: Integer) {
   }
 }
 
-case class Color(r: Integer, g: Integer, b: Integer, a: Integer = 255) {
-  def rgb: String = f"rgb($r,$g,$b)"
-  def rgba: String = f"rgba($r,$g,$b,$a)"
-  def commaSeparated: String = f"$r,$g,$b"
-}
-object Color {
-  def fromCommaSeparated(input: String): Color = {
-    val values = input.split(",").map(_.trim.toInt)
-    Color(values(0), values(1), values(2))
-  }
-  def fromCommaSeparatedOpt(input: String): Option[Color] = Try(fromCommaSeparated(input)).toOption
-
-}
-
-case class Palette(colors: Seq[Color]) {
-  def saveToFile(destination: File): Unit = {
-    val paletteString = colors.map(_.commaSeparated)
-    destination.getParentFile.mkdirs()
-    val pw = new PrintWriter(destination)
-    paletteString foreach { color =>
-      pw.println(color)
-    }
-    pw.close()
-  }
-}
-object Palette {
-  def readFromFile(origin: File): Palette = {
-    val source = Source.fromFile(origin)
-    val colors = source.getLines().map(Color.fromCommaSeparatedOpt).filter(_.isDefined).map(_.get).toSeq
-    source.close()
-    Palette(colors)
-  }
-}
-
-case class Image(file: File,
-                 elementId: String,
-                 sizeType: SizeType,
-                 fileSlug: FileSlug,
-                 palette: Palette) {
-  lazy val url: String = routes.PostController.image(elementId, sizeType.name, fileSlug.value).url
-  def id: String= fileSlug.value
-}
-
 trait ImageTransformationError
 object InvalidOutputExtension extends ImageTransformationError
 case class ImageMagickExecutionError(e: Exception) extends ImageTransformationError
@@ -107,10 +59,6 @@ trait FileInterface {
 class ImageFileDB()(implicit private val cfg: Configuration){
 
   def location: String = filesRoot
-
-  def getStoredImageIds(elementId: StringId): Seq[String] = {
-    getContainerFolders(elementId).map(_.getName)
-  }
 
   def process(tempInputFile: File, elementId: StringId, inFileName: FileSlug): Try[Seq[Image]] = {
     val toProcess = renameWithFileExtension(tempInputFile, inFileName)
@@ -129,13 +77,16 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     }
   }
 
-  def getImageWithSuggestedSize(elementId: StringId, size: SizeType, imageSlug: FileSlug): Option[Image] = {
-    for {
-      (file, size) <- getImageFileWithSuggestedSize(elementId, size, imageSlug)
-      palette <- getPalette(elementId, imageSlug).toOption
-    } yield {
-      Image(file, elementId, size, imageSlug, palette)
-    }
+  def getStoredImages(elementId: StringId): Seq[Image] = {
+    getContainerFolders(elementId).map(imageSlug => {
+      getImage(elementId, FileSlug(imageSlug.getName))
+    }).filter(_.isDefined).map(_.get)
+  }
+
+  def getImage(elementId: StringId, imageSlug: FileSlug): Option[Image] = {
+    getPalette(elementId, imageSlug).map{palette =>
+      Image(elementId, imageSlug, palette)
+    }.toOption
   }
 
   def getImageFileWithSuggestedSize(elementId: StringId, size: SizeType, image: FileSlug): Option[(File, SizeType)] = {
@@ -164,7 +115,7 @@ class ImageFileDB()(implicit private val cfg: Configuration){
   private def sizesToImages(elementId: StringId, slug: FileSlug, sizes: Seq[SizeType]): Try[Seq[Image]] = {
     Try {
       sizes.map { size =>
-        getImageWithSuggestedSize(elementId, size, slug) match {
+        getImage(elementId, slug) match {
           case None => throw new RuntimeException("can't find image for that size")
           case Some(image) => image
         }

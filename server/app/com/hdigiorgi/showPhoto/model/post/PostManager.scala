@@ -2,18 +2,10 @@ package com.hdigiorgi.showPhoto.model.post
 
 import java.io.File
 
-import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, Image, ImageFileDB, SizeType}
+import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeType}
 import com.hdigiorgi.showPhoto.model._
-import controllers.routes
 import play.api.Configuration
 
-case class PostWithImages(post: Post, images: Seq[String]) {
-  lazy val imageUrl: String = {
-    val drop = Math.min(images.size -1, (Math.random()*images.size).ceil.toInt -1)
-    val imageId = images.drop(drop).headOption.getOrElse("")
-    routes.PostController.smallImage(post.id, imageId).url
-  }
-}
 
 class PostManager(val db: PostPI,
                   val imageDb: ImageFileDB,
@@ -21,23 +13,19 @@ class PostManager(val db: PostPI,
   import PostManager.ErrorMessages._
 
   def posts(page: Int): PaginatedResult[Post] = {
-    db.readPaginated(Page(page, 12))
+    db.readPaginated(Page(page, 12)).map(post => {
+      post.withImages(imageDb.getStoredImages(post.id))
+    })
   }
 
-  def postsWithImageIds(page: Int): PaginatedResult[PostWithImages] = {
-    posts(page).map{post =>
-      PostWithImages(post, imageDb.getStoredImageIds(post.id))
-    }
-  }
-
-  def image(postId: StringId, imageSize: String, imageName: String): Either[ErrorMessage, Image] = {
+  def imageFile(postId: StringId, imageSize: String, imageName: String): Either[ErrorMessage, File] = {
     val post = readPost(postId)
     if(post.isLeft) return Left(post.left.get)
     if(post.right.get.publicationStatus.isUnpublished) return PostIsUnpublished
     val sizeType = SizeType.fromString(imageSize)
-    imageDb.getImageWithSuggestedSize(postId, sizeType, FileSlug(imageName)) match {
+    imageDb.getImageFileWithSuggestedSize(postId, sizeType, FileSlug(imageName)) match {
       case None => ImageNotFound
-      case Some(image) => Right(image)
+      case Some((imageFile,_)) => Right(imageFile)
     }
   }
 
@@ -118,7 +106,7 @@ class PostManager(val db: PostPI,
   }
 
   private def validatePostImages(p: Post): Either[ErrorMessage, Post] = {
-    imageDb.getStoredImageIds(p.id) match {
+    imageDb.getStoredImages(p.id) match {
       case Seq() => NoImages
       case _ => Right(p)
     }

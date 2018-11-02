@@ -27,11 +27,12 @@ $(window).on("load",() => {
     e.css("background-color", background)
   }
 
+  /*
   const firstImage = $(".landing-image-grid-container img").first()
   if(firstImage.length > 0) {
     var colorThief = new ColorThief();
     setHeadingColors(colorThief.getPalette(firstImage.get(0)))
-  }
+  }*/
 
   $("body").css("opacity", "1")
 })

@@ -2,7 +2,7 @@ package controllers
 
 import cats.data.Validated
 import cats.data.Validated.{Invalid, Valid}
-import com.hdigiorgi.showPhoto.model.{DBInterface, ErrorMessage, FileSlug, StringId}
+import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
 import filters.{LanguageFilterSupport, WhenAdmin}
@@ -12,6 +12,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
 import org.apache.commons.io.FilenameUtils
+
 import scala.util.{Failure, Success, Try}
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
@@ -33,7 +34,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     DBInterface().post.read(id) match {
       case None => NotFound("")
       case Some(post) =>
-        val imagesIds = FileSystemInterface.get.image.getStoredImageIds(StringId(id))
+        val imagesIds = FileSystemInterface.get.image.getStoredImages(StringId(id)).map(_.id)
         Ok(views.html.admin.post.edit(post, imagesIds))
           .withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
     }
@@ -84,12 +85,12 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }
 
   def imageList(postId: String) = WhenAdmin {Action { request =>
-    val imagesIds = FileSystemInterface.get.image.getStoredImageIds(StringId(postId))
-    val data = imagesIds.map(id => {
+    val images = FileSystemInterface.get.image.getStoredImages(StringId(postId))
+    val data = images.map(images => {
       Map(
-        "name" -> FilenameUtils.getBaseName(id),
-        "uuid" -> id,
-        "thumbnailUrl" -> routes.AdminPostController.imageLoad(postId, id).url
+        "name" -> images.fileSlug.value,
+        "uuid" -> images.id,
+        "thumbnailUrl" -> routes.AdminPostController.imageLoad(postId, images.id).url
       )
     })
     Ok(Json.toJson(data))
@@ -107,9 +108,9 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
 
   def imageLoad(id: String, load: String) = WhenAdmin { Action { _ =>
     val fsi = FileSystemInterface.get.image
-    fsi.getImageWithSuggestedSize(StringId(id), SmallSize, FileSlug.noSlugify(load)) match {
+    fsi.getImageFileWithSuggestedSize(StringId(id), SmallSize, FileSlug.noSlugify(load)) match {
       case None => NotFound(load)
-      case Some(image) => DownloadHelper.getInlineResult(image.file)
+      case Some((imageFile,_)) => DownloadHelper.getInlineResult(imageFile)
     }
   }}
 

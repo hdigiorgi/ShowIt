@@ -4,12 +4,10 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.nio.file.Paths
 import java.util.Random
-
 import com.github.javafaker.Faker
-import com.hdigiorgi.showPhoto.model.{FileSlug, StringId}
+import com.hdigiorgi.showPhoto.model.{FileSlug, Image, StringId}
 import javax.imageio.ImageIO
 import org.apache.commons.io.FileUtils
-
 import scala.util.Try
 
 object RandomImage {

@@ -2,11 +2,7 @@ package com.hdigiorgi.showPhoto.model.post
 
 import com.hdigiorgi.showPhoto.model._
 import java.time.Instant
-
-import cats.implicits._
 import cats.Later
-import cats.data.Validated
-import cats.data.Validated.{Invalid, Valid}
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.jsoup.Jsoup
@@ -100,9 +96,22 @@ class Post private (_inId: Option[StringId] = None,
                     _inCreationTime: Option[Instant] = None,
                     _inPublicationStatus: Option[PublicationStatus] = None,
                     _inRawContent: Option[Later[String]] = None,
-                    _inRenderedContent: Option[SafeHtml] = None) {
+                    _inRenderedContent: Option[SafeHtml] = None,
+                    _inImages: Seq[Image] = Seq.empty) {
 
   val id: StringId = _inId.getOrElse(StringId.random)
+
+  private var _images = _inImages
+  def images: Seq[Image] = _images
+  def withImages(images: Seq[Image]): Post = {
+    val post = new Post(this)
+    post._images = images
+    post
+  }
+  lazy val randomImage: Image = {
+    val drop = Math.min(images.size -1, (Math.random()*images.size).ceil.toInt -1)
+    images.drop(drop).head
+  }
 
   private var _title = _inTitle.getOrElse(Title(""))
   def title: Title = _title
@@ -173,7 +182,8 @@ class Post private (_inId: Option[StringId] = None,
   private def this(post: Post) {
     this(_inId = Some(post.id), _inTitle = Some(post.title), _inSlug = Some(post.slug),
          _inCreationTime = Some(post.creationTime), _inPublicationStatus = Some(post.publicationStatus),
-         _inRawContent = Some(Later(post.rawContent)), _inRenderedContent = Some(post.renderedContent))
+         _inRawContent = Some(Later(post.rawContent)), _inRenderedContent = Some(post.renderedContent),
+         _inImages = post.images)
   }
 
 }
