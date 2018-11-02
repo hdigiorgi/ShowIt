@@ -59,7 +59,7 @@ case class Color(r: Integer, g: Integer, b: Integer, a: Integer = 255) {
 }
 object Color {
   def fromCommaSeparated(input: String): Color = {
-    val values = input.split(",").map(_.toInt)
+    val values = input.split(",").map(_.trim.toInt)
     Color(values(0), values(1), values(2))
   }
   def fromCommaSeparatedOpt(input: String): Option[Color] = Try(fromCommaSeparated(input)).toOption
@@ -284,7 +284,7 @@ class ImageFileDB()(implicit private val cfg: Configuration){
 
   private def getHistogramInfoColors(array: java.util.ArrayList[String]): Palette = {
     val colors = array.asScala.map(line => {
-      val rgbString = StringUtils.substringBetween(line,"srgb(", ")")
+      val rgbString = StringUtils.substringBetween(line," (", ") ")
       Color.fromCommaSeparated(rgbString)
     })
     Palette(colors)

@@ -120,7 +120,7 @@
 }
 
 
-body {
+.landingBody {
     opacity: 0;
     transition: 2s;
 }
