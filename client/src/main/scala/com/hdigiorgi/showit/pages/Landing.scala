@@ -8,6 +8,7 @@ import scala.scalajs.js
 class Landing {
   def run(): Unit = jQuery(dom.window).on("load", (_: JQueryEventObject) => {
     setupMobileScrollTitles()
+    showBody()
   })
 
   private def setupMobileScrollTitles(): Unit = {
@@ -16,4 +17,9 @@ class Landing {
       jQuery(target).toggleClass("title-hover")
     })
   }
+
+  private def showBody(): Unit = {
+    jQuery("body").css("opacity", "1")
+  }
+
 }

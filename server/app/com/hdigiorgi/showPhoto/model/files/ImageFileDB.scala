@@ -237,7 +237,7 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     val colors = array.asScala.map(line => {
       val rgbString = StringUtils.substringBetween(line," (", ") ")
       Color.fromCommaSeparated(rgbString)
-    })
+    }).toList
     Palette(colors)
   }
 
