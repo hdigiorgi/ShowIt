@@ -7,6 +7,7 @@ import filters.LanguageFilterSupport
 import javax.inject.Inject
 import play.api.Configuration
 import play.api.mvc._
+import play.filters.headers.SecurityHeadersFilter
 
 
 @Singleton
@@ -28,7 +29,10 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
   def smallImage(postId: String, imageName: String): Action[AnyContent] = image(postId, SmallSize.name, imageName)
 
   def post(slug: String) = Action { _ =>
-    Ok("post")
+    PostManager().post(slug) match {
+      case None => Redirect(routes.PostController.index(None))
+      case Some(post) => Ok(views.html.post(post)).withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
+    }
   }
 
 }

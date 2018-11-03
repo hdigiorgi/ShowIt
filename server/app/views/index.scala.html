@@ -5,7 +5,7 @@
 
 @imageItem(post: Post) = {
     <div class="col-6 col-md-4 cols">
-        <a href="@routes.PostController.post(post.id.value)">
+        <a href="@routes.PostController.post(post.slug.value)">
             <img src="@post.randomImage.smallSizeUrl"/>
         </a>
         <div class="title">
@@ -14,7 +14,7 @@
     </div>
 }
 
-@main("Hello", "landingBody") {
+@main("Hello", "landingBody", "landing") {
     @if(paginated.nonEmpty) {
         @defining(paginated.first) {firstPost =>
             <div class="bodyBackground"><div class="content"></div></div>

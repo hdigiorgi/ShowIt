@@ -9,6 +9,7 @@ object Main extends {
   def main(): Unit = jQuery{
     jQuery("#APP").attr("run").map{
       case "landing" => new pages.Landing().run()
+      case "post" => new pages.Post().run()
     }
   }
 

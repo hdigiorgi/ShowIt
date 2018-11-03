@@ -12,6 +12,12 @@ class PostManager(val db: PostPI,
                   val attachmentDb: AttachmentFileDB) {
   import PostManager.ErrorMessages._
 
+  def post(slug: Slug): Option[Post] = {
+    db.readBySlug(slug).map{post =>
+      post.withImages(imageDb.getStoredImages(post.id))
+    }
+  }
+
   def posts(page: Int): PaginatedResult[Post] = {
     db.readPaginated(Page(page, 12)).map(post => {
       post.withImages(imageDb.getStoredImages(post.id))

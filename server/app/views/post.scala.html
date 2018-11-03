@@ -1,0 +1,38 @@
+@import com.hdigiorgi.showPhoto.model.post.Post
+
+
+@(post: Post)
+
+@main(post.title.value, "postBody", "post"){
+<nav id="postNavbar" class="navbar">
+    <span class="navbar-brand mb-0 h1">PAGE NAME</span>
+</nav>
+
+<div id="imageCarousel" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner">
+        @for((image, i) <- post.images.zipWithIndex){
+            <div class="carousel-item @if(i==0){active}">
+                <img src="@image.mediumSizeUrl" alt="@image.fileSlug.value"
+                     foreground="@image.palette.foreground.withAlpha(255).rgba"
+                     background="@image.palette.background.withAlpha(180).rgba">
+            </div>
+        }
+    </div>
+    <a class="carousel-control-prev" href="#imageCarousel" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#imageCarousel" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+    <a class="carousel-control-zoom">
+        <i class="fas fa-search"></i>
+    </a>
+</div>
+
+<div id="APP" run="post"></div>
+
+}{ } @* end main *@
+
+  

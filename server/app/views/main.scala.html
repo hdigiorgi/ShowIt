@@ -4,7 +4,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String, bodyClass: String = "body")(content: Html)(scripts: Html)
+@(title: String, bodyClass: String = "body", css: String = "default")(content: Html)(scripts: Html)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +21,7 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
 
         @* Custom *@
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned(f"stylesheets/$css.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
 
     </head>
