@@ -36,10 +36,17 @@ class Post {
     viewers.get(url) match {
       case Some(viewer) => viewer
       case None =>
-        val viewer = new Viewer(img, ViewerOptions("fullSizeUrl"))
+        val opts = ViewerOptions("fullSizeUrl", show = stopCarousel, hidden = startCarousel)
+        val viewer = new Viewer(img, opts)
         viewers(url) = viewer
         viewer
     }
+  }
+
+  private def stopCarousel(): Unit = doCarouselOp("pause")
+  private def startCarousel(): Unit = doCarouselOp("cycle")
+  private def doCarouselOp(op: String): Unit = {
+    js.Dynamic.global.jQuery("#imageCarousel").carousel(op)
   }
 
   private def getActiveImg(): dom.Element = jQuery("#imageCarousel .active img").get(0)

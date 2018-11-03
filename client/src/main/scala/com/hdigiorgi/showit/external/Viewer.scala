@@ -11,18 +11,25 @@ trait ViewerOptions extends js.Object {
   val navbar: Boolean
   val title: Boolean
   val toolbar: Boolean
+  val show: js.Function0[Unit]
+  val hidden: js.Function0[Unit]
 }
 object ViewerOptions {
-  def apply(url: String, navbar: Boolean = false, title: Boolean = true, toolbar: Boolean = false): ViewerOptions = {
+  def apply(url: String, navbar: Boolean = false, title: Boolean = false, toolbar: Boolean = false,
+            show: scala.Function0[Unit] = () => (), hidden: scala.Function0[Unit] = () => ()): ViewerOptions = {
     val _url = url
     val _navbar = navbar
     val _title = title
     val _toolbar = toolbar
+    val _show = show
+    val _hidden = hidden
     js.use[ViewerOptions]( new ViewerOptions {
       override val url: String = _url
       override val navbar: Boolean = _navbar
       override val title: Boolean = _title
       override val toolbar: Boolean = _toolbar
+      override val show: js.Function0[Unit] = _show
+      override val hidden: js.Function0[Unit] = _hidden
     }).as[ViewerOptions]
   }
 
