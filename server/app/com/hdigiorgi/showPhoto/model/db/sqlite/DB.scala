@@ -99,6 +99,7 @@ object DB extends DBInterface { self =>
     val (url, file) = getDBFile(self.configuration)
     val folder = file.getParentFile
     if(!folder.exists()) folder.mkdirs()
+    Class.forName("org.sqlite.JDBC");
     val con = DriverManager.getConnection(url)
     con.close()
   }

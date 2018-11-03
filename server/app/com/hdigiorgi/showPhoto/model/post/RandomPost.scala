@@ -18,7 +18,9 @@ object RandomPost {
     val imageDB = FileSystemInterface.get(configuration).image
     val sampleImageFolderFile = new File(sampleImageFolder)
     Range.inclusive(1,amount).map{ _ =>
-      genAndSave(postDB, imageDB, sampleImageFolderFile)
+      val post = genAndSave(postDB, imageDB, sampleImageFolderFile)
+      println(post)
+      post
     }
   }
 

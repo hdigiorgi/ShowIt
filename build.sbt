@@ -78,7 +78,7 @@ lazy val app = crossProject(JSPlatform, JVMPlatform)
 lazy val appJS = app.js
 lazy val appJVM = app.jvm
 
-
+run := (Keys.run in Compile in server).evaluated
 
 
 val action = inputKey[Unit]("run actions from the Main class")

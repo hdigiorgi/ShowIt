@@ -38,9 +38,7 @@ object Main {
   private def populate(env: Environment, args: Arguments): Unit = {
     val count = args.get(0, "amount").toInt
     val imageFolder = args.get(1, "default image folder")
-    RandomPost.genAndSave(env.configuration, imageFolder, count) foreach { post =>
-      println(post)
-    }
+    RandomPost.genAndSave(env.configuration, imageFolder, count)
   }
 
 }
