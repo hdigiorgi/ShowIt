@@ -1,6 +1,8 @@
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
+import complete.DefaultParsers._
+import sbt.internal.inc.classpath.ClasspathUtilities
 
 
 lazy val sharedSettings = Seq(
@@ -78,3 +80,13 @@ lazy val appJVM = app.jvm
 
 
 
+
+val action = inputKey[Unit]("run actions from the Main class")
+action := {
+  val args: Array[String] = spaceDelimited("args").parsed.toArray
+  val classPath = (fullClasspath in Runtime in server).value
+  val loader: ClassLoader = ClasspathUtilities.toLoader(classPath.map(_.data).map(_.getAbsoluteFile))
+  val method = loader.loadClass("com.hdigiorgi.showPhoto.application.Main").getMethod("main", classOf[Array[String]])
+  method.invoke(null, args)
+}
+action := action.dependsOn(compile in Compile in server).evaluated
