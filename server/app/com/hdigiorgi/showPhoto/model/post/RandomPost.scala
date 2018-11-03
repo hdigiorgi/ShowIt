@@ -33,7 +33,9 @@ object RandomPost {
     post
   }
 
-  private def genTitle: String = new Faker().book().title()
+  private def genTitle: String = {
+    new Faker().book().title() + "_" + System.currentTimeMillis()
+  }
 
   private def genContent: String = new Faker().lorem().paragraphs(5).asScala.foldLeft(new StringBuilder){ (builder, string) =>
     builder.append(string)
