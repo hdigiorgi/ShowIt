@@ -19,6 +19,13 @@ class Post {
     val background = img.getAttribute("background")
     updateElementColors(jQuery("#postNavbar"), foreground, background)
     updateElementColors(jQuery("#bellowCarouselDownload"), foreground, background)
+    updateDownloadIconColor(foreground, background)
+  }
+
+  private def updateDownloadIconColor(foreground: String, background: String): Unit = {
+    val e = jQuery("#bellowCarouselDownloadIcon")
+    e.css("color", foreground)
+    e.css("text-shadow", f"0px 0px 7px $background")
   }
 
   private def updateElementColors(element: JQuery, foreground: String, background: String): Unit = {
