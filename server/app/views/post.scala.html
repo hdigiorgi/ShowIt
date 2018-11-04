@@ -5,13 +5,11 @@
 
 @main(post.title.value, "postBody", "post"){
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.3.0/viewer.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.3.0/viewer.min.js"></script>
-
-<nav id="postNavbar" class="navbar">
-    <span class="navbar-brand mb-0 h1">PAGE NAME</span>
-</nav>
 
 <div id="imageCarousel" class="carousel slide" data-ride="carousel">
+    <nav id="postNavbar" class="navbar">
+        <span class="navbar-brand mb-0 h1">PAGE NAME</span>
+    </nav>
     
     <div class="carousel-inner">
         @for((image, i) <- post.images.zipWithIndex){
@@ -42,10 +40,54 @@
     
 </div>
 
+<div class="container content-container">
+    <div class="title-container" data-toggle="modal" data-target="#exampleModalCenter">
+        <h1>@post.title.value</h1>
+        <i class="fas fa-share-alt share-button-toggle"></i>
+    </div>
+    
+    
+      <!-- Modal -->
+      <div class="modal fade share-modal" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Share</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="share">
+                    <button data-social="twitter"><i class="fab fa-twitter"></i></button>
+                    <button data-social="facebook"><i class="fab fa-facebook"></i></button>
+                    <button data-social="linkedin"><i class="fab fa-linkedin"></i></button>
+                    <button data-social="reddit"><i class="fab fa-reddit"></i></button>
+                    <button data-social="stumbleupon"><i class="fab fa-stumbleupon"></i></button>
+                    <button data-social="tumblr"><i class="fab fa-tumblr"></i></button>
+                    <button data-social="blogger"><i class="fab fa-blogger"></i></button>
+                    <button data-social="pinterest"><i class="fab fa-pinterest"></i></button>
+                    <button data-social="whatsapp mobile"><i class="fab fa-whatsapp"></i></button>
+                    <button data-social="sms mobile"><i class="fas fa-mobile-alt"></i></button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    
+    <div class="content">
+        @Html(post.renderedContent.value)
+    </div>
+</div>
 
 
 <div id="APP" run="post"></div>
 
-}{ } @* end main *@
+}{ 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.3.0/viewer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/goodshare.js@@5/goodshare.min.js"></script>
+} @* end main *@
 
   

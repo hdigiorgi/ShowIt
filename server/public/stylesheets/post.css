@@ -1,5 +1,5 @@
 #postNavbar {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
@@ -89,4 +89,41 @@
     to {
         transform: rotate(-10deg);
     }
+}
+
+.content-container {
+    padding-top: 1em;
+    overflow: hidden;
+}
+.title-container {
+    cursor: pointer;
+}
+.title-container h1 {
+    display: inline;
+    overflow-wrap: break-word;
+    font-size: 2.5em;
+}
+.title-container .share-button-toggle {
+    opacity: 0.5;
+    font-size: 1.75em;
+    padding-left: 0.2em;
+    transition: 1s;
+}
+.title-container:hover .share-button-toggle{
+    animation: shake 0.1s ease-in-out 0.1s infinite alternate;
+    font-size: 2.5em;
+}
+
+
+.share-modal .modal-content{
+    background: #0000005e;
+}
+.share-modal .modal-header {
+    padding: 0.25em 0.5em 0.25em 0.5em;
+    border: unset;
+    color: #ffffffad;
+}
+.share-modal .modal-header .close,
+.share-modal .modal-header .close:hover {
+    color: white;
 }

@@ -58,7 +58,6 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
 
   //js
   resources in Compile += (fullOptJS in Compile in client).value.data,
-  //unmanagedResources in Compile ++= (file("../client/src/main/scala/com/hdigiorgi/showit/") ** "*.scala").get
   unmanagedSourceDirectories in Compile += file("../client/src/main/scala/com/hdigiorgi/showit/"),
 
 ).enablePlugins(PlayScala).dependsOn(appJVM).dependsOn(client)
@@ -70,7 +69,8 @@ lazy val client = (project in file("client")).settings(sharedSettings).settings(
   (mainClass in Compile) := Some("com.hdigiorgi.showit.Main"),
   artifactPath in(Compile, fastOptJS)             := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "app.js",
   artifactPath in(Compile, fullOptJS)             := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "app.js",
-  artifactPath in(Compile, packageJSDependencies) := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "dependency.js"
+  artifactPath in(Compile, packageJSDependencies) := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "dependency.js",
+  scalacOptions += "-P:scalajs:sjsDefinedByDefault"
 ).enablePlugins(ScalaJSPlugin).dependsOn(appJS)
 
 lazy val app = crossProject(JSPlatform, JVMPlatform)

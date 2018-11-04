@@ -5,7 +5,6 @@ import org.scalajs.dom
 import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSGlobal, JSName, ScalaJSDefined}
 
-@ScalaJSDefined
 trait ViewerOptions extends js.Object {
   val url: String
   val navbar: Boolean
