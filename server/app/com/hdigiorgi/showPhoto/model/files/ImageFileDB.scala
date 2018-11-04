@@ -13,19 +13,20 @@ import play.api.Configuration
 import scala.util.{Failure, Success, Try}
 
 
-case class SizeType(name: String, value: Integer, quality: Integer) {
+case class SizeType(name: String, value: Integer, quality: Integer, blur: Integer = 0) {
   def >(that: SizeType): Boolean = this.value > that.value
   def <(that: SizeType): Boolean = this.value < that.value
 }
 object SizeType {
-  val sizes = Seq(FullSize, MediumSize, SmallSize)
+  lazy val sizes = Seq(FullSize, MediumSize, SmallSize, BlurSize)
   def fromString(name: String): SizeType = {
     sizes.find(_.name.equalsIgnoreCase(name)).getOrElse(SmallSize)
   }
 }
-object FullSize extends SizeType("full", 2560, 50)
-object MediumSize extends SizeType("medium", 1280, 40)
+object FullSize extends SizeType("full", 2560, 75)
+object MediumSize extends SizeType("medium", 1280, 45)
 object SmallSize extends SizeType("small", 640, 30)
+object BlurSize extends SizeType("blur", 200, 100, 100)
 
 case class ImageSize(x: Integer, y: Integer) {
   def getDownScaled(value: Int): ImageSize = {
@@ -191,7 +192,7 @@ class ImageFileDB()(implicit private val cfg: Configuration){
       case Success(seq) =>
         val destination = getImageLocation(elementId, sizeType, fileName.withExtension(finalImageExtension))
         val destinationSize = originalFileSize.getDownScaled(sizeType.value)
-        transformImage(originalFile, destination, sizeType.quality, destinationSize) match {
+        transformImage(originalFile, destination, sizeType, destinationSize) match {
           case Failure(thr) => Failure(thr)
           case Success(file) => Success(sizeType +: seq)
         }
@@ -259,17 +260,20 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     ImageSize(width, height)
   }
 
-  private def transformImage(original: File, destination: File, quality: Int, size: ImageSize): Try[File] = {
+  private def transformImage(original: File, destination: File, sizeType: SizeType, size: ImageSize): Try[File] = {
     Try{
       val op = new IMOperation
       op.addImage(original.getCanonicalPath)
       op.resize(size.x, size.y)
       op.strip()
       op.interlace("Plane")
-      op.quality(quality.toDouble)
+      op.quality(sizeType.quality.toDouble)
       op.colorspace("sRGB")
       op.depth(8)
       op.format("JPEG")
+      if(sizeType.blur > 0) {
+        op.blur(sizeType.blur.toDouble)
+      }
       op.addImage(destination.getCanonicalPath)
 
       destination.getParentFile.mkdirs()

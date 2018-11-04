@@ -24,8 +24,11 @@
                 firstPost.randomImage.palette.background.withAlpha(35).rgba
             )){ case (foreground, background) =>
                 <style>
-                    .bodyBackground .content {
-                        background-image: url('@firstPost.randomImage.smallSizeUrl');
+                    body {
+                        background: url('@firstPost.randomImage.blurSizeUrl');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
                     }
                     #site-data-heading {
                         color: @foreground;

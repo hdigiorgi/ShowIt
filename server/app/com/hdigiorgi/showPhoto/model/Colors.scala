@@ -2,7 +2,7 @@ package com.hdigiorgi.showPhoto.model
 
 import java.io.{File, PrintWriter}
 
-import com.hdigiorgi.showPhoto.model.files.{FullSize, MediumSize, SizeType, SmallSize}
+import com.hdigiorgi.showPhoto.model.files._
 import controllers.routes
 
 import scala.io.Source
@@ -120,5 +120,6 @@ case class Image(elementId: String,
   def smallSizeUrl: String = url(SmallSize)
   def mediumSizeUrl: String = url(MediumSize)
   def fullSizeUrl: String = url(FullSize)
+  def blurSizeUrl: String = url(BlurSize)
   def id: String = fileSlug.value
 }
