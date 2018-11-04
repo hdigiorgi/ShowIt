@@ -12,11 +12,7 @@
 </nav>
 
 <div id="imageCarousel" class="carousel slide" data-ride="carousel">
-    <ol class="carousel-indicators">
-        @for((_, i) <- post.images.zipWithIndex){
-            <li data-target="#imageCarousel" data-slide-to="@i" @if(i==0){class="active"}></li>
-        }
-    </ol>
+    
     <div class="carousel-inner">
         @for((image, i) <- post.images.zipWithIndex){
             <div class="carousel-item @if(i==0){active}">
@@ -38,7 +34,15 @@
     <a id="imageCarouselZoom" class="carousel-control-zoom">
         <i class="fas fa-search"></i>
     </a>
+    <div id="bellowCarouselDownloadContainer">
+        <div id="bellowCarouselDownload">
+            <i class="fas fa-download icon"></i>
+        </div>
+    </div>
+    
 </div>
+
+
 
 <div id="APP" run="post"></div>
 

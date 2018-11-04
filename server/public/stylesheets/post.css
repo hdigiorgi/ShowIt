@@ -38,3 +38,55 @@
 #imageCarousel .carousel-control-zoom:hover {
     color: #ffffffbb;
 }
+
+#bellowCarouselDownloadContainer {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    height: 2em;
+    cursor: pointer;
+}
+
+#bellowCarouselDownload {
+    width: 100%;
+    text-align: center;
+    background: #0000009f;
+    color: white;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    position: absolute;
+    bottom: 0;
+    transition: 0.5s;
+    min-height: 0.5em;
+    max-height: 0.5em;
+    display: flex;
+    place-items: center;
+    justify-content: center;
+}
+ 
+#bellowCarouselDownload .icon {
+    animation: wiggle 2s infinite; 
+    font-size: 2em;
+    transition: 1s;
+}
+#bellowCarouselDownloadContainer:hover #bellowCarouselDownload .icon {
+    font-size: 3em;
+    animation: shake 0.1s ease-in-out 0.1s infinite alternate;
+}
+
+@keyframes wiggle {
+    0% { transform: rotate(0deg); }
+   80% { transform: rotate(0deg); }
+   85% { transform: rotate(30deg); }
+   95% { transform: rotate(-30deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes shake {
+    from {
+        transform: rotate(10deg);
+    }
+    to {
+        transform: rotate(-10deg);
+    }
+}

@@ -2,24 +2,28 @@ package com.hdigiorgi.showit.pages
 
 import com.hdigiorgi.showit.external.{Viewer, ViewerOptions}
 import org.scalajs.dom
-import org.scalajs.jquery.jQuery
+import org.scalajs.jquery.{JQuery, jQuery}
 
 import scala.scalajs.js
 
 class Post {
   def run(): Unit = jQuery {
-    updateNavbarColors()
+    updateColors()
     jQuery("#imageCarouselZoom").on("click", () => zoomImage())
-    jQuery("#imageCarousel").on("slid.bs.carousel", () => updateNavbarColors())
+    jQuery("#imageCarousel").on("slid.bs.carousel", () => updateColors())
   }
 
-  private def updateNavbarColors(): Unit = {
+  private def updateColors(): Unit = {
     val img = getActiveImg()
     val foreground = img.getAttribute("foreground")
     val background = img.getAttribute("background")
-    val navbar =jQuery("#postNavbar")
-    navbar.css("color", foreground)
-    navbar.css("background-color", background)
+    updateElementColors(jQuery("#postNavbar"), foreground, background)
+    updateElementColors(jQuery("#bellowCarouselDownload"), foreground, background)
+  }
+
+  private def updateElementColors(element: JQuery, foreground: String, background: String): Unit = {
+    element.css("color", foreground)
+    element.css("background-color", background)
   }
 
   private def zoomImage(): Unit = {
