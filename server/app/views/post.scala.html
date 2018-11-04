@@ -22,7 +22,7 @@
             <div class="carousel-item @if(i==0){active}">
                 <img src="@image.mediumSizeUrl" alt="@image.fileSlug.value"
                      fullSizeUrl="@image.fullSizeUrl"
-                     foreground="@image.palette.foreground.withAlpha(255).rgba"
+                     foreground="@image.palette.foreground.rgb"
                      background="@image.palette.background.withAlpha(180).rgba">
             </div>
         }
