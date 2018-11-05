@@ -1,0 +1,8 @@
+@import helper._
+@(id:String, label: String, value:String, save: Call)(implicit request: RequestHeader)
+
+<div id="@{id}-form-group" class="form-group" >
+    <label id="@{id}-label" >@label</label>
+    <div id="@{id}-input-indicator" class="input-indicator"></div>
+    <textarea class="form-control" rows="5" autocomplete="off" save-url="@{CSRF(save)}">@value</textarea>
+</div>

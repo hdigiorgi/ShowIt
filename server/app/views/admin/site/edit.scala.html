@@ -1,17 +1,27 @@
+@import helper._
+@import views.html.admin.form.{wrapPlainTextInput, wrapImageUploadInput, wrapMarkdownEditor}
+
+@()(implicit request: RequestHeader)
+
 @main("site", css = "mainAdminMenu") {
+@admin.uploader()
+@admin.simplemde()
 
 
 <div class="container">
     <h1>Edit site data</h1>
-    <div class="form-group">
-        <label>Title</label>
-        <input type="text" class="form-control"  placeholder="Enter page title">
-    </div>
-    <div class="form-group">
-        <label>Site Description</label>
-        <div id="contentIndications" class="input-indicator"></div>
-        <textarea class="form-control" rows="5" autocomplete="off"></textarea>
-    </div>
+    @wrapPlainTextInput("site-title", "Title", "", routes.AdminSiteController.saveTitle())
+
+    @wrapImageUploadInput("site-image", "Site image",
+        process = routes.AdminSiteController.imageProcess(),
+        delete = routes.AdminSiteController.imageDelete(""),
+        load = routes.AdminSiteController.imageLoad(""),
+        list = routes.AdminSiteController.imageList())
+        
+    @wrapMarkdownEditor("site-description", "Description", "", routes.AdminSiteController.saveDescription())
+
 </div>
+
+<div id="APP" run="siteEdit"></div>
 
 } { }

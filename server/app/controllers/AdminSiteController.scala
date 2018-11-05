@@ -8,31 +8,31 @@ import play.api.mvc.{AbstractController, ControllerComponents}
 class AdminSiteController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
   extends AbstractController(cc) with LanguageFilterSupport with AuthenticationSupport {
 
-  def index() = Admin { Action {
+  def index() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def saveTitle() = Admin { Action {
+  def saveTitle() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def saveDescription() = Admin { Action {
+  def saveDescription() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def saveDomain() = Admin { Action {
+  def saveDomain() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def saveSocialLinks() = Admin { Action {
+  def saveSocialLinks() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def imageProcess(id: String)() = Admin { Action {
+  def imageProcess()() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def imageDelete(id: String, delete: String)() = Admin { Action {
+  def imageDelete(delete: String)() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def imageLoad(id: String, load: String)() = Admin { Action {
+  def imageLoad(load: String)() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
-  def imageList(id: String)() = Admin { Action {
+  def imageList()() = Admin { Action { implicit r =>
     Ok(views.html.admin.site.edit())
   }}
 
