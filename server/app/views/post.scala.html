@@ -7,9 +7,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.3.0/viewer.min.css" />
 
 <div id="imageCarousel" class="carousel slide" data-ride="carousel">
-    <nav id="postNavbar" class="navbar">
-        <span class="navbar-brand mb-0 h1">PAGE NAME</span>
-    </nav>
+    <a href="@routes.PostController.index(None)">
+        <nav id="postNavbar" class="navbar">
+            <span class="navbar-brand mb-0 h1">PAGE NAME</span>
+        </nav>
+    </a>
     
     <div class="carousel-inner">
         @for((image, i) <- post.images.zipWithIndex){
