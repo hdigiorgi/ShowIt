@@ -81,5 +81,4 @@ class WhenRole[A](role: Role, action: Action[A]) extends Action[A] with Authenti
   override def executionContext: ExecutionContext = action.executionContext
 }
 
-case class WhenAdmin[A](private val _action: Action[A]) extends WhenRole(Role.Admin, _action)
-case class WhenContributor[A](private val _action: Action[A]) extends WhenRole(Role.Contributor, _action)
+case class Admin[A](private val _action: Action[A]) extends WhenRole(Role.Admin, _action)

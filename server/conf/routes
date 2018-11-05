@@ -29,6 +29,18 @@ POST   /admin/post/edit/:id/attachment        controllers.AdminPostController.at
 DELETE /admin/post/edit/:id/attachment        controllers.AdminPostController.attachmentDelete(id: String, delete: String)
 GET    /admin/post/edit/:id/file/attachment   controllers.AdminPostController.attachmentList(id: String)
 
+########################################################################################################################
+## Site administration
+########################################################################################################################
+    GET    /admin/site                            controllers.AdminSiteController.index
+POST   /admin/site/edit/title                 controllers.AdminSiteController.saveTitle
+POST   /admin/site/edit/description           controllers.AdminSiteController.saveDescription
+POST   /admin/site/edit/domain                controllers.AdminSiteController.saveDomain
+POST   /admin/site/edit/social_links          controllers.AdminSiteController.saveSocialLinks
+POST   /admin/site/edit/image/:id/image       controllers.AdminSiteController.imageProcess(id: String)
+DELETE /admin/site/edit/image/:id/image       controllers.AdminSiteController.imageDelete(id: String, delete: String)
+GET    /admin/site/edit/image/:id/image       controllers.AdminSiteController.imageLoad(id: String, load: String)
+GET    /admin/site/edit/image/:id/image/list  controllers.AdminSiteController.imageList(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

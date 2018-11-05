@@ -130,76 +130,31 @@
 }
 
 
-#attachment-uploader .qq-gallery .black-gradient {
+.attachment-uploader .qq-gallery .black-gradient {
     display: none;
 }
-#attachment-uploader .qq-gallery .qq-thumbnail-wrapper {
+.attachment-uploader .qq-gallery .qq-thumbnail-wrapper {
     height: 2em;
 }
 
-#attachment-uploader .qq-gallery .qq-thumbnail-wrapper {
+.attachment-uploader .qq-gallery .qq-thumbnail-wrapper {
     background: #22332b;
 }
 
-#attachment-uploader .qq-gallery .cancel-button i {
+.attachment-uploader .qq-gallery .cancel-button i {
     padding-top: 3px;
 }
 
-#attachment-uploader .qq-gallery .qq-upload-spinner-selector {
+.attachment-uploader .qq-gallery .qq-upload-spinner-selector {
     top: 0.1em;
     display: block;
     font-size: 1.5em;
 }
 
-#attachment-uploader .progress {
+.attachment-uploader .progress {
     background: #457577
 }
 
-#attachment-uploader .progress-bar {
+.attachment-uploader .progress-bar {
     background-color: #011f0e;
 }
-
-#form-container {
-    opacity: 0;
-    margin-bottom: 4em;
-    margin-top: 1em;
-}
-
-#form-loading {
-    position: absolute;
-    top: 40%;
-    left: 45%;
-    font-size: 3em;
-}
-
-.input-indicator {
-    display: inline;
-}
-
-.input-indicator .ok {
-    color: #0c0;
-}
-
-.dropdown-toggle::after {
-    display:none;
-}
-
-.more-ops-button {
-    padding-right: 2px;
-}
-.more-ops-button .dropdown-toggle::after {
-    display:none;
-}
-
-#publishButton.PUBLISHED {
-    display: none;
-}
-
-#unpublishButton.UNPUBLISHED {
-    display: none;
-}
-#publishIndications {
-    clear: both;
-}
-
-

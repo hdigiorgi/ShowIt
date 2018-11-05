@@ -12,8 +12,7 @@
     </a>
 }
 
-@main(messages("admin.index.title")) {
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/adminIndex.css")">
+@main(messages("admin.index.title"), "mainAdminMenuBody", "mainAdminMenu") {
 
     <div class="container">
         <div id="menu-container" class="centered-container-100">
@@ -38,7 +37,7 @@
                           "admin.index.community.menu.users.title", "admin.index.community.menu.users.description")
             </div>
             <div id="site-menu" class="list-group">
-                @menuItem("#post-menu", "far fa-window-maximize",
+                @menuItem(routes.AdminSiteController.index().url, "far fa-window-maximize",
                           "admin.index.site.data.title", "admin.index.site.data.description")
                 @menuItem("#community-menu", "far fa-save",
                           "admin.index.site.backup.title", "admin.index.site.backup.description")

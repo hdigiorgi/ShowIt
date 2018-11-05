@@ -1,18 +1,14 @@
 package controllers
 
-import cats.data.Validated
-import cats.data.Validated.{Invalid, Valid}
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
-import filters.{LanguageFilterSupport, WhenAdmin}
+import filters.{Admin, LanguageFilterSupport}
 import javax.inject.Inject
 import play.api.{Configuration, Logger}
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
-import org.apache.commons.io.FilenameUtils
-
 import scala.util.{Failure, Success, Try}
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
@@ -21,16 +17,16 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   private val maxUploadAttachmentSize = 1024 * 1024 * 1024 // 1GB
   val logger: Logger = Logger(this.getClass)
 
-  def index(page: Option[Integer], order: Option[String], search: Option[String]) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
+  def index(page: Option[Integer], order: Option[String], search: Option[String]) = Admin {Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.index())
   }}
 
-  def create() = WhenAdmin { Action { implicit request: Request[AnyContent] =>
+  def create() = Admin { Action { implicit request: Request[AnyContent] =>
     val post = PostManager().firsPostIfUnpublishedCreateNewOtherwise()
     Redirect(routes.AdminPostController.edit(post.id))
   }}
 
-  def edit(id: String) = WhenAdmin {Action { implicit request: Request[AnyContent] =>
+  def edit(id: String) = Admin {Action { implicit request: Request[AnyContent] =>
     DBInterface().post.read(id) match {
       case None => NotFound("")
       case Some(post) =>
@@ -40,14 +36,14 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def saveTitle(postId: String): WhenAdmin[AnyContent] =
+  def saveTitle(postId: String): Admin[AnyContent] =
     saveFromString(postId, "title", PostManager().saveTitle(postId, _))
 
-  def saveContent(postId: String): WhenAdmin[AnyContent] =
+  def saveContent(postId: String): Admin[AnyContent] =
     saveFromString(postId, "content", PostManager().saveContent(postId, _))
 
   private def saveFromString(postId: String, field: String, savef: String => Either[ErrorMessage, _]) =
-    WhenAdmin {Action { implicit request: Request[AnyContent] =>
+    Admin {Action { implicit request: Request[AnyContent] =>
     Try((request.body.asJson.get \ field).as[String]) match {
       case Failure(e) =>
         logger.error("can't parse request", e)
@@ -60,7 +56,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def imageProcess(id: String) = WhenAdmin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
+  def imageProcess(id: String) = Admin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
     val fsi = FileSystemInterface.get.image
     val receivedFileData = request.body.files.head
     val receivedFileName = receivedFileData.filename
@@ -84,7 +80,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
       ))
   }
 
-  def imageList(postId: String) = WhenAdmin {Action { request =>
+  def imageList(postId: String) = Admin {Action { request =>
     val images = FileSystemInterface.get.image.getStoredImages(StringId(postId))
     val data = images.map(images => {
       Map(
@@ -97,7 +93,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
 
-  def imageDelete(id: String, imageId: String) = WhenAdmin { Action { request =>
+  def imageDelete(id: String, imageId: String) = Admin { Action { request =>
     val fsi = FileSystemInterface.get.image
     if (!fsi.deleteImage(StringId(id), FileSlug.noSlugify(imageId))) {
       NotFound(id)
@@ -106,7 +102,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def imageLoad(id: String, load: String) = WhenAdmin { Action { _ =>
+  def imageLoad(id: String, load: String) = Admin { Action { _ =>
     val fsi = FileSystemInterface.get.image
     fsi.getImageFileWithSuggestedSize(StringId(id), SmallSize, FileSlug.noSlugify(load)) match {
       case None => NotFound(load)
@@ -115,7 +111,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
 
-  def attachmentProcess(id: String) = WhenAdmin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
+  def attachmentProcess(id: String) = Admin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
     val fsi = FileSystemInterface.get.attachment
     val receivedFileData = request.body.files.head
     val receivedFileName = receivedFileData.filename
@@ -131,7 +127,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def attachmentDelete(id: String, file: String) = WhenAdmin { Action { _ =>
+  def attachmentDelete(id: String, file: String) = Admin { Action { _ =>
     val fsi = FileSystemInterface.get.attachment
     fsi.removeFile(StringId(id), file) match {
       case Failure(e) =>
@@ -142,7 +138,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def attachmentList(id: String) = WhenAdmin { Action { _ =>
+  def attachmentList(id: String) = Admin { Action { _ =>
     val fsi = FileSystemInterface.get.attachment
     fsi.listFiles(StringId(id)) match {
       case Failure(e) =>
@@ -161,17 +157,17 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     Ok(Json.toJson(map))
   }
 
-  def publish(id: String) = Wrap { implicit req =>
+  def publish(id: String) = Admin { Action {implicit req =>
     simpleResponse(PostManager().publish(id))
-  }
+  }}
 
-  def unpublish(id: String) = Wrap { implicit req =>
+  def unpublish(id: String) = Admin { Action {implicit req =>
     simpleResponse(PostManager().unpublish(id))
-  }
+  }}
 
-  def delete(id: String) = Wrap { implicit req =>
+  def delete(id: String) = Admin { Action {implicit req =>
     simpleResponse(PostManager().delete(id))
-  }
+  }}
 
   private def simpleResponse(r: Either[ErrorMessage, Post])(implicit i18n: play.api.i18n.Messages): Result = {
     r match {
@@ -180,11 +176,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }
 
-  object Wrap {
-    def apply(f:  Request[AnyContent]=> Result): WhenAdmin[AnyContent] = WhenAdmin { Action { request =>
-      f(request)
-    }}
-  }
+
 
 
 }

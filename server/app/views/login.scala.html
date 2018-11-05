@@ -3,7 +3,7 @@
 
 @(errorMsg: Option[String] = None)(implicit request: RequestHeader, messages: Messages)
 
-@main(messages("authentication.login.form.title")) {
+@main(messages("authentication.login.form.title", "loginBody", "mainAdminMenu")) {
 
 <div class="container centered-container-100">
     <div class="row login-form-container">
