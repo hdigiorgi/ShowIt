@@ -7,37 +7,38 @@ import org.scalajs.jquery.jQuery
 import scala.scalajs.js.timers.SetTimeoutHandle
 
 trait Subscribable[A,B] {
-  val element: A
-  def value: B
-  def subToChange(callback: () => Unit): Unit
+  val getSubscribedElement: A
+  def getSubscribedValue: B
+  def subscribeToChange(callback: () => Unit): Unit
 }
 
 trait ResultInformer {
-  def error(msg: Option[String] = None): Unit
-  def working(msg: Option[String] = None): Unit
-  def success(msg: Option[String] = None): Unit
+  def informError(msg: Option[String] = None): Unit
+  def informWorking(msg: Option[String] = None): Unit
+  def informSuccess(msg: Option[String] = None): Unit
+  def informHide(): Unit = ()
 }
 
-class Updatable[A](name: String, sub: Subscribable[A, String],
-                   informer: ResultInformer, endpoint: String) {
+class Updater[A,B](name: String, sub: Subscribable[A, B],
+                 informer: ResultInformer, endpoint: String) {
   var timeOutHandle: SetTimeoutHandle = _
-  sub.subToChange(onChangeDetected)
+  sub.subscribeToChange(onChangeDetected)
 
   private def onChangeDetected(): Unit = {
-    informer.working()
+    informer.informWorking()
     js.timers.clearTimeout(timeOutHandle)
     timeOutHandle = js.timers.setTimeout(2000)(sendSaveRequest())
   }
 
   private def sendSaveRequest(): Unit = {
-    val value = sub.value
+    val value = sub.getSubscribedValue
     val request = js.Dictionary(name -> value)
     val stringRequest = js.JSON.stringify(request)
     val opts = getJQueryAjaxSettingsPostJson(stringRequest)
-    informer.working()
+    informer.informWorking()
     jQuery.ajax(opts)
-      .done(() => informer.success())
-      .fail((failure: js.Dynamic) => informer.error(Some(failure.responseText.asInstanceOf[String])))
+      .done(() => informer.informSuccess())
+      .fail((failure: js.Dynamic) => informer.informError(Some(failure.responseText.asInstanceOf[String])))
   }
 
   private def getJQueryAjaxSettingsPostJson(body: String): JQueryAjaxSettings = js.Dynamic.literal(

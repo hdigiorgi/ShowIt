@@ -3,22 +3,26 @@ import org.scalajs.jquery.{JQuery, jQuery}
 
 class SimpleTextInformer(id: String, parent: JQuery) extends ResultInformer {
 
-  override def error(msg: Option[String]): Unit = {
+  override def informError(msg: Option[String]): Unit = {
     val errorMsg = msg.getOrElse("")
     parent.empty()
     parent.append(errorElementString(errorMsg))
   }
 
-  override def working(_msg: Option[String]): Unit = {
+  override def informWorking(_msg: Option[String]): Unit = {
     if(loadingElement.isEmpty) {
       parent.empty()
       parent.append(loadingElementString)
     }
   }
 
-  override def success(msg: Option[String]): Unit = {
+  override def informSuccess(msg: Option[String]): Unit = {
     parent.empty()
     parent.append(successElementString)
+  }
+
+  override def informHide(): Unit = {
+    parent.empty()
   }
 
   private def loadingElement: Option[JQuery] = {

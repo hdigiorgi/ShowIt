@@ -1,0 +1,17 @@
+@import helper._
+@(id:String, toggle: Call, isOn: Boolean, errorInformerId: String="", additionalClass: String="")(on: Html)(off: Html)(working: Html)(implicit request: RequestHeader)
+
+ <div id="@id-wrap-toggle" class="toggle-wrapper @additionalClass"
+      isOn=@isOn
+      errorInformer="@errorInformerId"
+      toggle="@CSRF(toggle).url">
+     <div id="@id-wrap-toggle-on" @if(!isOn){style="display:none;"}>
+        @on
+     </div>
+     <div id="@id-wrap-toggle-off" @if(isOn){style="display:none;"}>
+        @off
+     </div>
+     <div id="@id-wrap-toggle-working" style="display: none;">
+        @working
+     </div>
+ </div>

@@ -1,6 +1,6 @@
 @import helper._
 @import com.hdigiorgi.showPhoto.model.post.Post
-@import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor, wrapFullScreenLoading}
+@import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor, wrapFullScreenLoading, wrapToggle}
 
 @(post: Post, images: Seq[String])(implicit request: RequestHeader)
 
@@ -13,64 +13,62 @@
 
         <h2>Edición de publicación</h2>
 
-  
-        @form(CSRF(routes.AdminPostController.publish(post.id.value)), 'id -> "publishForm") { }
-        @form(CSRF(routes.AdminPostController.unpublish(post.id.value)), 'id -> "unpublishForm") { }
-        
+        @wrapPlainTextInput(id = "post-title", label ="Titulo", placeHolder="Escribi el titulo", 
+                            value = post.title.value, 
+                            save=routes.AdminPostController.saveTitle(post.id.value),
+                            extraInputClass = "form-control-lg")
 
-        <div>
+        @wrapUploadInput(id = "post-image", label = "Images", variant="image",
+                            process = routes.AdminPostController.imageProcess(post.id.value),
+                            list = routes.AdminPostController.imageList(post.id.value))
 
-            @wrapPlainTextInput(id = "post-title", label ="Titulo", placeHolder="Escribi el titulo", 
-                                value = post.title.value, 
-                                save=routes.AdminPostController.saveTitle(post.id.value),
-                                extraInputClass = "form-control-lg")
 
-            @wrapUploadInput(id = "post-image", label = "Images", variant="image",
-                             process = routes.AdminPostController.imageProcess(post.id.value),
-                             list = routes.AdminPostController.imageList(post.id.value))
+        @wrapUploadInput(id = "post-attachment", label = "Files to sell", variant="attachment",
+                            process = routes.AdminPostController.attachmentProcess(post.id.value),
+                            list = routes.AdminPostController.attachmentList(post.id.value)) 
 
-  
-            @wrapUploadInput(id = "post-attachment", label = "Files to sell", variant="attachment",
-                             process = routes.AdminPostController.attachmentProcess(post.id.value),
-                             list = routes.AdminPostController.attachmentList(post.id.value)) 
+        @wrapMarkdownEditor(id = "post-content", label = "Post description", value=post.rawContent,
+                            save = routes.AdminPostController.saveContent(post.id.value))
 
-            @wrapMarkdownEditor(id = "post-content", label = "Post description", value=post.rawContent,
-                                save = routes.AdminPostController.saveContent(post.id.value))
-
-            <div>
-                <button id="publicationLoadingButton" class="btn btn-secondary float-right" >
-                    <i class="fas fa-spinner fa-pulse"></i>
-                </button>
+        @wrapToggle(id = "post-publication-status",
+                    errorInformerId = "bottomInformer",
+                    isOn = post.publicationStatus.isPublished,
+                    toggle = routes.AdminPostController.publicationStatus(post.id.value)){
+            @* on *@
+            <button id="publishButton" class="btn btn-primary float-right"  >
+                <i class="fas fa-globe-americas"></i>
+                Publicar
+            </button>
+        }{
+            @* off *@
+            <button id="unpublishButton" class="btn btn-secondary float-right" >
+                <i class="fas fa-archive"></i>
+                Despublicar
+            </button>
+        }{
+            @* working *@
+            <button id="publicationLoadingButton" class="btn btn-secondary float-right" >
+                <i class="fas fa-spinner fa-pulse"></i>
+            </button>
+        }     
                 
-                <button id="unpublishButton" class="btn btn-secondary float-right @post.publicationStatus.name" >
-                    <i class="fas fa-archive"></i>
-                    Despublicar
-                </button>
-                
-                <button id="publishButton" class="btn btn-primary float-right @post.publicationStatus.name"  >
-                    <i class="fas fa-globe-americas"></i>
-                    Publicar
-                </button>
-                
-                <div class="btn-group float-right more-ops-button">
-                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="#">
-                            <i class="fas fa-eye"></i>
-                            Ver publicacion
-                        </a>
-                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModalConfirmation">
-                            <i class="far fa-trash-alt"></i>
-                            Borrar
-                        </a>
-                    </div>
-                </div>
+        <div class="btn-group float-right more-ops-button">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-eye"></i>
+                    Ver publicacion
+                </a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteModalConfirmation">
+                    <i class="far fa-trash-alt"></i>
+                    Borrar
+                </a>
             </div>
-            <div id="publishIndications" class="float-right"></div>            
-
-        </div>  @* end form *@
+        </div>
+            
+        <div id="bottomInformer" class="float-right" style="clear: both;"></div>
 
 
         @* delete modal *@

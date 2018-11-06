@@ -6,9 +6,10 @@ import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
 import filters.{Admin, LanguageFilterSupport}
 import javax.inject.Inject
 import play.api.{Configuration, Logger}
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
+
 import scala.util.{Failure, Success, Try}
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
@@ -37,24 +38,11 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
   def saveTitle(postId: String): Admin[AnyContent] =
-    saveFromString(postId, "post-title", PostManager().saveTitle(postId, _))
+    updateFrom[String]("post-title", PostManager().saveTitle(postId, _))
 
   def saveContent(postId: String): Admin[AnyContent] =
-    saveFromString(postId, "post-content", PostManager().saveContent(postId, _))
+    updateFrom[String]("post-content", PostManager().saveContent(postId, _))
 
-  private def saveFromString(postId: String, field: String, savef: String => Either[ErrorMessage, _]) =
-    Admin {Action { implicit request: Request[AnyContent] =>
-    Try((request.body.asJson.get \ field).as[String]) match {
-      case Failure(e) =>
-        logger.error("can't parse request", e)
-        BadRequest(e.getMessage)
-      case Success(content) =>
-        savef(content) match {
-          case Left(msg) => Conflict(msg.message)
-          case Right(_) => Ok("{}")
-        }
-    }
-  }}
 
   def imageProcess(id: String) = Admin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
     val fsi = FileSystemInterface.get.image
@@ -157,26 +145,32 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     Ok(Json.toJson(map))
   }
 
-  def publish(id: String) = Admin { Action {implicit req =>
-    simpleResponse(PostManager().publish(id))
-  }}
-
-  def unpublish(id: String) = Admin { Action {implicit req =>
-    simpleResponse(PostManager().unpublish(id))
-  }}
+  def publicationStatus(id: String): Admin[AnyContent] = updateFrom[Boolean]("post-publication-status", {
+    case true => PostManager().publish(id)
+    case false => PostManager().unpublish(id)
+  })
 
   def delete(id: String) = Admin { Action {implicit req =>
     simpleResponse(PostManager().delete(id))
   }}
 
-  private def simpleResponse(r: Either[ErrorMessage, Post])(implicit i18n: play.api.i18n.Messages): Result = {
+  private def updateFrom[A](field: String, savef: A => Either[ErrorMessage, _])(implicit read : Reads[A]) =
+    Admin {Action { implicit request: Request[AnyContent] =>
+      Try((request.body.asJson.get \ field).as[A]) match {
+        case Failure(e) =>
+          logger.error("can't parse request", e)
+          BadRequest(e.getMessage)
+        case Success(content) =>
+          val opResult = savef(content)
+          simpleResponse(opResult)
+      }
+    }}
+
+  private def simpleResponse(r: Either[ErrorMessage, _])(implicit i18n: play.api.i18n.Messages): Result = {
     r match {
       case Left(msg) => Conflict(msg.message)
       case Right(_) => Ok("{}")
     }
   }
-
-
-
 
 }

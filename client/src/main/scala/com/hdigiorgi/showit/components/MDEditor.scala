@@ -6,14 +6,14 @@ import org.scalajs.jquery.jQuery
 import scala.scalajs.js
 
 object MDEditor {
-  def create(wrapperId: String): Updatable[SimpleMDE] = {
+  def create(wrapperId: String): Updater[SimpleMDE, String] = {
     val wrapper  = jQuery(f"#$wrapperId-markdown-editor-form-group")
     val element = wrapper.children(".md-editor").get(0)
     val name = element.getAttribute("name")
     val endpoint = element.getAttribute("save-url")
     val smde = createSMDE(element)
     val informer = SimpleTextInformer.fromWrapper(wrapper)
-    new Updatable[SimpleMDE](name, smde, informer, endpoint)
+    new Updater[SimpleMDE,String](name, smde, informer, endpoint)
   }
 
   private def createSMDE(element: dom.Element): Subscribable[SimpleMDE, String]  = {
@@ -32,9 +32,9 @@ object MDEditor {
 
   private def smdeToSubscribable(editor: SimpleMDE): Subscribable[SimpleMDE, String] = {
     new Subscribable[SimpleMDE, String] {
-      override val element: SimpleMDE = editor
-      override def value: String = editor.value()
-      override def subToChange(callback: () => Unit): Unit = {
+      override val getSubscribedElement: SimpleMDE = editor
+      override def getSubscribedValue: String = editor.value()
+      override def subscribeToChange(callback: () => Unit): Unit = {
         editor.codemirror.on("change", () => callback())
       }
     }
