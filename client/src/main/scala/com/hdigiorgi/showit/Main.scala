@@ -10,7 +10,8 @@ object Main extends {
     jQuery("#APP").attr("run").map{
       case "landing" => new pages.Landing().run()
       case "post" => new pages.Post().run()
-      case "siteEdit" => new pages.Site().run()
+      case "siteEdit" => new pages.SiteEdit().run()
+      case "postEdit" => new pages.PostEdit().run()
     }
   }
 

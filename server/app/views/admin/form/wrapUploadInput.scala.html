@@ -1,0 +1,12 @@
+@import helper._
+@(id:String, label: String, process: Call, load: Call = null, list: Call, variant: String = "image")(implicit request: RequestHeader)
+
+<div id="@{id}-upload-form-group" class="form-group @variant-uploader upload-uploader-wraper">
+    <label id="@{id}-label" >@label</label>
+    <div class="image-uploader uploader"
+         process="@{CSRF(process).url}"
+         @if(load!=null){
+            load="@{process.url}"
+         }
+         list="@{list.url}"></div>
+</div>

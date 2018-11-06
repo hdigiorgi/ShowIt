@@ -1,55 +1,41 @@
 @import helper._
 @import com.hdigiorgi.showPhoto.model.post.Post
+@import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor, wrapFullScreenLoading}
 
 @(post: Post, images: Seq[String])(implicit request: RequestHeader)
 
 @main("EDIT", css="admin/forms") {
-    @admin.uploader()
-    @admin.simplemde()
+@admin.uploader()
+@admin.simplemde()
     
-
-    <div id="form-loading">
-        <i class="fas fa-spinner fa-pulse"></i>
-    </div>
-
+@wrapFullScreenLoading("post-edit"){
     <div id="form-container" class="container">
 
         <h2>Edición de publicación</h2>
 
-        @form(CSRF(routes.AdminPostController.imageProcess(post.id.value)), 'id -> "imageProcessForm") { }
-        @form(routes.AdminPostController.imageList(post.id.value), 'id -> "imageListForm") { }
-        @form(CSRF(routes.AdminPostController.attachmentProcess(post.id.value)), 'id -> "attachmentProcessForm") { }
-        @form(routes.AdminPostController.attachmentList(post.id.value), 'id -> "attachmentListForm") { }
-        @form(CSRF(routes.AdminPostController.saveTitle(post.id.value)), 'id -> "saveTitleForm") { }
-        @form(CSRF(routes.AdminPostController.saveContent(post.id.value)), 'id -> "saveContentForm") { }
+  
         @form(CSRF(routes.AdminPostController.publish(post.id.value)), 'id -> "publishForm") { }
         @form(CSRF(routes.AdminPostController.unpublish(post.id.value)), 'id -> "unpublishForm") { }
         
 
         <div>
 
-            <div class="form-group">
-                <label>Título</label>
-                <div id="titleIndications" class="input-indicator"></div>
-                <input id="titleInput" name="title" type="text" class="form-control form-control-lg" placeholder="Escribi el titulo"
-                       value="@{post.title.value}" autocomplete="off">
-            </div>
+            @wrapPlainTextInput(id = "post-title", label ="Titulo", placeHolder="Escribi el titulo", 
+                                value = post.title.value, 
+                                save=routes.AdminPostController.saveTitle(post.id.value),
+                                extraInputClass = "form-control-lg")
 
-            <div class="form-group">
-                <label>Imagenes</label>
-                <div id="image-uploader" class="image-uploader"></div>
-            </div>  
-    
-            <div class="form-group">
-                <label>Archivo a vender</label>
-                <div id="attachment-uploader" class="attachment-uploader"></div>
-            </div>
+            @wrapUploadInput(id = "post-image", label = "Images", variant="image",
+                             process = routes.AdminPostController.imageProcess(post.id.value),
+                             list = routes.AdminPostController.imageList(post.id.value))
 
-            <div class="form-group">
-                <label>Descripción de la publicación</label>
-                <div id="contentIndications" class="input-indicator"></div>
-                <textarea class="form-control" id="contentTextArea" rows="5" autocomplete="off">@post.rawContent</textarea>
-            </div>
+  
+            @wrapUploadInput(id = "post-attachment", label = "Files to sell", variant="attachment",
+                             process = routes.AdminPostController.attachmentProcess(post.id.value),
+                             list = routes.AdminPostController.attachmentList(post.id.value)) 
+
+            @wrapMarkdownEditor(id = "post-description", label = "Post description", value=post.rawContent,
+                                save = routes.AdminPostController.saveContent(post.id.value))
 
             <div>
                 <button id="publicationLoadingButton" class="btn btn-secondary float-right" >
@@ -87,7 +73,7 @@
         </div>  @* end form *@
 
 
-        <!-- Delete Modal -->
+        @* delete modal *@
         <div class="modal fade" id="deleteModalConfirmation" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -107,12 +93,10 @@
                 </div>
             </div>
         </div>
-        <!-- Delete Modal -->
-
-
-
+        @* delete modal *@
     </div>
+} @* wrapFullScreenLoading *@
 
-} { 
-    <script src="@routes.Assets.versioned("javascripts/adminPost.js")" type="text/javascript"></script>
-}
+<div id="APP" run="postEdit"></div>
+
+} { }

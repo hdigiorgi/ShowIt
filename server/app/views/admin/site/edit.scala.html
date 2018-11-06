@@ -1,5 +1,5 @@
 @import helper._
-@import views.html.admin.form.{wrapPlainTextInput, wrapImageUploadInput, wrapMarkdownEditor}
+@import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor}
 
 @()(implicit request: RequestHeader)
 
@@ -12,10 +12,8 @@
     <h1>Edit site data</h1>
     @wrapPlainTextInput("site-title", "Title", "", routes.AdminSiteController.saveTitle())
 
-    @wrapImageUploadInput("site-image", "Site image",
+    @wrapUploadInput("site-image", "Site image", variant="image",
         process = routes.AdminSiteController.imageProcess(),
-        delete = routes.AdminSiteController.imageDelete(""),
-        load = routes.AdminSiteController.imageLoad(""),
         list = routes.AdminSiteController.imageList())
         
     @wrapMarkdownEditor("site-description", "Description", "", routes.AdminSiteController.saveDescription())

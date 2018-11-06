@@ -5,22 +5,21 @@ import com.hdigiorgi.showit.external.fineUploader._
 import scala.scalajs.js
 
 object Uploader {
-  def createUploader(wrapperId: String, callback: () => js.Any): Unit = {
-    val wrapper = jQuery(f"#$wrapperId-form-group")
+  def create(wrapperId: String, callback: () => js.Any): Unit = {
+    val wrapper = jQuery(f"#$wrapperId-upload-form-group")
     val element = wrapper.children(".uploader").get(0)
     val processUrl = element.getAttribute("process")
-    val deleteUrl = element.getAttribute("delete")
-    val loadUrl = element.getAttribute("load")
     val listUrl = element.getAttribute("list")
-    createUploader(element, callback, processUrl, deleteUrl, loadUrl, listUrl)
+    createUploader(element, callback, processUrl, listUrl)
   }
 
-  private def createUploader(element: dom.Element, callback: () => js.Any, processUrl: String,
-                             deleteUrl: String, loadUrl: String, listUrl: String): Unit = {
+  private def createUploader(element: dom.Element, callback: () => js.Any, processUrl: String, listUrl: String): Unit = {
+
+    val deleteOpt = DeleteFileOpt(Enabled = true, Endpoint = f"$processUrl&delete=")
     val opts = CreationOptions(
       Element = element,
       Request = RequestOpt(processUrl),
-      DeleteFile = DeleteFileOpt(Enabled = true, Endpoint = deleteUrl),
+      DeleteFile = deleteOpt,
       Retry = RetryOpt(EnableAuto = false, ShowButton= true),
       Session = SessionOpt(listUrl),
       Callbacks =  CallbacksOpt(callback))

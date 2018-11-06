@@ -3,7 +3,7 @@ package com.hdigiorgi.showit.components
 import org.scalajs.dom
 import org.scalajs.jquery.{JQuery, jQuery}
 
-class PlainText {
+object PlainTextUpdater {
   def create(wrapperId: String): Updatable[JQuery] = {
     val wrapper  = jQuery(f"#$wrapperId-plain-text-input-form-group")
     val element = wrapper.children(".plain-text").get(0)
