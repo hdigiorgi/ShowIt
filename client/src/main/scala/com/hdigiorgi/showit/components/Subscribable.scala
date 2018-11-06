@@ -26,7 +26,7 @@ class Updatable[A](name: String, sub: Subscribable[A, String],
   private def onChangeDetected(): Unit = {
     informer.working()
     js.timers.clearTimeout(timeOutHandle)
-    timeOutHandle = js.timers.setTimeout(200)(sendSaveRequest())
+    timeOutHandle = js.timers.setTimeout(2000)(sendSaveRequest())
   }
 
   private def sendSaveRequest(): Unit = {

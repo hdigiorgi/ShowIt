@@ -32,5 +32,5 @@ trait SMDECodeMirror extends js.Object {
 @JSGlobal("SimpleMDE")
 class SimpleMDE(options: SimpleMDECreationOptions) extends js.Object {
   val codemirror: SMDECodeMirror = js.native
-  def value: String = js.native
+  def value(): String = js.native
 }

@@ -37,10 +37,10 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
   def saveTitle(postId: String): Admin[AnyContent] =
-    saveFromString(postId, "title", PostManager().saveTitle(postId, _))
+    saveFromString(postId, "post-title", PostManager().saveTitle(postId, _))
 
   def saveContent(postId: String): Admin[AnyContent] =
-    saveFromString(postId, "content", PostManager().saveContent(postId, _))
+    saveFromString(postId, "post-content", PostManager().saveContent(postId, _))
 
   private def saveFromString(postId: String, field: String, savef: String => Either[ErrorMessage, _]) =
     Admin {Action { implicit request: Request[AnyContent] =>

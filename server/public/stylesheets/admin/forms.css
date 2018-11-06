@@ -1,11 +1,16 @@
 
-.input-indicator {
-    display: inline;
+.plain-text-input-form-group .badge {
+    white-space: normal;
+    word-break: break-all;
 }
-
-.input-indicator .ok {
+.plain-text-input-form-group label,
+.plain-text-input-form-group .simple-text-informer  {
+    display: inline
+}
+.plain-text-input-form-group .simple-text-informer .ok {
     color: #0c0;
 }
+
 
 .dropdown-toggle::after {
     display:none;

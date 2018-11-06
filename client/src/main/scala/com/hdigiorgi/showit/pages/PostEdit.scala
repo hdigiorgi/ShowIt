@@ -7,6 +7,6 @@ class PostEdit {
     PlainTextUpdater.create("post-title")
     Uploader.create("post-image", () => println("post image complete"))
     Uploader.create("post-attachment", () => println("post attachment complete"))
-    MDEditor.create("post-description")
+    MDEditor.create("post-content")
   }
 }

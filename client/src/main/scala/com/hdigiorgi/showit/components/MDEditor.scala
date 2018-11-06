@@ -34,7 +34,7 @@ object MDEditor {
     js.Dynamic.global.smde = editor
     new Subscribable[SimpleMDE, String] {
       override val element: SimpleMDE = editor
-      override def value: String = editor.value
+      override def value: String = editor.value()
       override def subToChange(callback: () => Unit): Unit = {
         editor.codemirror.on("change", () => callback())
       }
