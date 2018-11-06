@@ -1,3 +1,18 @@
+.full-screen-loading-doing-loading {
+    opacity: 1;
+    width: 100vw;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 3em;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: 1s;
+}
+.full-screen-loading-ended-loading {
+    opacity: 0;
+    transition: 1.25s;
+}
 
 .plain-text-input-form-group .badge {
     white-space: normal;

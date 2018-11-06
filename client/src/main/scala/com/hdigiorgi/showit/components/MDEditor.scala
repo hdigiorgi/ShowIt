@@ -31,7 +31,6 @@ object MDEditor {
   }
 
   private def smdeToSubscribable(editor: SimpleMDE): Subscribable[SimpleMDE, String] = {
-    js.Dynamic.global.smde = editor
     new Subscribable[SimpleMDE, String] {
       override val element: SimpleMDE = editor
       override def value: String = editor.value()
