@@ -81,3 +81,9 @@ object CreationOptions {
 @js.native
 @JSGlobal("qq.FineUploader")
 class FineUploader(options: CreationOptions) extends js.Object
+
+@js.native
+@JSGlobal("qq.supportedFeatures")
+object FineUploaderSupportedFeatures extends js.Object {
+  var imagePreviews: Boolean = js.native
+}

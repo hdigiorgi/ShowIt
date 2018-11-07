@@ -31,8 +31,9 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def edit(id: String) = Admin {Action { implicit request: Request[AnyContent] =>
     PostManager().adminGetPostById(id) match {
       case None => NotFound(id)
-      case Some(post) =>
+        case Some(post) =>
         Ok(views.html.admin.post.edit(post))
+          .withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
     }
   }}
 

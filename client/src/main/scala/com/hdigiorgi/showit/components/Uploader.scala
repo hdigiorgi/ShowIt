@@ -25,6 +25,7 @@ case class Uploader(wrapperId: String, listReadyCallback: Function0[Unit] = () =
       Retry = RetryOpt(EnableAuto = false, ShowButton= true),
       Session = SessionOpt(sessionEndpoint),
       Callbacks = callbacks)
+    FineUploaderSupportedFeatures.imagePreviews = false
     new FineUploader(opts)
   }
 
