@@ -1,7 +1,6 @@
 package com.hdigiorgi.showit.components
 
 import com.hdigiorgi.showit.utils._
-import org.scalajs.jquery.jQuery
 
 import scala.collection.mutable
 

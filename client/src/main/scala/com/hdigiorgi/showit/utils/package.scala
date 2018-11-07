@@ -18,6 +18,9 @@ package object utils {
     if(child.length <= 0) `console error`(f"can not find child '$id' in ${element.humanReadable}")
     child
   }
+  def `$$0`(element: JQuery, id: String): JQuery = {
+    jQuery(`$$`(element, id).get(0))
+  }
 
   def `!attr`(element: JQuery, name: String): String = {
     element.attr(name).toOption match {

@@ -8,8 +8,8 @@ class PostEdit {
     MDEditor.create("post-content")
     Toggler("post-publication-status")
     PlainTextUpdater.create("post-title")
-    Uploader.create("post-attachment", () => {
-      Uploader.create("post-image", () => {
+    Uploader("post-attachment", () => {
+      Uploader("post-image", () => {
         show()
       })
     })

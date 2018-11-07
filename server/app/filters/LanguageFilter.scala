@@ -14,7 +14,11 @@ object LanguageFilter {
 }
 
 trait LanguageFilterSupport {
-  implicit def request2Messages(implicit request: RequestHeader): Messages = {
+  implicit def request2Messages(implicit request: RequestHeader): Messages =
+    LanguageFilterSupport.messagesFromRequest(request)
+}
+object LanguageFilterSupport {
+  def messagesFromRequest(request: RequestHeader): Messages = {
     request.attrs.get(LanguageFilter.Messages).get
   }
 }

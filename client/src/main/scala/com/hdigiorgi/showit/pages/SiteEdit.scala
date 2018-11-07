@@ -3,7 +3,7 @@ import com.hdigiorgi.showit.components.{MDEditor, PlainTextUpdater, Uploader}
 
 class SiteEdit {
   def run(): Unit = {
-    Uploader.create("site-image", () => println("site image complete"))
+    Uploader("site-image")
     MDEditor.create("site-description")
     PlainTextUpdater.create("site-title")
   }

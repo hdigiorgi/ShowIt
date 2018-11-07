@@ -6,6 +6,8 @@ import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeT
 import com.hdigiorgi.showPhoto.model._
 import play.api.Configuration
 
+import scala.util.{Failure, Success}
+
 
 class PostManager(val db: PostPI,
                   val imageDb: ImageFileDB,
@@ -24,7 +26,7 @@ class PostManager(val db: PostPI,
     })
   }
 
-  def imageFile(postId: StringId, imageSize: String, imageName: String): Either[ErrorMessage, File] = {
+  def getImageFile(postId: StringId, imageSize: String, imageName: String): Either[ErrorMessage, File] = {
     val post = readPost(postId)
     if(post.isLeft) return Left(post.left.get)
     if(post.right.get.publicationStatus.isUnpublished) return PostIsUnpublished
@@ -34,6 +36,16 @@ class PostManager(val db: PostPI,
       case Some((imageFile,_)) => Right(imageFile)
     }
   }
+
+  def processImage(postId: StringId, file: File, fileName: FileSlug): Either[ErrorMessage, Seq[Image]] = {
+    imageDb.process(file, postId, fileName) match {
+      case Failure(exception) => ErrorProcessingImage
+      case Success(result) => Right(result)
+    }
+  }
+
+  def listStoredImages(postId: StringId): Seq[Image] = imageDb.getStoredImages(postId)
+
 
   def firstPostIfUnpublished: Option[Post] = {
     db.readPaginated(Page(index = 0, size = 1)).firstOption.flatMap{ post =>
@@ -134,6 +146,8 @@ object PostManager {
     val UnexistentPost = Left(PostErrorMsg("validations.unexistent"))
     val PostIsUnpublished = Left(PostErrorMsg("error.unpublished"))
     val NoImages = Left(ImageErrorMsg("validations.noImages"))
+    val ErrorProcessingImage = Left(ImageErrorMsg("error.processFailure"))
+    val ErrorProcessingAttachment = Left(AttachmentErrorMsg("error.processFailure"))
     val ImageNotFound = Left(ImageErrorMsg("error.imageNotFound"))
   }
 

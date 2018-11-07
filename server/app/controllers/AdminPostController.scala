@@ -1,10 +1,13 @@
 package controllers
 
+import java.io.File
+
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
 import filters.{Admin, LanguageFilterSupport}
 import javax.inject.Inject
+import play.api.libs.Files
 import play.api.{Configuration, Logger}
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
@@ -14,9 +17,7 @@ import scala.util.{Failure, Success, Try}
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
   extends AbstractController(cc) with LanguageFilterSupport {
-  private val maxUploadImageSize = 50 * 1024 * 1024 // 50MB
-  private val maxUploadAttachmentSize = 1024 * 1024 * 1024 // 1GB
-  val logger: Logger = Logger(this.getClass)
+  implicit val logger: Logger = Logger(this.getClass)
 
   def index(page: Option[Integer], order: Option[String], search: Option[String]) = Admin {Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.index())
@@ -43,43 +44,11 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def saveContent(postId: String): Admin[AnyContent] =
     updateFrom[String]("post-content", PostManager().saveContent(postId, _))
 
+  def imageProcess(id: String): Admin[MultipartFormData[Files.TemporaryFile]] =
+    multipart.receiveMultipart(parse, new multipart.PostImageReceiver(id))
 
-  def imageProcess(id: String) = Admin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
-    val fsi = FileSystemInterface.get.image
-    val receivedFileData = request.body.files.head
-    val receivedFileName = receivedFileData.filename
-    val receivedFile = receivedFileData.ref.path.toFile
-    val processResult = fsi.process(receivedFile, StringId(id), FileSlug(receivedFileName))
-    getProcessStatus(id, fsi, processResult)
-  }}
-
-  private def getProcessStatus(resourceId: String, fsi: ImageFileDB, pr : Try[Seq[Image]]): Result = pr match {
-    case Failure(t) =>
-      logger.error("processing error", t)
-      InternalServerError(Json.obj(
-        "success" -> false
-      ))
-    case Success(images) =>
-      val image = images(0)
-      logger.debug(f"image ${image.id} uploaded")
-      Ok(Json.obj("success" -> true,
-        "newUuid" -> image.id,
-        "thumbnailUrl" -> routes.AdminPostController.imageLoad(resourceId, image.id).url
-      ))
-  }
-
-  def imageList(postId: String) = Admin {Action { request =>
-    val images = FileSystemInterface.get.image.getStoredImages(StringId(postId))
-    val data = images.map(images => {
-      Map(
-        "name" -> images.fileSlug.value,
-        "uuid" -> images.id,
-        "thumbnailUrl" -> routes.AdminPostController.imageLoad(postId, images.id).url
-      )
-    })
-    Ok(Json.toJson(data))
-  }}
-
+  def imageList(postId: String): Admin[AnyContent] =
+    multipart.listUploaded(new multipart.PostImageLister(postId))
 
   def imageDelete(id: String, imageId: String) = Admin { Action { request =>
     val fsi = FileSystemInterface.get.image
@@ -99,7 +68,7 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
 
-  def attachmentProcess(id: String) = Admin {Action(parse.multipartFormData(maxUploadImageSize)) { request =>
+  def attachmentProcess(id: String) = Admin {Action(parse.multipartFormData(50000)) { request =>
     val fsi = FileSystemInterface.get.attachment
     val receivedFileData = request.body.files.head
     val receivedFileName = receivedFileData.filename

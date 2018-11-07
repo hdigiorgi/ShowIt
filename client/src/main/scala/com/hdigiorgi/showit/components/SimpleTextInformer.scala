@@ -1,5 +1,6 @@
 package com.hdigiorgi.showit.components
 import org.scalajs.jquery.{JQuery, jQuery}
+import com.hdigiorgi.showit.utils._
 
 class SimpleTextInformer(id: String, parent: JQuery) extends ResultInformer {
 
@@ -44,11 +45,12 @@ class SimpleTextInformer(id: String, parent: JQuery) extends ResultInformer {
 
 object SimpleTextInformer {
   def fromElement(element: JQuery): SimpleTextInformer = {
-    val id = element.attr("id").get
+    val id = `!attr`(element, "id")
     new SimpleTextInformer(id, element)
   }
   def fromWrapper(element: JQuery): SimpleTextInformer = {
-    val parent = jQuery(element.children(".simple-text-informer").get(0))
+    val parent = `$$0`(element, ".simple-text-informer")
     fromElement(parent)
   }
+  def fromId(id: String): SimpleTextInformer = fromElement(`$`(id))
 }
