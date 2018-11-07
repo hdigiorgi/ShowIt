@@ -13,7 +13,6 @@ import play.api.mvc.Results._
 
 package object multipart {
   object Limits {
-    val maxUploadImageSize: Long = 100 * 1024 * 1024 // 100MB
     val maxUploadAttachmentSize: Long = 1024 * 1024 * 1024 // 1GB
   }
 
@@ -28,7 +27,13 @@ package object multipart {
   }
 
   trait MultiPartDeleter {
+    def name: String
     def delete(): Either[ErrorMessage, Unit]
+  }
+
+  trait MultipartPreviewer {
+    def name: String
+    def preview(): Option[File]
   }
 
   case class FileDescription(name: String,
@@ -57,32 +62,10 @@ package object multipart {
     }
   }
 
-  class PostImageReceiver(postId: String)(implicit conf : Configuration)
-      extends MultipartReceiver[Seq[Image]] {
-    override val maxLengthBytes: Long =
-      Limits.maxUploadImageSize
-
-    override def process(file: File, slug: FileSlug): Either[ErrorMessage, Seq[Image]] =
-      PostManager().processImage(postId, file, slug)
-
-    override def description(elements: Seq[Image]): FileDescription = {
-      FileDescription(elements.head,
-        Some(routes.AdminPostController.imageLoad(postId, elements.head.id)))
-    }
-  }
-
-  class PostImageLister(postId: String)(implicit conf: Configuration) extends MultipartLister {
-    override def descriptions: Seq[FileDescription] = {
-      PostManager().listStoredImages(StringId(postId)) map {image =>
-        FileDescription(image,
-          Some(routes.AdminPostController.imageLoad(postId, image.id)))
-      }
-    }
-  }
-
-  def receiveMultipart[A](parse: PlayBodyParsers, receiver: MultipartReceiver[A])
-                                 (implicit logger: Logger) = Admin {
-    Action(parse.multipartFormData(receiver.maxLengthBytes)) { request =>
+  def receiveMultipart[A](parse: PlayBodyParsers, action: ActionBuilder[Request, AnyContent],
+                          receiver: MultipartReceiver[A])
+                          (implicit logger: Logger) = Admin {
+    action(parse.multipartFormData(receiver.maxLengthBytes)) { request =>
       implicit val i18n: Messages = LanguageFilterSupport.messagesFromRequest(request)
       val receivedFileData = request.body.files.head
       val receivedFileName = receivedFileData.filename
@@ -102,10 +85,32 @@ package object multipart {
     }
   }
 
-  def listUploaded(lister: MultipartLister) = Admin {
-    Action {
+  def listUploaded(action: ActionBuilder[Request, AnyContent],
+                   lister: MultipartLister) = Admin {
+    action {
       val data = lister.descriptions map { _.toJson}
       Ok(Json.toJson(data))
+    }
+  }
+
+  def deleteUploaded(action: ActionBuilder[Request, AnyContent], deleter: MultiPartDeleter) = Admin {
+    action { request =>
+      implicit val i18n: Messages = LanguageFilterSupport.messagesFromRequest(request)
+      deleter.delete() match {
+        case Left(message) =>
+          InternalServerError(message.message())
+        case Right(_) =>
+          Ok(deleter.name)
+      }
+    }
+  }
+
+  def previewUpload(action: ActionBuilder[Request, AnyContent], previewer: MultipartPreviewer) = Admin {
+    action {
+      previewer.preview() match {
+        case None => NotFound(previewer.name)
+        case Some(file) => DownloadHelper.getInlineResult(file)
+      }
     }
   }
 

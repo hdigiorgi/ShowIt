@@ -2,7 +2,7 @@ package com.hdigiorgi.showPhoto.model.post
 
 import java.io.File
 
-import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeType}
+import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeType, SmallSize}
 import com.hdigiorgi.showPhoto.model._
 import play.api.Configuration
 
@@ -46,6 +46,20 @@ class PostManager(val db: PostPI,
 
   def listStoredImages(postId: StringId): Seq[Image] = imageDb.getStoredImages(postId)
 
+  def deleteImage(postId: StringId, name: FileSlug): Either[ErrorMessage, Unit] = {
+    imageDb.getStoredImages(postId) match {
+      case Seq(_) => OneImageNeeded
+      case Seq(_, _*) =>
+        imageDb.deleteImage(postId, name) match {
+          case false => ImageNotFound
+          case true => Right(())
+        }
+    }
+  }
+
+  def getAdminPreviewableImage(postId: StringId, name: FileSlug): Option[File] = {
+    imageDb.getImageFileWithSuggestedSize(postId, SmallSize, name).map(_._1)
+  }
 
   def firstPostIfUnpublished: Option[Post] = {
     db.readPaginated(Page(index = 0, size = 1)).firstOption.flatMap{ post =>
@@ -146,6 +160,7 @@ object PostManager {
     val UnexistentPost = Left(PostErrorMsg("validations.unexistent"))
     val PostIsUnpublished = Left(PostErrorMsg("error.unpublished"))
     val NoImages = Left(ImageErrorMsg("validations.noImages"))
+    val OneImageNeeded = Left(ImageErrorMsg("validations.oneImageNeeded"))
     val ErrorProcessingImage = Left(ImageErrorMsg("error.processFailure"))
     val ErrorProcessingAttachment = Left(AttachmentErrorMsg("error.processFailure"))
     val ImageNotFound = Left(ImageErrorMsg("error.imageNotFound"))

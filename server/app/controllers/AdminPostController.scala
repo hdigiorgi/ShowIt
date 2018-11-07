@@ -45,27 +45,16 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     updateFrom[String]("post-content", PostManager().saveContent(postId, _))
 
   def imageProcess(id: String): Admin[MultipartFormData[Files.TemporaryFile]] =
-    multipart.receiveMultipart(parse, new multipart.PostImageReceiver(id))
+    multipart.receiveMultipart(parse, Action, new multipart.post.ImageReceiver(id))
 
   def imageList(postId: String): Admin[AnyContent] =
-    multipart.listUploaded(new multipart.PostImageLister(postId))
+    multipart.listUploaded(Action, new multipart.post.ImageLister(postId))
 
-  def imageDelete(id: String, imageId: String) = Admin { Action { request =>
-    val fsi = FileSystemInterface.get.image
-    if (!fsi.deleteImage(StringId(id), FileSlug.noSlugify(imageId))) {
-      NotFound(id)
-    } else {
-      Ok(id)
-    }
-  }}
+  def imageDelete(postId: String, imageId: String): Admin[AnyContent] =
+    multipart.deleteUploaded(Action, new multipart.post.ImageDeleter(postId, imageId))
 
-  def imageLoad(id: String, load: String) = Admin { Action { _ =>
-    val fsi = FileSystemInterface.get.image
-    fsi.getImageFileWithSuggestedSize(StringId(id), SmallSize, FileSlug.noSlugify(load)) match {
-      case None => NotFound(load)
-      case Some((imageFile,_)) => DownloadHelper.getInlineResult(imageFile)
-    }
-  }}
+  def imageLoad(postId: String, imageId: String): Admin[AnyContent] =
+    multipart.previewUpload(Action, new multipart.post.ImagePreviewer(postId, imageId))
 
 
   def attachmentProcess(id: String) = Admin {Action(parse.multipartFormData(50000)) { request =>
