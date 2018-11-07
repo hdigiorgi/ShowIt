@@ -4,26 +4,41 @@ import java.time.Instant
 import java.util.UUID
 
 import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus}
+import org.apache.logging.log4j.Logger
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
 
 final case class InvalidModelException(private val message: String = "")
   extends Exception(message)
 
-class ErrorMessage(origin: Symbol, private val msgSuffixId: String) {
+class ErrorMessage(origin: Symbol, private val msgSuffixId: String, val throwable: Option[Throwable] = None) {
   def id = f"errorMessage.${origin.name}.$msgSuffixId"
   def message()(implicit i18n: play.api.i18n.Messages): String = i18n(id)
+  def log(message: String = null)(implicit logger: Logger): Unit = {
+    val msgOpt = Option(message)
+    this.throwable match {
+      case None =>
+        val msg = msgOpt.map(_ + " " + this.id).getOrElse(this.id)
+        logger.error(msg)
+      case Some(throwableValue) =>
+        msgOpt match {
+          case None => logger.error(throwableValue)
+          case Some(msg) => logger.error(msg, throwableValue)
+        }
+    }
+  }
 }
 case class PostErrorMsg(private val _id: String) extends ErrorMessage('post, _id)
 case class ImageErrorMsg(private val _id: String) extends ErrorMessage('image, _id)
 case class AttachmentErrorMsg(private val _id: String) extends ErrorMessage('attachment, _id)
 case class TitleErrorMsg(private val _id: String) extends ErrorMessage('title, _id)
 case class PubStatusErrorMsg(private val _id: String) extends ErrorMessage('publicationStatus, _id)
-case class FatalErrorMsg(t: Throwable) extends ErrorMessage('fatal, t.getMessage) {
+case class FatalErrorMsg(t: Throwable) extends ErrorMessage('fatal, t.getMessage, Some(t)) {
   override def id = f"errorMessage.fatal"
   override def message()(implicit i18n: play.api.i18n.Messages): String =
     f"\n${t.getMessage}\n${t.getStackTrace}"
 }
+
 /**
   * ID
   */

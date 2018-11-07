@@ -6,34 +6,38 @@ import com.hdigiorgi.showPhoto.model.files.FileEntry
 import com.hdigiorgi.showPhoto.model.post.PostManager
 import com.hdigiorgi.showPhoto.model.{ErrorMessage, FileSlug, Image, StringId}
 import filters.{Admin, LanguageFilterSupport}
-import play.api.{Configuration, Logger}
+import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc._
 import play.api.mvc.Results._
+import org.apache.logging.log4j.Logger
 
 package object multipart {
   object Limits {
     val maxUploadAttachmentSize: Long = 1024 * 1024 * 1024 // 1GB
   }
 
-  trait MultipartReceiver[A]{
+  trait MultipartIdentified {
+    def name: String
+    def multiparterDescription: String = f"${this.getClass.getCanonicalName}('$name')"
+  }
+
+  trait MultipartReceiver[A] extends MultipartIdentified{
     val maxLengthBytes: Long
     def process(file: File, slug: FileSlug): Either[ErrorMessage, A]
     def description(element: A): FileDescription
   }
 
-  trait MultipartLister {
+  trait MultipartLister extends MultipartIdentified {
     def descriptions: Seq[FileDescription]
   }
 
-  trait MultiPartDeleter {
-    def name: String
+  trait MultiPartDeleter extends MultipartIdentified  {
     def delete(): Either[ErrorMessage, Unit]
   }
 
-  trait MultipartPreviewer {
-    def name: String
+  trait MultipartPreviewer extends MultipartIdentified  {
     def preview(): Option[File]
   }
 
@@ -79,7 +83,7 @@ package object multipart {
       val processed = receiver.process(receivedFile, FileSlug(receivedFileName))
       processed match {
         case Left(errorMessage) =>
-          logger.error(errorMessage.id)
+          errorMessage.log(receiver.multiparterDescription)
           InternalServerError(Json.obj(
             "success" -> false,
             "reason" -> errorMessage.message()
@@ -98,11 +102,13 @@ package object multipart {
     }
   }
 
-  def deleteUploaded(action: ActionBuilder[Request, AnyContent], deleter: MultiPartDeleter) = Admin {
+  def deleteUploaded(action: ActionBuilder[Request, AnyContent], deleter: MultiPartDeleter)
+                    (implicit logger: Logger) = Admin {
     action { request =>
       implicit val i18n: Messages = LanguageFilterSupport.messagesFromRequest(request)
       deleter.delete() match {
         case Left(message) =>
+          message.log(deleter.multiparterDescription)
           InternalServerError(message.message())
         case Right(_) =>
           Ok(deleter.name)

@@ -56,7 +56,11 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
     "org.seleniumhq.selenium" % "htmlunit-driver" % "2.27" % "test"
   ),
 
-  //js
+  // Observability
+  libraryDependencies += "org.apache.logging.log4j" % "log4j-core" % "2.11.1",
+  libraryDependencies += "org.apache.logging.log4j" % "log4j-api" % "2.11.1",
+
+    //js
   resources in Compile += (fullOptJS in Compile in client).value.data,
   unmanagedSourceDirectories in Compile += file("../client/src/main/scala/com/hdigiorgi/showit/"),
 

@@ -17,6 +17,8 @@ package object post {
   class ImageReceiver(postId: String)(implicit conf : Configuration)
       extends MultipartReceiver[Seq[Image]] {
 
+    override def name: String = postId
+
     override val maxLengthBytes: Long = Limits.IMAGE_MAX_LENGTH_BYTES
 
     override def process(file: File, slug: FileSlug): Either[ErrorMessage, Seq[Image]] =
@@ -32,6 +34,8 @@ package object post {
   class AttachmentReceiver(postId: String)(implicit conf : Configuration)
     extends MultipartReceiver[FileEntry] {
 
+    override def name: String = postId
+
     override val maxLengthBytes: Long = Limits.ATTACHMENT_MAX_LENGTH_BYTES
 
     override def process(file: File, slug: FileSlug): Either[ErrorMessage, FileEntry] =
@@ -43,6 +47,7 @@ package object post {
   }
 
   class ImageLister(postId: String)(implicit conf: Configuration) extends MultipartLister {
+    override def name: String = postId
     override def descriptions: Seq[FileDescription] = {
       PostManager().adminListStoredImages(StringId(postId)) map {image =>
         FileDescription(image,
@@ -52,6 +57,7 @@ package object post {
   }
 
   class AttachmentLister(postId: String)(implicit conf: Configuration) extends MultipartLister {
+    override def name: String = postId
     override def descriptions: Seq[FileDescription] = {
       PostManager().adminListStoredAttachments(StringId(postId)) map {FileDescription(_)}
     }

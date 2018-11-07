@@ -7,8 +7,10 @@ import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
 import filters.{Admin, LanguageFilterSupport}
 import javax.inject.Inject
+import org.apache.logging.log4j.Logger
+import org.apache.logging.log4j.LogManager
 import play.api.libs.Files
-import play.api.{Configuration, Logger}
+import play.api.Configuration
 import play.api.libs.json.{Json, Reads}
 import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
@@ -17,7 +19,7 @@ import scala.util.{Failure, Success, Try}
 
 class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
   extends AbstractController(cc) with LanguageFilterSupport {
-  implicit val logger: Logger = Logger(this.getClass)
+  implicit val logger: Logger = LogManager.getLogger(this.getClass)
 
   def index(page: Option[Integer], order: Option[String], search: Option[String]) = Admin {Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.index())
