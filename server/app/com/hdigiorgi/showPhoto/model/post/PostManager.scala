@@ -2,7 +2,7 @@ package com.hdigiorgi.showPhoto.model.post
 
 import java.io.File
 
-import com.hdigiorgi.showPhoto.model.files.{AttachmentFileDB, ImageFileDB, SizeType, SmallSize}
+import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model._
 import play.api.Configuration
 
@@ -15,9 +15,13 @@ class PostManager(val db: PostPI,
   import PostManager.ErrorMessages._
 
   def post(slug: Slug): Option[Post] = {
-    db.readBySlug(slug).map{post =>
+    db.readBySlug(slug).filter(_.publicationStatus.isPublished).map{post =>
       post.withImages(imageDb.getStoredImages(post.id))
     }
+  }
+
+  def adminGetPostById(postId: StringId): Option[Post] = {
+    db.read(postId)
   }
 
   def posts(page: Int): PaginatedResult[Post] = {
@@ -44,7 +48,7 @@ class PostManager(val db: PostPI,
     }
   }
 
-  def listStoredImages(postId: StringId): Seq[Image] = imageDb.getStoredImages(postId)
+  def adminListStoredImages(postId: StringId): Seq[Image] = imageDb.getStoredImages(postId)
 
   def deleteImage(postId: StringId, name: FileSlug): Either[ErrorMessage, Unit] = {
     imageDb.getStoredImages(postId) match {
@@ -59,6 +63,23 @@ class PostManager(val db: PostPI,
 
   def getAdminPreviewableImage(postId: StringId, name: FileSlug): Option[File] = {
     imageDb.getImageFileWithSuggestedSize(postId, SmallSize, name).map(_._1)
+  }
+
+  def processAttachment(postId: StringId, file: File, name: FileSlug): Either[ErrorMessage, FileEntry] = {
+    attachmentDb.addFile(postId, file, name.value) match {
+      case Failure(exception) => Left(FatalErrorMsg(exception))
+      case Success(entry) => Right(entry)
+    }
+  }
+
+  def adminListStoredAttachments(postId: StringId): Seq[FileEntry] =
+    attachmentDb.listFiles(postId).getOrElse(Seq.empty)
+
+  def deleteStoredAttachment(postId: StringId, file: FileSlug): Either[ErrorMessage, Unit] = {
+    attachmentDb.removeFile(postId, file.value) match {
+      case Failure(exception) => Left(FatalErrorMsg(exception))
+      case Success(_) => Right(())
+    }
   }
 
   def firstPostIfUnpublished: Option[Post] = {

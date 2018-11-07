@@ -2,6 +2,7 @@ package controllers
 
 import java.io.File
 
+import com.hdigiorgi.showPhoto.model.files.FileEntry
 import com.hdigiorgi.showPhoto.model.post.PostManager
 import com.hdigiorgi.showPhoto.model.{ErrorMessage, FileSlug, Image, StringId}
 import filters.{Admin, LanguageFilterSupport}
@@ -38,7 +39,7 @@ package object multipart {
 
   case class FileDescription(name: String,
                              uuid: String,
-                             thumbnail: Option[Call]){
+                             thumbnail: Option[Call] = None){
     def toJson: JsObject = {
       val basejson = Json.obj(
         "success" -> true,
@@ -59,6 +60,10 @@ package object multipart {
       FileDescription(name = image.fileSlug.value,
         uuid = image.id,
         thumbnail = thumbnail)
+    }
+    def apply(fileEntry: FileEntry): FileDescription = {
+      FileDescription(name = fileEntry.name,
+        uuid = fileEntry.name)
     }
   }
 

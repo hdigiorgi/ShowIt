@@ -19,7 +19,11 @@ case class ImageErrorMsg(private val _id: String) extends ErrorMessage('image, _
 case class AttachmentErrorMsg(private val _id: String) extends ErrorMessage('attachment, _id)
 case class TitleErrorMsg(private val _id: String) extends ErrorMessage('title, _id)
 case class PubStatusErrorMsg(private val _id: String) extends ErrorMessage('publicationStatus, _id)
-
+case class FatalErrorMsg(t: Throwable) extends ErrorMessage('fatal, t.getMessage) {
+  override def id = f"errorMessage.fatal"
+  override def message()(implicit i18n: play.api.i18n.Messages): String =
+    f"\n${t.getMessage}\n${t.getStackTrace}"
+}
 /**
   * ID
   */

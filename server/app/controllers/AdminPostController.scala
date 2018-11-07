@@ -29,12 +29,10 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
   def edit(id: String) = Admin {Action { implicit request: Request[AnyContent] =>
-    DBInterface().post.read(id) match {
-      case None => NotFound("")
+    PostManager().adminGetPostById(id) match {
+      case None => NotFound(id)
       case Some(post) =>
-        val imagesIds = FileSystemInterface.get.image.getStoredImages(StringId(id)).map(_.id)
-        Ok(views.html.admin.post.edit(post, imagesIds))
-          .withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
+        Ok(views.html.admin.post.edit(post))
     }
   }}
 
@@ -56,52 +54,14 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def imageLoad(postId: String, imageId: String): Admin[AnyContent] =
     multipart.previewUpload(Action, new multipart.post.ImagePreviewer(postId, imageId))
 
+  def attachmentProcess(id: String): Admin[MultipartFormData[Files.TemporaryFile]] =
+    multipart.receiveMultipart(parse, Action, new multipart.post.AttachmentReceiver(id))
 
-  def attachmentProcess(id: String) = Admin {Action(parse.multipartFormData(50000)) { request =>
-    val fsi = FileSystemInterface.get.attachment
-    val receivedFileData = request.body.files.head
-    val receivedFileName = receivedFileData.filename
-    val receivedFile = receivedFileData.ref.path.toFile
-    fsi.addFile(StringId(id), receivedFile, receivedFileName) match {
-      case Failure(e) =>
-        logger.error("when adding attachment", e)
-        InternalServerError(e.getMessage)
-      case Success(value) =>
-        Ok(Json.obj("success" -> true,
-          "newUuid" -> value.name,
-        ))
-    }
-  }}
+  def attachmentDelete(id: String, file: String): Admin[AnyContent] =
+    multipart.deleteUploaded(Action, new multipart.post.AttachmentDeleter(id, file))
 
-  def attachmentDelete(id: String, file: String) = Admin { Action { _ =>
-    val fsi = FileSystemInterface.get.attachment
-    fsi.removeFile(StringId(id), file) match {
-      case Failure(e) =>
-        logger.error("when deleting file of attachment", e)
-        InternalServerError(e.getMessage)
-      case Success(removed) =>
-        Ok(removed.name)
-    }
-  }}
-
-  def attachmentList(id: String) = Admin { Action { _ =>
-    val fsi = FileSystemInterface.get.attachment
-    fsi.listFiles(StringId(id)) match {
-      case Failure(e) =>
-        logger.error("when listing attachment", e)
-        InternalServerError(e.getMessage)
-      case Success(files) =>
-        attachmentListToStatus(files)
-    }
-  }}
-
-  private def attachmentListToStatus(fes: Seq[FileEntry]): Result = {
-    val map = fes.map{fe => Map(
-      "name" -> fe.name,
-      "uuid" -> fe.name
-    )}
-    Ok(Json.toJson(map))
-  }
+  def attachmentList(id: String): Admin[AnyContent] =
+    multipart.listUploaded(Action, new multipart.post.AttachmentLister(id))
 
   def publicationStatus(id: String): Admin[AnyContent] = updateFrom[Boolean]("post-publication-status", {
     case true => PostManager().publish(id)

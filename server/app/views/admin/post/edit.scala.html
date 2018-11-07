@@ -2,7 +2,7 @@
 @import com.hdigiorgi.showPhoto.model.post.Post
 @import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor, wrapFullScreenLoading, wrapToggle}
 
-@(post: Post, images: Seq[String])(implicit request: RequestHeader)
+@(post: Post)(implicit request: RequestHeader)
 
 @main("EDIT", css="admin/forms") {
 @admin.uploader()
