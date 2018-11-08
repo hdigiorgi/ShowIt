@@ -57,14 +57,19 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
   ),
 
   // Observability
-  libraryDependencies += "org.apache.logging.log4j" % "log4j-core" % "2.11.1",
-  libraryDependencies += "org.apache.logging.log4j" % "log4j-api" % "2.11.1",
+  libraryDependencies ++= Seq(
+    "org.apache.logging.log4j" % "log4j-core" % "2.11.1",
+    "org.apache.logging.log4j" % "log4j-api" % "2.11.1",
+    "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.11.1",
+  ),
 
     //js
   resources in Compile += (fullOptJS in Compile in client).value.data,
   unmanagedSourceDirectories in Compile += file("../client/src/main/scala/com/hdigiorgi/showit/"),
 
-).enablePlugins(PlayScala).dependsOn(appJVM).dependsOn(client)
+).enablePlugins(PlayScala).disablePlugins(PlayLogback).dependsOn(appJVM).dependsOn(client).settings(
+  excludeDependencies  += "ch.qos.logback" % "*"
+)
 
 lazy val client = (project in file("client")).settings(sharedSettings).settings(
   libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.4",
