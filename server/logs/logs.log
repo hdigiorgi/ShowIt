@@ -1,0 +1,93 @@
+[INFO ] 2018-11-08 16:25:07,490 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:08,048 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:08,048 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:08,057 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:09,462 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:09,462 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:09,462 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:09,631 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:09,638 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:09,638 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:11,858 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:11,858 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:11,858 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:11,977 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:11,988 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:11,988 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:13,667 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:13,667 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:13,667 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:13,802 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:13,808 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:13,808 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:15,202 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:15,202 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:15,202 - HikariPool: db - Closed.
+[WARN ] 2018-11-08 16:25:18,707 - IncorrectnessListenerImpl: Obsolete content type encountered: 'text/javascript'.
+[ERROR] 2018-11-08 16:25:18,972 - StrictErrorReporter: runtimeError: message=[An invalid or illegal selector was specified (selector: '*,:x' error: Invalid selector: :x).] sourceName=[https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js] line=[2] lineSource=[null] lineOffset=[0]
+[ERROR] 2018-11-08 16:25:23,457 - StrictErrorReporter: runtimeError: message=[An invalid or illegal selector was specified (selector: '*,:x' error: Invalid selector: :x).] sourceName=[https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js] line=[2] lineSource=[null] lineOffset=[0]
+[ERROR] 2018-11-08 16:25:23,693 - StrictErrorReporter: runtimeError: message=[An invalid or illegal selector was specified (selector: '*,:x' error: Invalid selector: :x).] sourceName=[https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js] line=[2] lineSource=[null] lineOffset=[0]
+[ERROR] 2018-11-08 16:25:23,846 - StrictErrorReporter: runtimeError: message=[An invalid or illegal selector was specified (selector: '*,:x' error: Invalid selector: :x).] sourceName=[https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js] line=[2] lineSource=[null] lineOffset=[0]
+[ERROR] 2018-11-08 16:25:23,957 - StrictErrorReporter: runtimeError: message=[An invalid or illegal selector was specified (selector: '*,:x' error: Invalid selector: :x).] sourceName=[https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js] line=[2] lineSource=[null] lineOffset=[0]
+[ERROR] 2018-11-08 16:25:24,273 - StrictErrorReporter: runtimeError: message=[An invalid or illegal selector was specified (selector: '*,:x' error: Invalid selector: :x).] sourceName=[https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js] line=[2] lineSource=[null] lineOffset=[0]
+[INFO ] 2018-11-08 16:25:24,736 - Play: Stopping current application
+[INFO ] 2018-11-08 16:25:24,736 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:24,736 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:24,736 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:24,766 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:24,766 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:24,772 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:26,334 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:26,334 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:26,334 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:26,441 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:26,444 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:26,446 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:28,987 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:28,987 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:28,987 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:29,095 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:29,095 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:29,103 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:31,753 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:31,753 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:31,753 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:32,073 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:32,073 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:32,073 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:32,203 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:32,207 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:32,217 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:33,373 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:33,373 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:33,373 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:33,487 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:33,493 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:33,493 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:34,933 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:34,933 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:34,933 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:35,023 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:35,027 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:35,027 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:36,353 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:36,354 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:36,354 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:36,443 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:36,443 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:36,443 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:37,707 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:37,713 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:37,713 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:37,797 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:37,803 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:37,803 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:39,153 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:39,153 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:39,153 - HikariPool: db - Closed.
+[INFO ] 2018-11-08 16:25:39,243 - HikariPool: slick.dbs.default - Close initiated...
+[INFO ] 2018-11-08 16:25:39,253 - HikariPool: slick.dbs.default - Closed.
+[INFO ] 2018-11-08 16:25:39,257 - HikariDataSource: slick.dbs.default - Started.
+[INFO ] 2018-11-08 16:25:40,313 - HikariDataSource: db - Started.
+[INFO ] 2018-11-08 16:25:40,313 - HikariPool: db - Close initiated...
+[INFO ] 2018-11-08 16:25:40,317 - HikariPool: db - Closed.
