@@ -288,7 +288,7 @@ trait UserPI extends PersistentInterface[User, StringId] {
   def readByEmail(email: String): Option[User]
 }
 trait PostPI extends PersistentInterface[Post, StringId] {
-  def readPaginated(page: Page): PaginatedResult[Post]
+  def readPaginated(page: Page, publicationStatus: Option[PublicationStatus] = None): PaginatedResult[Post]
   def readBySlug(slug: Slug): Option[Post]
 }
 

@@ -24,8 +24,8 @@ class PostManager(val db: PostPI,
     db.read(postId)
   }
 
-  def posts(page: Int): PaginatedResult[Post] = {
-    db.readPaginated(Page(page, 12)).map(post => {
+  def publishedPosts(page: Int): PaginatedResult[Post] = {
+    db.readPaginated(Page(page, 12), Some(Published)).map(post => {
       post.withImages(imageDb.getStoredImages(post.id))
     })
   }

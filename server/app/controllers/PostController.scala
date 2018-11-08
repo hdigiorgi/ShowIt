@@ -15,7 +15,7 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
   extends AbstractController(cc) with LanguageFilterSupport {
 
   def index(page: Option[Int] = None) = Action {
-    val posts = PostManager().posts(page.getOrElse(0))
+    val posts = PostManager().publishedPosts(page.getOrElse(0))
     Ok(views.html.index(posts))
   }
 
