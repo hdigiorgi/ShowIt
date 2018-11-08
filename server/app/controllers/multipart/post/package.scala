@@ -73,14 +73,14 @@ package object post {
   class AttachmentDeleter(postId: StringId, attachmentId: String)(implicit conf: Configuration)  extends MultiPartDeleter {
     override def name: String = attachmentId
     override def delete(): Either[ErrorMessage, Unit] = {
-      PostManager().deleteStoredAttachment(postId, FileSlug.noSlugify(attachmentId))
+      PostManager().deleteStoredAttachment(postId, FileSlug.noSlugifyRemoveFirstSlash(attachmentId))
     }
   }
 
   class ImagePreviewer(postId: String, imageId: String)(implicit conf: Configuration) extends MultipartPreviewer {
     override def name: String = imageId
     override def preview(): Option[File] = {
-      PostManager().getAdminPreviewableImage(StringId(postId), FileSlug.noSlugify(imageId))
+      PostManager().getAdminPreviewableImage(StringId(postId), FileSlug.noSlugifyRemoveFirstSlash(imageId))
     }
   }
 }

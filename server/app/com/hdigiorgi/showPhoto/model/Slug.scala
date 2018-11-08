@@ -33,6 +33,10 @@ object FileSlug {
   }
 
   def noSlugify(value: String): FileSlug = new FileSlug(value)
+  def noSlugifyRemoveFirstSlash(value: String): FileSlug = {
+    val noFirstSlash = if(value.startsWith("/")) value.drop(1) else value
+    new FileSlug(noFirstSlash)
+  }
 
 }
 
