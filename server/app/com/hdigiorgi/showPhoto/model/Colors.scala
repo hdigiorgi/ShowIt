@@ -25,15 +25,29 @@ class Color private(_r: Integer, _g: Integer, _b: Integer, _a: Integer) {
   def isDark: Boolean = !isBright
   def -(x: Integer) = Color(r-x, g-x, b-x, this.a)
   def +(x: Integer) = Color(r+x, g+x, b+x, this.a)
-  def lightup: Color = {
-    val diff = 255 - brightest
-    this + diff
+  def lightup(factor: Double): Color = {
+    this + (255 * factor).toInt
   }
-  def darken: Color = {
-    this - darkest
+  def darken(factor: Double): Color = {
+    this - (255 * factor).toInt
   }
-  lazy val brightest: Integer = Seq(r,g,b).foldLeft(0)(Math.max(_,_))
-  lazy val darkest: Integer = Seq(r,g,b).foldLeft(0)(Math.min(_,_))
+
+  def relativeLuminance(other: Color): Double = {
+    if(this.luminance > other.luminance){
+      (this.luminance  + 0.05) / (other.luminance + 0.05)
+    } else {
+      (other.luminance + 0.05) / (this.luminance  + 0.05)
+    }
+
+  }
+  lazy val luminance: Double = {
+    val rg = if(r<=10.0) r/3294.0 else Math.pow(r/269.0 + 0.0513, 2.4)
+    val gg = if(g<=10.0) g/3294.0 else Math.pow(g/269.0 + 0.0513, 2.4)
+    val bg = if(b<=10.0) b/3294.0 else Math.pow(b/269.0 + 0.0513, 2.4)
+    0.2126 * rg + 0.7152 * gg + 0.0722 * bg
+  }
+  lazy val brightness: Integer = Seq(r,g,b).foldLeft(0)(Math.max(_,_))
+  lazy val darkness: Integer = Seq(r,g,b).foldLeft(0)(Math.min(_,_))
   lazy val vibrance: Integer = Seq(r,g,b).combinations(2).toSeq.map{ case List(a,b) =>
       Math.abs(a-b)
   }.max
@@ -52,10 +66,14 @@ object Color {
     Color(values(0), values(1), values(2))
   }
 
+  def brightest(a: Color, b: Color): Color = {
+    if(a.brightness > b.brightness) a else b
+  }
+
   def fromCommaSeparatedOpt(input: String): Option[Color] = Try(fromCommaSeparated(input)).toOption
 
   object BrightnessOrdering extends Ordering[Color] {
-    override def compare(x: Color, y: Color): Int = x.brightest compareTo y.brightest
+    override def compare(x: Color, y: Color): Int = x.brightness compareTo y.brightness
   }
   object VibranceOrdering extends Ordering[Color] {
     override def compare(x: Color, y: Color): Int = x.vibrance compareTo y.vibrance
@@ -77,11 +95,26 @@ case class Palette(colors: List[Color]) {
     pw.close()
   }
 
-  def calculateWhichIsOneIsForeground(lightColorCount: Integer, darkColorCount: Integer, vibrant: Color, dark: Color): (Color, Color) = {
-    if(lightColorCount > darkColorCount) {
-      (dark-50, vibrant+100)
+  def increaseContrast(a: Color, b: Color, af: (Color, Double) => Color, bf: (Color, Double) => Color): (Color, Color) = {
+    val rl = a.relativeLuminance(b)
+    val threadshold = 4.5
+    if (rl < threadshold) {
+      val factor = (1 - (rl / threadshold))
+      (af(a,factor), bf(b,factor) )
     } else {
-      (vibrant+50, dark-100)
+      (a, b)
+    }
+  }
+
+  def calculateWhichIsOneIsForeground(lightColorCount: Integer, darkColorCount: Integer, vibrant: Color, dark: Color, bright: Color): (Color, Color) = {
+
+    if(lightColorCount > darkColorCount) {
+      // BRIGHT IMAGE
+      val rl = dark.relativeLuminance(vibrant)
+      increaseContrast(dark, vibrant, _.darken(_), _.lightup(_))
+    } else {
+      // DARK IMAGE
+      increaseContrast(vibrant, dark, _.lightup(_), _.darken(_))
     }
   }
 
@@ -92,13 +125,8 @@ case class Palette(colors: List[Color]) {
     val orderedByBrightness = colors.sorted(Color.BrightnessOrdering)
     val vibrant = orderedByVibrance.last
     val dark = orderedByBrightness.head
-    val foregroundAndBackground = calculateWhichIsOneIsForeground(lightColorCount, darkColorCount, vibrant, dark)
-    if(lightColorCount > darkColorCount) {
-      (dark.darken, vibrant.lightup)
-    } else {
-      (vibrant.lightup, dark.darken)
-    }
-
+    val bright = orderedByBrightness.last
+    calculateWhichIsOneIsForeground(lightColorCount, darkColorCount, vibrant, dark, bright)
   }
 
   lazy val (foreground, background) = calculate()
