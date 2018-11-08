@@ -49,11 +49,11 @@ object SessionOpt {
 
 trait CallbacksOpt extends js.Object{
   val onSessionRequestComplete: js.Function0[js.Any]
-  val onError: js.Function3[Integer, String, String, js.Any] // file id, file name, reason
+  val onError: js.Function4[Integer, String, String, dom.XMLHttpRequest, js.Any] // file id, file name, reason, The object used to make the request
 }
 object CallbacksOpt {
   def apply(onSessionRequestComplete: js.Function0[js.Any],
-            onError: js.Function3[Integer, String, String, js.Any]): CallbacksOpt = js.Dynamic.literal(
+            onError: js.Function4[Integer, String, String, dom.XMLHttpRequest, js.Any]): CallbacksOpt = js.Dynamic.literal(
     onSessionRequestComplete = onSessionRequestComplete,
     onError = onError
   ).asInstanceOf[CallbacksOpt]
