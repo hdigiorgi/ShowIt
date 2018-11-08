@@ -23,16 +23,21 @@ trait IntegrationTestBase extends FunSuite with Matchers with WebBrowser with Dr
   override implicit val webDriver: HtmlUnitDriver = new ITWebDriver()
   initServer(application)
 
-  protected def logAsAdmin(): Unit = {
+  protected def logIn(): Unit = {
     go to loginUrl
-    pageTitle.toLowerCase should be ("login")
-    emailField("email-input").value = "me@hdigiorgi.com"
-    pwdField("password-input").value = "password"
-    click on id("login-submit-button")
+    if(!currentUrl.equals(adminUrl)){
+      pageTitle.toLowerCase should be ("login")
+      emailField("email-input").value = "me@hdigiorgi.com"
+      pwdField("password-input").value = "password"
+      click on id("login-submit-button")
+      currentUrl should be (adminUrl)
+    }
   }
 
   protected def logOut(): Unit = {
     go to logoutUrl
+    go to loginUrl
+    currentUrl should be (loginUrl)
   }
 
 }

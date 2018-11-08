@@ -17,9 +17,9 @@ object AuthenticationFilter {
 }
 
 class AuthenticationSupportHolder(val user: Option[User]) {
-  def role: Role = user match {
-    case None => Role.Guest
-    case Some(userVal) => userVal.role
+  def isAuthenticated: Boolean = user match {
+    case None => false
+    case Some(_) => true
   }
 }
 
@@ -67,10 +67,10 @@ class AuthenticationFilter @Inject() (implicit val mat: Materializer, ec: Execut
 
 }
 
-class WhenRole[A](role: Role, action: Action[A]) extends Action[A] with AuthenticationSupport{
+case class Loged[A](action: Action[A]) extends Action[A] with AuthenticationSupport{
 
   def apply(request: Request[A]): Future[Result] = {
-    if (request.role >= role) {
+    if (request.isAuthenticated) {
       action(request)
     } else {
       Future.successful(Results.Redirect(routes.AuthenticationController.index()))
@@ -80,5 +80,3 @@ class WhenRole[A](role: Role, action: Action[A]) extends Action[A] with Authenti
   override def parser: BodyParser[A] = action.parser
   override def executionContext: ExecutionContext = action.executionContext
 }
-
-case class Admin[A](private val _action: Action[A]) extends WhenRole(Role.Admin, _action)

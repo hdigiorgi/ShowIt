@@ -5,16 +5,15 @@ import com.hdigiorgi.showPhoto.model.db.sqlite.DB
 import slick.jdbc.SQLiteProfile.api._
 
 object SQLiteUserType {
-  type Tuple = (String, String, String, Int)
+  type Tuple = (String, String, String)
 }
 
 class SQLiteUser(tag: Tag) extends Table[SQLiteUserType.Tuple](tag, "USER") {
   def id = column[String]("ID", O.PrimaryKey)
   def email = column[String]("EMAIL")
   def password = column[String]("PASSWORD")
-  def role = column[Int]("ROLE")
   def emailIdx = index("email_idx", email, unique = true)
-  override def * = (id, email, password, role)
+  override def * = (id, email, password)
 }
 
 class SQLiteUserPI() extends UserPI { self =>
@@ -53,11 +52,11 @@ class SQLiteUserPI() extends UserPI { self =>
   }
 
   private def toTuple(user: User): SQLiteUserType.Tuple =
-    (user.id.value, user.email.value, user.password.value, user.role.id.value)
+    (user.id.value, user.email.value, user.password.value)
 
   private def fromTuple(tuple: SQLiteUserType.Tuple): User = tuple match {
-    case(id, email, password, role) =>
-      User(StringId(id), Email(email), Password.fromEncrypted(password), Role(IntId(role)))
+    case(id, email, password) =>
+      User(StringId(id), Email(email), Password.fromEncrypted(password))
   }
 
   private def ensureUserExist(): Unit = {

@@ -26,9 +26,9 @@ class AuthenticationController @Inject()(cc: ControllerComponents)(implicit conf
   extends AbstractController(cc) with LanguageFilterSupport with AuthenticationSupport{
 
   def index() = Action { implicit request: Request[AnyContent] =>
-    request.role match {
-      case Role.Guest => Ok(views.html.login())
-      case _ => Redirect(routes.AdminController.index())
+    request.user match {
+      case None => Ok(views.html.login())
+      case Some(_) => Redirect(routes.AdminController.index())
     }
   }
 

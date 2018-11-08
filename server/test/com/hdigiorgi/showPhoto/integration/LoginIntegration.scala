@@ -6,19 +6,11 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class LoginIntegration extends IntegrationTestBase {
-  logAsAdmin()
 
-  test("logout") {
+  test("login") {
+    logIn()
     logOut()
-    currentUrl should be (url("/"))
-    go to adminUrl
-    currentUrl should be (loginUrl)
   }
 
-  test("Show login form") {
-    logAsAdmin()
-    currentUrl should be (adminUrl)
-    pageTitle.toLowerCase should be ("administration")
-  }
 
 }

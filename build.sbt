@@ -55,6 +55,8 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
     "org.seleniumhq.selenium" % "selenium-java" % "3.6.0" % "test",
     "org.seleniumhq.selenium" % "htmlunit-driver" % "2.27" % "test"
   ),
+  parallelExecution in Test := false,
+  logBuffered in Test := false,
 
   // Observability
   libraryDependencies ++= Seq(
@@ -67,7 +69,7 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
   resources in Compile += (fullOptJS in Compile in client).value.data,
   unmanagedSourceDirectories in Compile += file("../client/src/main/scala/com/hdigiorgi/showit/"),
 
-).enablePlugins(PlayScala).disablePlugins(PlayLogback).dependsOn(appJVM).dependsOn(client).settings(
+).enablePlugins(PlayScala).disablePlugins(PlayLogback).dependsOn(client).settings(
   excludeDependencies  += "ch.qos.logback" % "*"
 )
 
@@ -80,13 +82,14 @@ lazy val client = (project in file("client")).settings(sharedSettings).settings(
   artifactPath in(Compile, fullOptJS)             := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "app.js",
   artifactPath in(Compile, packageJSDependencies) := baseDirectory.value / ".." / "server" / "public" / "scalajs" / "dependency.js",
   scalacOptions += "-P:scalajs:sjsDefinedByDefault"
-).enablePlugins(ScalaJSPlugin).dependsOn(appJS)
+).enablePlugins(ScalaJSPlugin)
 
+/*
 lazy val app = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Pure)
 lazy val appJS = app.js
 lazy val appJVM = app.jvm
-
+*/
 run := (Keys.run in Compile in server).evaluated
 
 

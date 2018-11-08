@@ -177,32 +177,6 @@ object FileMeta {
 /**
   * User
   */
-
-class Role private(_id: IntId) {
-  def id: IntId = _id
-  override def toString: String = id match {
-    case x if x == Role.Admin.id => "Admin"
-    case x if x == Role.Contributor.id => "Contributor"
-    case x if x == Role.Registered.id => "Registered"
-    case x if x == Role.Guest.id => "Guest"
-  }
-  def > (that: Role): Boolean = id.value <  that.id.value
-  def >=(that: Role): Boolean = id.value <= that.id.value
-  def < (that: Role): Boolean = id.value >  that.id.value
-  def <=(that: Role): Boolean = id.value >= that.id.value
-}
-object Role {
-  def apply(value: IntId): Role = value match {
-    case x if x == Admin.id => Admin
-    case x if x == Contributor.id => Contributor
-    case x if x == Registered.id => Registered
-  }
-  val Admin = new Role(IntId(0))
-  val Contributor = new Role(IntId(1))
-  val Registered = new Role(IntId(2))
-  val Guest = new Role(IntId(69))
-}
-
 case class Password(value: String) {
   def is(plainPassword: String): Boolean = {
     val passwordEncryptor = new StrongPasswordEncryptor()
@@ -224,10 +198,10 @@ object Password {
   }
 }
 
-case class User(id: StringId, email: Email, password: Password, role: Role)
+case class User(id: StringId, email: Email, password: Password)
 object User {
   def defaultUsers: List[User] = List(
-    User(StringId.random, Email("me@hdigiorgi.com"), Password("password"), Role.Admin)
+    User(StringId.random, Email("me@hdigiorgi.com"), Password("password"))
   )
 }
 

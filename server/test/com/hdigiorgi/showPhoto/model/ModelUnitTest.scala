@@ -63,11 +63,20 @@ class ModelUnitTest extends FunSuite
 
   test("account crud") {
     wrapCleanDB{ db =>
-      val admin = User(StringId.random, Email("a@b.com"), Password("p"), Role.Admin)
-      db.user.update(admin)
-      db.user.read(admin.id) should contain (admin)
-      db.user.delete(admin.id)
-      db.user.read(admin.id) shouldBe empty
+      val acc1 = User(StringId.random, Email("a@a.com"), Password("1"))
+      val acc2 = User(StringId.random, Email("b@b.com"), Password("2"))
+      acc1.id shouldNot equal (acc2.id)
+      db.user.read(acc1.id) shouldBe empty
+      db.user.read(acc2.id) shouldBe empty
+      db.user.insert(acc1)
+      db.user.insert(acc2)
+      db.user.read(acc1.id) should contain (acc1)
+      db.user.read(acc2.id) should contain (acc2)
+      db.user.delete(acc1.id)
+      db.user.read(acc1.id) shouldBe empty
+      db.user.read(acc2.id) should contain (acc2)
+      db.user.delete(acc2.id)
+      db.user.read(acc2.id) shouldBe empty
     }
   }
 

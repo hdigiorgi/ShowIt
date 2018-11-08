@@ -5,7 +5,7 @@ import java.io.File
 import com.hdigiorgi.showPhoto.model.files.FileEntry
 import com.hdigiorgi.showPhoto.model.post.PostManager
 import com.hdigiorgi.showPhoto.model.{ErrorMessage, FileSlug, Image, StringId}
-import filters.{Admin, LanguageFilterSupport}
+import filters.{Loged, LanguageFilterSupport}
 import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json}
@@ -73,7 +73,7 @@ package object multipart {
 
   def receiveMultipart[A](parse: PlayBodyParsers, action: ActionBuilder[Request, AnyContent],
                           receiver: MultipartReceiver[A])
-                          (implicit logger: Logger) = Admin {
+                          (implicit logger: Logger) = Loged {
     action(parse.multipartFormData(receiver.maxLengthBytes)) { request =>
       implicit val i18n: Messages = LanguageFilterSupport.messagesFromRequest(request)
       val receivedFileData = request.body.files.head
@@ -95,7 +95,7 @@ package object multipart {
   }
 
   def listUploaded(action: ActionBuilder[Request, AnyContent],
-                   lister: MultipartLister) = Admin {
+                   lister: MultipartLister) = Loged {
     action {
       val data = lister.descriptions map { _.toJson}
       Ok(Json.toJson(data))
@@ -103,7 +103,7 @@ package object multipart {
   }
 
   def deleteUploaded(action: ActionBuilder[Request, AnyContent], deleter: MultiPartDeleter)
-                    (implicit logger: Logger) = Admin {
+                    (implicit logger: Logger) = Loged {
     action { request =>
       implicit val i18n: Messages = LanguageFilterSupport.messagesFromRequest(request)
       deleter.delete() match {
@@ -116,7 +116,7 @@ package object multipart {
     }
   }
 
-  def previewUpload(action: ActionBuilder[Request, AnyContent], previewer: MultipartPreviewer) = Admin {
+  def previewUpload(action: ActionBuilder[Request, AnyContent], previewer: MultipartPreviewer) = Loged {
     action {
       previewer.preview() match {
         case None => NotFound(previewer.name)

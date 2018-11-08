@@ -2,7 +2,7 @@
 <Configuration status="ERROR">
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%highlight{%-5level}] %d{DEFAULT} %c{1}.%M() - %msg%n%throwable{}" />
+            <PatternLayout pattern="[%highlight{%-5level}] %d{DEFAULT} %c{1}.%M() - %msg%n" />
         </Console>
     </Appenders>
 

@@ -5,7 +5,7 @@ import java.io.File
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model.post.{Post, PostManager}
-import filters.{Admin, LanguageFilterSupport}
+import filters.{Loged, LanguageFilterSupport}
 import javax.inject.Inject
 import org.apache.logging.log4j.Logger
 import org.apache.logging.log4j.LogManager
@@ -21,16 +21,16 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   extends AbstractController(cc) with LanguageFilterSupport {
   implicit val logger: Logger = LogManager.getLogger(this.getClass)
 
-  def index(page: Option[Integer], order: Option[String], search: Option[String]) = Admin {Action { implicit request: Request[AnyContent] =>
+  def index(page: Option[Integer], order: Option[String], search: Option[String]) = Loged {Action { implicit request: Request[AnyContent] =>
     Ok(views.html.admin.post.index())
   }}
 
-  def create() = Admin { Action { implicit request: Request[AnyContent] =>
+  def create() = Loged { Action { implicit request: Request[AnyContent] =>
     val post = PostManager().firsPostIfUnpublishedCreateNewOtherwise()
     Redirect(routes.AdminPostController.edit(post.id))
   }}
 
-  def edit(id: String) = Admin {Action { implicit request: Request[AnyContent] =>
+  def edit(id: String) = Loged {Action { implicit request: Request[AnyContent] =>
     PostManager().adminGetPostById(id) match {
       case None => NotFound(id)
         case Some(post) =>
@@ -39,44 +39,44 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
     }
   }}
 
-  def saveTitle(postId: String): Admin[AnyContent] =
+  def saveTitle(postId: String): Loged[AnyContent] =
     updateFrom[String]("post-title", PostManager().saveTitle(postId, _))
 
-  def saveContent(postId: String): Admin[AnyContent] =
+  def saveContent(postId: String): Loged[AnyContent] =
     updateFrom[String]("post-content", PostManager().saveContent(postId, _))
 
-  def imageProcess(id: String): Admin[MultipartFormData[Files.TemporaryFile]] =
+  def imageProcess(id: String): Loged[MultipartFormData[Files.TemporaryFile]] =
     multipart.receiveMultipart(parse, Action, new multipart.post.ImageReceiver(id))
 
-  def imageList(postId: String): Admin[AnyContent] =
+  def imageList(postId: String): Loged[AnyContent] =
     multipart.listUploaded(Action, new multipart.post.ImageLister(postId))
 
-  def imageDelete(postId: String, imageId: String): Admin[AnyContent] =
+  def imageDelete(postId: String, imageId: String): Loged[AnyContent] =
     multipart.deleteUploaded(Action, new multipart.post.ImageDeleter(postId, imageId))
 
-  def imageLoad(postId: String, imageId: String): Admin[AnyContent] =
+  def imageLoad(postId: String, imageId: String): Loged[AnyContent] =
     multipart.previewUpload(Action, new multipart.post.ImagePreviewer(postId, imageId))
 
-  def attachmentProcess(id: String): Admin[MultipartFormData[Files.TemporaryFile]] =
+  def attachmentProcess(id: String): Loged[MultipartFormData[Files.TemporaryFile]] =
     multipart.receiveMultipart(parse, Action, new multipart.post.AttachmentReceiver(id))
 
-  def attachmentDelete(id: String, file: String): Admin[AnyContent] =
+  def attachmentDelete(id: String, file: String): Loged[AnyContent] =
     multipart.deleteUploaded(Action, new multipart.post.AttachmentDeleter(id, file))
 
-  def attachmentList(id: String): Admin[AnyContent] =
+  def attachmentList(id: String): Loged[AnyContent] =
     multipart.listUploaded(Action, new multipart.post.AttachmentLister(id))
 
-  def publicationStatus(id: String): Admin[AnyContent] = updateFrom[Boolean]("post-publication-status", {
+  def publicationStatus(id: String): Loged[AnyContent] = updateFrom[Boolean]("post-publication-status", {
     case true => PostManager().publish(id)
     case false => PostManager().unpublish(id)
   })
 
-  def delete(id: String) = Admin { Action {implicit req =>
+  def delete(id: String) = Loged { Action { implicit req =>
     simpleResponse(PostManager().delete(id))
   }}
 
   private def updateFrom[A](field: String, savef: A => Either[ErrorMessage, _])(implicit read : Reads[A]) =
-    Admin {Action { implicit request: Request[AnyContent] =>
+    Loged {Action { implicit request: Request[AnyContent] =>
       Try((request.body.asJson.get \ field).as[A]) match {
         case Failure(e) =>
           logger.error("can't parse request", e)
