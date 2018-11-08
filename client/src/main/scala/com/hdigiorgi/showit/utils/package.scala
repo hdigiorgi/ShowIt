@@ -2,13 +2,21 @@ package com.hdigiorgi.showit
 
 import org.scalajs.jquery.JQuery
 import org.scalajs.jquery.jQuery
+import scala.scalajs.js.Any
 import scalajs.js
+import js.JSConverters._
 
 package object utils {
   def $(id: String): JQuery = {
     val element = jQuery(id)
     if(element.length <= 0) `console error`(f"can not find $id")
     element
+  }
+
+  def $opt(id: String): Option[JQuery] = {
+    if(id.trim.equals("")) return None
+    val element = $(id)
+    if(element.length <= 0) None else Some(element)
   }
 
   def `$#`(id: String): JQuery = $(f"#$id")
@@ -40,6 +48,17 @@ package object utils {
 
   def `console error`(errorMsg: js.Any): Unit = {
     js.Dynamic.global.console.error(errorMsg)
+  }
+
+  def ?[A](any: A): js.Dynamic = {
+    any.asInstanceOf[js.Dynamic]
+  }
+
+  def `{`(fields: (String, Any)*): js.Any = {
+    fields.toMap.toJSDictionary
+  }
+  def `[`(fields: Any*): js.Any = {
+    fields.toJSArray
   }
 
   class `JQUERYPrintable`(j: JQuery) {

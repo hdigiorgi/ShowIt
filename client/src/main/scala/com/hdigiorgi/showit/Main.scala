@@ -12,7 +12,9 @@ object Main extends {
       case "post" => new pages.Post().run()
       case "siteEdit" => new pages.SiteEdit().run()
       case "postEdit" => new pages.PostEdit().run()
+      case "adminIndex" => new pages.AdminIndex()
     }
+    ()
   }
 
 
