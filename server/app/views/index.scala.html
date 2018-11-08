@@ -6,7 +6,9 @@
 @imageItem(post: Post) = {
     <div class="col-6 col-md-4 cols">
         <a href="@routes.PostController.post(post.slug.value)">
-            <img src="@post.randomImage.smallSizeUrl"/>
+            @for(image <- post.randomImage) {
+                <img src="@image.smallSizeUrl"/>
+            }
         </a>
         <div class="title">
             @post.title.value
@@ -19,27 +21,30 @@
         @defining(paginated.first) {firstPost =>
             <div class="bodyBackground"><div class="content"></div></div>
 
-            @defining((
-                firstPost.randomImage.palette.foreground.withAlpha(220).rgba,
-                firstPost.randomImage.palette.background.withAlpha(35).rgba
-            )){ case (foreground, background) =>
-                <style>
-                    body {
-                        background: url('@firstPost.randomImage.blurSizeUrl');
-                        background-size: cover;
-                        background-position: center;
-                        background-repeat: no-repeat;
-                    }
-                    #site-data-heading {
-                        color: @foreground;
-                        background-color: @background;
-                    }
-                    #profile-photo-container {
-                        border-color: @foreground;
-                        box-shadow: 0px 0px 16px 1px @foreground;
-                    }
-                </style>
+            @for(firstImage <- firstPost.randomImage) {
+                @defining((
+                    firstImage.palette.foreground.withAlpha(220).rgba,
+                    firstImage.palette.background.withAlpha(35).rgba
+                )){ case (foreground, background) =>
+                    <style>
+                        body {
+                            background: url('@firstImage.blurSizeUrl');
+                            background-size: cover;
+                            background-position: center;
+                            background-repeat: no-repeat;
+                        }
+                        #site-data-heading {
+                            color: @foreground;
+                            background-color: @background;
+                        }
+                        #profile-photo-container {
+                            border-color: @foreground;
+                            box-shadow: 0px 0px 16px 1px @foreground;
+                        }
+                    </style>
+                }
             }
+            
             
             
             <div class="container landing-image-grid-container">

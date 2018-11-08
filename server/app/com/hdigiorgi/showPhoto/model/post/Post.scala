@@ -108,9 +108,13 @@ class Post private (_inId: Option[StringId] = None,
     post._images = images
     post
   }
-  lazy val randomImage: Image = {
+
+  lazy val randomImage: Option[Image] = {
     val drop = Math.min(images.size -1, (Math.random()*images.size).ceil.toInt -1)
-    images.drop(drop).head
+    images.drop(drop) match {
+      case Seq() => None
+      case Seq(image, _*) => Some(image)
+    }
   }
 
   private var _title = _inTitle.getOrElse(Title(""))
