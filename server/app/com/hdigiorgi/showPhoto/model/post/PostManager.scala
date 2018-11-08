@@ -120,6 +120,7 @@ class PostManager(val db: PostPI,
 
   def publish(postId: String): Either[ErrorMessage, Post] = for {
     post <- readPost(postId)
+    _ <- post.title.validate(postId, db)
     _ <- post.publicationStatus.validateToggle(Published)
     _ <- validatePostImages(post)
   } yield {
