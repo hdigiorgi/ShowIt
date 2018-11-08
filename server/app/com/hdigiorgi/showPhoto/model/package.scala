@@ -19,7 +19,7 @@ class ErrorMessage(origin: Symbol, private val msgSuffixId: String, val throwabl
     this.throwable match {
       case None =>
         val msg = msgOpt.map(_ + " " + this.id).getOrElse(this.id)
-        logger.error(msg)
+        logger.info(msg)
       case Some(throwableValue) =>
         msgOpt match {
           case None => logger.error(throwableValue)
