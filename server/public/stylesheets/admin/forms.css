@@ -9,20 +9,20 @@
     transform: translateY(-50%);
     transition: 1s;
 }
+
 .full-screen-loading-ended-loading {
     opacity: 0;
     transition: 1.25s;
 }
 
-.plain-text-input-form-group .badge {
+.simple-text-informer .badge {
     white-space: normal;
     word-break: break-all;
 }
-.plain-text-input-form-group label,
-.plain-text-input-form-group .simple-text-informer  {
+.simple-text-informer  {
     display: inline
 }
-.plain-text-input-form-group .simple-text-informer .ok {
+.simple-text-informer .ok {
     color: #0c0;
 }
 
@@ -37,4 +37,11 @@
 .more-ops-button .dropdown-toggle::after {
     display:none;
 }
- 
+
+.side-inform-label {
+    margin: 0;
+}
+
+.margin-for-top-informer {
+    margin-top: 0.25em;
+}

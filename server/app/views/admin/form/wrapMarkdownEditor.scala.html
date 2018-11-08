@@ -2,7 +2,8 @@
 @(id:String, label: String, value:String, save: Call)(implicit request: RequestHeader)
 
 <div id="@{id}-markdown-editor-form-group" class="form-group plain-text-input-form-group" >
-    <label id="@{id}-label" >@label</label>
-    <div id="@{id}-input-indicator" class="simple-text-informer"></div>
+    <label id="@{id}-label" class="side-inform-label">@label</label>
+    <span id="@{id}-input-indicator"></span>
+    <div class="margin-for-top-informer"></div>
     <textarea name="@id" class="form-control md-editor" rows="5" autocomplete="off" save-url="@{CSRF(save)}">@value</textarea>
 </div>

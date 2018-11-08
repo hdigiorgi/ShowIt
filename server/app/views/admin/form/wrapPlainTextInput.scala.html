@@ -7,7 +7,7 @@
   placeHolder: String = "")(implicit request: RequestHeader)
 
 <div id="@{id}-plain-text-input-form-group" class="form-group plain-text-input-form-group" >
-    <label id="@{id}-label" >@label</label>
-    <div id="@{id}-input-indicator" class="simple-text-informer"></div>
-    <input name="@id" type="text" class="form-control @extraInputClass plain-text" save-url="@{CSRF(save)}" value="@value" placeholder="@placeHolder">
+    <label id="@{id}-label" class="side-inform-label" >@label</label>
+    <span id="@{id}-input-indicator"></span>
+    <input name="@id" type="text" class="form-control @extraInputClass plain-text margin-for-top-informer" save-url="@{CSRF(save)}" value="@value" placeholder="@placeHolder">
 </div>

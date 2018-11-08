@@ -32,13 +32,13 @@ class SimpleTextInformer(id: String, parent: JQuery) extends ResultInformer {
   }
   private def loadingElementId: String = f"$id-loading-element"
   private def loadingElementString: String = {
-    f"<i id='$loadingElementId' class='fas fa-spinner fa-pulse'></i>"
+    f"<span class='simple-text-informer'><i id='$loadingElementId' class='fas fa-spinner fa-pulse'></i></span>"
   }
   private def successElementString: String = {
-    f"<i id='$id-success-element' class='fas fa-check ok'></i>"
+    f"<span class='simple-text-informer'><i id='$id-success-element' class='fas fa-check ok'></i></span>"
   }
   private def errorElementString(error: String): String = {
-    f"<span id='$id-error-element' class='badge badge-warning'>$error</span>"
+    f"<span id='$id-error-element' class='simple-text-informer badge badge-warning'>$error</span>"
   }
 
 }
@@ -47,10 +47,6 @@ object SimpleTextInformer {
   def fromElement(element: JQuery): SimpleTextInformer = {
     val id = `!attr`(element, "id")
     new SimpleTextInformer(id, element)
-  }
-  def fromWrapper(element: JQuery): SimpleTextInformer = {
-    val parent = `$$0`(element, ".simple-text-informer")
-    fromElement(parent)
   }
   def fromId(id: String): SimpleTextInformer = fromElement(`$`(id))
 }

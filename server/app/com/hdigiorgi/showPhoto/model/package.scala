@@ -2,11 +2,11 @@ package com.hdigiorgi.showPhoto.model
 
 import java.time.Instant
 import java.util.UUID
-
 import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus}
 import org.apache.logging.log4j.Logger
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
+
 
 final case class InvalidModelException(private val message: String = "")
   extends Exception(message)

@@ -2,23 +2,25 @@ package com.hdigiorgi.showit.components
 
 import com.hdigiorgi.showit.external.simpleMDE.{SimpleMDE, SimpleMDECreationOptions}
 import org.scalajs.dom
-import org.scalajs.jquery.jQuery
+import org.scalajs.jquery.{JQuery, jQuery}
+
 import scala.scalajs.js
+import com.hdigiorgi.showit.utils._
 
 object MDEditor {
   def create(wrapperId: String): Updater[SimpleMDE, String] = {
-    val wrapper  = jQuery(f"#$wrapperId-markdown-editor-form-group")
-    val element = wrapper.children(".md-editor").get(0)
-    val name = element.getAttribute("name")
-    val endpoint = element.getAttribute("save-url")
+    val wrapper  = `$#`(wrapperId, "markdown-editor-form-group")
+    val element = `$$0`(wrapper, ".md-editor")
+    val name = `!attr`(element, "name")
+    val endpoint = `!attr`(element, "save-url")
     val smde = createSMDE(element)
-    val informer = SimpleTextInformer.fromWrapper(wrapper)
+    val informer = SimpleTextInformer.fromElement(`$#`(wrapperId,"input-indicator"))
     new Updater[SimpleMDE,String](name, smde, informer, endpoint)
   }
 
-  private def createSMDE(element: dom.Element): Subscribable[SimpleMDE, String]  = {
+  private def createSMDE(element: JQuery): Subscribable[SimpleMDE, String]  = {
     val opts = SimpleMDECreationOptions(
-      Element = element,
+      Element = element.get(0),
       SpellChecker = false,
       Toolbar = js.Array("bold", "italic", "quote", "link", "horizontal-rule","|",
         "heading","unordered-list", "ordered-list", "code", "|",
