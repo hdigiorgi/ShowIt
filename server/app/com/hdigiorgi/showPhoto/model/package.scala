@@ -1,11 +1,16 @@
 package com.hdigiorgi.showPhoto.model
 
+import java.net.URL
 import java.time.Instant
 import java.util.UUID
-import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus}
+
+import cats.Later
+import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus, SafeHtml}
 import org.apache.logging.log4j.Logger
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
+
+import scala.util.Try
 
 
 final case class InvalidModelException(private val message: String = "")
@@ -139,11 +144,6 @@ object License {
 
 
 /**
-  * Site
-  */
-case class Site(name: String, description: String, language: Language)
-
-/**
   * Purchase
   */
 object Purchase {
@@ -254,7 +254,10 @@ trait PersistentInterface[A, B]{
   def delete(key: B): Unit
 }
 trait LicensePI extends PersistentInterface[License, Grade]
-trait SitePI extends PersistentInterface[Site, String]
+trait SitePI {
+  def update(element: Site): Unit
+  def read(): Site
+}
 trait PurchasePI extends PersistentInterface[Purchase, String]
 trait FileMetaPI extends PersistentInterface[FileMeta, String]
 trait MetaPI extends PersistentInterface[Meta, String]

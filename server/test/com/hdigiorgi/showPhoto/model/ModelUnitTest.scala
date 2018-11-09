@@ -80,4 +80,16 @@ class ModelUnitTest extends FunSuite
     }
   }
 
+  test("site crud") {
+    wrapCleanDB{ db =>
+      db.site.read()
+      val site = Site(name = "test", description="des", links= Seq("a","b"))
+      db.site.update(site)
+      db.site.read() shouldBe site
+      val site2 = site.withStingLinks(Seq("x", "y", "z"))
+      db.site.update(site2)
+      db.site.read() shouldBe site2
+    }
+  }
+
 }
