@@ -1,0 +1,13 @@
+@import helper._
+
+@(id: String, label: String, saveUrl: Call)(empty: Html)(elements: Html)(implicit request: RequestHeader)
+<div id="@{id}-wrapped-sortable-list" class="wrapped-sortable-list" save-url="@CSRF(saveUrl).url">
+    <label class="side-inform-label">@label</label>
+    <span id="@{id}-input-indicator"></span>
+    <div  id="@{id}-wrapped-sortable-list-item-container" class="wrapped-sortable-list-item-container margin-for-top-informer">
+        @elements        
+    </div>
+    <div id="@{id}-wrapper-sortable-list-empty-element" style="display:none;">
+        @empty
+    </div>
+</div>

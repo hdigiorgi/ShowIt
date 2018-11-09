@@ -45,3 +45,24 @@
 .margin-for-top-informer {
     margin-top: 0.25em;
 }
+
+
+.simple-sortable-text-item {
+    display: flex;
+}
+.simple-sortable-text-item- button,
+.simple-sortable-text-item .value-holder{
+    display: inline;
+}
+.simple-sortable-text-item >[move-handle] {
+    background: transparent;
+    border-style: none;
+    color: #000000ba;
+    cursor: move;
+}
+.simple-sortable-text-item >[add-new]{
+    background: #04b1923b;
+    border-style: none;
+    color: #000000ba;
+    cursor: cell;
+}

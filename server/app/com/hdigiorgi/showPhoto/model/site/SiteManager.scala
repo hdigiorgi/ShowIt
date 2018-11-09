@@ -23,7 +23,10 @@ class SiteManager(private val db: SitePI) {
   }
 
   def updateLinks(links: Seq[String]): Either[ErrorMessage, Site] = {
-    update(site.withStingLinks(links))
+    for {
+      siteWithLinks <- site.withStingLinks(links)
+      r <- update(siteWithLinks)
+    } yield r
   }
 
   private def update(site: Site): Either[ErrorMessage, Site] = {

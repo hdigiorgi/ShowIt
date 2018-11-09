@@ -59,20 +59,17 @@
                         @if(site.renderedDescription.value.nonEmpty) {
                             @Html(site.renderedDescription.value)
                         }
-                        <div class="links">
-                            <a class="link" href="#">
-                                    <i class="fab fa-twitter"></i>
-                            </a>
-                            <a class="link" href="#">
-                                    <i class="fab fa-facebook"></i>
-                            </a>
-                            <a class="link" href="#">
-                                    <i class="fab fa-youtube"></i>
-                            </a>
-                            <a class="link" href="#">
-                                    <i class="fab fa-instagram"></i>
-                            </a>
-                        </div>
+
+                        @if(site.links.nonEmpty) {
+                            <div class="links">
+                            @for(link <- site.links){
+                                <a class="link" target="_blank" href="@link.href">
+                                    <i class="@link.faIcon"></i>
+                                </a> 
+                            }
+                            </div>
+                        }
+                        
                     </div>
                 </div>
                 

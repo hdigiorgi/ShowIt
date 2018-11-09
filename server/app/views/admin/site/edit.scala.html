@@ -1,13 +1,25 @@
 @import helper._
-@import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor}
+@import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor, wrapSortableList}
 @import com.hdigiorgi.showPhoto.model.site.Site
 
 @(site: Site)(implicit request: RequestHeader)
 
+@sortableItem(value: String = null) = {
+    <div item class="simple-sortable-text-item">
+        <button move-handle>
+            <i class="far fa-hand-spock"></i>
+        </button>
+        <input value-holder placeholder="Url or link" type="text" class="form-control form-control-sm value-holder"
+            @if(value!=null){value="@value"}>
+        <button add-new>
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+}
+
 @main("site", css="admin/forms") {
 @admin.uploader()
 @admin.simplemde()
-
 
 <div class="container">
     <h1>Edit site data</h1>
@@ -18,6 +30,12 @@
         list = routes.AdminSiteController.imageList())
         
     @wrapMarkdownEditor("site-description", "Description", site.rawDescription, routes.AdminSiteController.saveDescription())
+
+    @wrapSortableList("site-links", "Links", routes.AdminSiteController.saveLinks()){
+        @sortableItem()
+    }{
+        @for(link <- site.links){ @sortableItem(link.raw) }
+    }
 
 </div>
 

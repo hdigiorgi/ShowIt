@@ -4,35 +4,43 @@ import java.io.StringReader
 import java.net.URL
 
 import cats.Later
+import com.hdigiorgi.showPhoto.model.{ErrorMessage, SiteLinkErrorMsg}
 import com.hdigiorgi.showPhoto.model.post.SafeHtml
 import org.apache.commons.csv.CSVFormat
 
 import scala.util.Try
 
 case class SiteLink(raw: String) {
-  lazy val url: Option[URL] = Try(new URL(raw)).toOption
-  lazy val faIcon: String = url.map(_.getHost).flatMap(SiteLink.getFaIcon).getOrElse("")
+  import SiteLink._
+
+  def valid: Either[ErrorMessage, SiteLink] = url match {
+    case None => InvalidLink
+    case Some(_) => Right(this)
+  }
+
+  def href: String = url match {
+    case Some(u) => u.toString
+    case None => raw
+  }
+
+  lazy val url: Option[URL] = {
+    lazy val tryRaw  = Try(new URL(raw))
+    lazy val tryHttp = Try(new URL(f"http://$raw"))
+    tryRaw.orElse(tryHttp).toOption
+  }
+
+  lazy val faIcon: String = {
+    getFaIcon(url.map(_.getHost).getOrElse(raw)).getOrElse("")
+  }
 }
 object SiteLink {
-  private val faLinksDef = Seq(
-    Seq("fab fa-twitter", "twitter.com", "t.co"),
-    Seq("fab fa-instagram", "instagram.com"),
-    Seq("fab fa-youtube", "youtube.com", "youtu.be"),
-    Seq("fab fa-google-plus-g", "plus.google.com"),
-    Seq("fab fa-vk", "plus.google.com"),
-    Seq("fas fa-external-link-alt", "")
-  )
-  private def getFaIcon(domain: String): Option[String] = {
-    faLinksDef.find{ linkDef =>
-      val posibleResult = linkDef.head
-      val domains = linkDef.tail
-      domains.exists(domain.startsWith)
-    }.map(_.head)
-  }
+  val InvalidLink = Left(SiteLinkErrorMsg("invalidLink"))
+
   def toString(links: Seq[SiteLink]): String = {
     val strs = links.map(_.raw)
     CSVFormat.DEFAULT.format(strs : _*)
   }
+
   def fromString(siteLinkString: String): Seq[SiteLink] = {
     val in = new StringReader(siteLinkString)
     val records = CSVFormat.DEFAULT.parse(in).iterator()
@@ -44,6 +52,24 @@ object SiteLink {
       r += SiteLink(link)
     }
     r
+  }
+
+  private val faLinksDef = Seq(
+    Seq("fab fa-twitter", "twitter.com", "t.co"),
+    Seq("fab fa-instagram", "instagram.com"),
+    Seq("fab fa-youtube", "youtube.com", "youtu.be"),
+    Seq("fab fa-google-plus", "plus.google.com"),
+    Seq("fab fa-facebook", "facebook.com", "fb.me"),
+    Seq("fab fa-vk", "plus.google.com"),
+    Seq("fab fa-linkedin", "linkedin.com", "linked.in"),
+    Seq("fas fa-external-link-alt", "")
+  )
+
+  private def getFaIcon(domain: String): Option[String] = {
+    faLinksDef.find{ linkDef =>
+      val toMatch = linkDef.tail
+      toMatch.exists(domain.startsWith)
+    }.map(_.head)
   }
 }
 class Site private (_inName: Option[String] = None,
@@ -77,8 +103,13 @@ class Site private (_inName: Option[String] = None,
 
   private var _links = _inLinks
   def links: Seq[SiteLink] = _links
-  def withStingLinks(links: Seq[String]): Site = {
-    withLinks(links.map(SiteLink(_)))
+  def withStingLinks(links: Seq[String]): Either[ErrorMessage, Site] = {
+    val siteLinks = links.map(SiteLink(_))
+    siteLinks.find(_.valid.isLeft) match {
+      case Some(invalidSiteLink) => Left(invalidSiteLink.valid.left.get)
+      case None =>
+        Right(withLinks(siteLinks))
+    }
   }
   def withLinks(links: Seq[SiteLink]): Site = {
     val site = new Site(this)
