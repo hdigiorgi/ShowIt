@@ -31,15 +31,14 @@ GET    /admin/post/edit/:id/file/attachment   controllers.AdminPostController.at
 ########################################################################################################################
 ## Site administration
 ########################################################################################################################
-GET    /admin/site                            controllers.AdminSiteController.index
-POST   /admin/site/edit/title                 controllers.AdminSiteController.saveTitle
-POST   /admin/site/edit/description           controllers.AdminSiteController.saveDescription
-POST   /admin/site/edit/domain                controllers.AdminSiteController.saveDomain
-POST   /admin/site/edit/social_links          controllers.AdminSiteController.saveSocialLinks
-POST   /admin/site/edit/image/                controllers.AdminSiteController.imageProcess()
-DELETE /admin/site/edit/image/                controllers.AdminSiteController.imageDelete(delete: String)
-GET    /admin/site/edit/image/                controllers.AdminSiteController.imageLoad(load: String)
-GET    /admin/site/edit/image/list            controllers.AdminSiteController.imageList()
+GET    /admin/site                     controllers.AdminSiteController.index
+POST   /admin/site/edit/name           controllers.AdminSiteController.saveName
+POST   /admin/site/edit/description    controllers.AdminSiteController.saveDescription
+POST   /admin/site/edit/links          controllers.AdminSiteController.saveLinks
+POST   /admin/site/edit/image/         controllers.AdminSiteController.imageProcess()
+DELETE /admin/site/edit/image/         controllers.AdminSiteController.imageDelete(delete: String)
+GET    /admin/site/edit/image/         controllers.AdminSiteController.imageLoad(load: String)
+GET    /admin/site/edit/image/list     controllers.AdminSiteController.imageList()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

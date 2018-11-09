@@ -3,7 +3,8 @@ package com.hdigiorgi.showPhoto.model.db.sqlite.site
 import cats.Later
 import com.hdigiorgi.showPhoto.model.db.sqlite.DB
 import com.hdigiorgi.showPhoto.model.post.SafeHtml
-import com.hdigiorgi.showPhoto.model.{Site, SiteLink, SitePI}
+import com.hdigiorgi.showPhoto.model.site.{Site, SiteLink}
+import com.hdigiorgi.showPhoto.model.SitePI
 import slick.jdbc.SQLiteProfile.api._
 
 object SQLSiteType {

@@ -1,6 +1,6 @@
-package com.hdigiorgi.showPhoto.model
+package com.hdigiorgi.showPhoto.model.site
 
-import java.io.{Reader, StringReader}
+import java.io.StringReader
 import java.net.URL
 
 import cats.Later

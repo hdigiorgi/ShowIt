@@ -1,6 +1,7 @@
 package com.hdigiorgi.showPhoto.model
 
 import com.hdigiorgi.showPhoto.UnitTestBase
+import com.hdigiorgi.showPhoto.model.site.Site
 import org.scalatestplus.play.guice._
 import play.api.test._
 import org.scalatest._

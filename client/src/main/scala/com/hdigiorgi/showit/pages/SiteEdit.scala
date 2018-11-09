@@ -5,6 +5,6 @@ class SiteEdit {
   def run(): Unit = {
     Uploader("site-image")
     MDEditor.create("site-description")
-    PlainTextUpdater.create("site-title")
+    PlainTextUpdater.create("site-name")
   }
 }

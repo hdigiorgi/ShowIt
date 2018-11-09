@@ -15,7 +15,7 @@
     transition: 1.25s;
 }
 
-.simple-text-informer .badge {
+.simple-text-informer {
     white-space: normal;
     word-break: break-all;
 }

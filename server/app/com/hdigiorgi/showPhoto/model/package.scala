@@ -6,6 +6,7 @@ import java.util.UUID
 
 import cats.Later
 import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus, SafeHtml}
+import com.hdigiorgi.showPhoto.model.site.Site
 import org.apache.logging.log4j.Logger
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration

@@ -40,10 +40,10 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   }}
 
   def saveTitle(postId: String): Loged[AnyContent] =
-    updateFrom[String]("post-title", PostManager().saveTitle(postId, _))
+    argumented.updateFrom[String](Action,"post-title", PostManager().saveTitle(postId, _))
 
   def saveContent(postId: String): Loged[AnyContent] =
-    updateFrom[String]("post-content", PostManager().saveContent(postId, _))
+    argumented.updateFrom[String](Action, "post-content", PostManager().saveContent(postId, _))
 
   def imageProcess(id: String): Loged[MultipartFormData[Files.TemporaryFile]] =
     multipart.receiveMultipart(parse, Action, new multipart.post.ImageReceiver(id))
@@ -66,32 +66,16 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def attachmentList(id: String): Loged[AnyContent] =
     multipart.listUploaded(Action, new multipart.post.AttachmentLister(id))
 
-  def publicationStatus(id: String): Loged[AnyContent] = updateFrom[Boolean]("post-publication-status", {
-    case true => PostManager().publish(id)
-    case false => PostManager().unpublish(id)
-  })
+  def publicationStatus(id: String): Loged[AnyContent] =
+    argumented.updateFrom[Boolean](Action,"post-publication-status", {
+      case true => PostManager().publish(id)
+      case false => PostManager().unpublish(id)
+    })
 
   def delete(id: String) = Loged { Action { implicit req =>
-    simpleResponse(PostManager().delete(id))
+    argumented.simpleResponse(PostManager().delete(id))
   }}
 
-  private def updateFrom[A](field: String, savef: A => Either[ErrorMessage, _])(implicit read : Reads[A]) =
-    Loged {Action { implicit request: Request[AnyContent] =>
-      Try((request.body.asJson.get \ field).as[A]) match {
-        case Failure(e) =>
-          logger.error("can't parse request", e)
-          BadRequest(e.getMessage)
-        case Success(content) =>
-          val opResult = savef(content)
-          simpleResponse(opResult)
-      }
-    }}
 
-  private def simpleResponse(r: Either[ErrorMessage, _])(implicit i18n: play.api.i18n.Messages): Result = {
-    r match {
-      case Left(msg) => Conflict(msg.message)
-      case Right(_) => Ok("{}")
-    }
-  }
 
 }

@@ -1,22 +1,23 @@
 @import helper._
 @import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor}
+@import com.hdigiorgi.showPhoto.model.site.Site
 
-@()(implicit request: RequestHeader)
+@(site: Site)(implicit request: RequestHeader)
 
-@main("site", css = "mainAdminMenu") {
+@main("site", css="admin/forms") {
 @admin.uploader()
 @admin.simplemde()
 
 
 <div class="container">
     <h1>Edit site data</h1>
-    @wrapPlainTextInput("site-title", "Title", "", routes.AdminSiteController.saveTitle())
+    @wrapPlainTextInput("site-name", "Name", site.name, routes.AdminSiteController.saveName())
 
     @wrapUploadInput("site-image", "Site image", variant="image",
         process = routes.AdminSiteController.imageProcess(),
         list = routes.AdminSiteController.imageList())
         
-    @wrapMarkdownEditor("site-description", "Description", "", routes.AdminSiteController.saveDescription())
+    @wrapMarkdownEditor("site-description", "Description", site.rawDescription, routes.AdminSiteController.saveDescription())
 
 </div>
 
