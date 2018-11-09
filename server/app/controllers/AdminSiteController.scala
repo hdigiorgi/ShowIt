@@ -8,19 +8,20 @@ import play.api.Configuration
 import play.api.mvc.{AbstractController, AnyContent, ControllerComponents}
 
 class AdminSiteController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
-  extends AbstractController(cc) with LanguageFilterSupport with AuthenticationSupport {
+    extends BaseController(cc) {
 
   def index() = Loged { Action { implicit r =>
     Ok(views.html.admin.site.edit(site))
   }}
+
   def saveName(): Loged[AnyContent] =
-    argumented.updateFrom[String](Action, "site-name", manager.updateName)
+    argumented.updateFrom[String](Action, "site-name", siteManager.updateName)
 
   def saveDescription(): Loged[AnyContent] =
-    argumented.updateFrom[String](Action, "site-description", manager.updateDescription)
+    argumented.updateFrom[String](Action, "site-description", siteManager.updateDescription)
 
   def saveLinks(): Loged[AnyContent ]=
-    argumented.updateFrom[Seq[String]](Action, "site-links", manager.updateLinks)
+    argumented.updateFrom[Seq[String]](Action, "site-links", siteManager.updateLinks)
 
   def imageProcess()() = Loged { Action { implicit r =>
     Ok(views.html.admin.site.edit(site))
@@ -38,8 +39,5 @@ class AdminSiteController @Inject()(cc: ControllerComponents)(implicit conf : Co
     Ok(views.html.admin.site.edit(site))
   }}
 
-  private implicit val logger: Logger = LogManager.getLogger(this.getClass)
-  private val manager = SiteManager()
-  private def site: Site = manager.site
 
 }

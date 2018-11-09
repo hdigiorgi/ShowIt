@@ -1,7 +1,8 @@
 @import com.hdigiorgi.showPhoto.model.post.Post
 @import com.hdigiorgi.showPhoto.model._
+@import com.hdigiorgi.showPhoto.model.site.Site
 
-@(paginated: PaginatedResult[Post])
+@(site: Site, paginated: PaginatedResult[Post])
 
 @imageItem(post: Post) = {
     <div class="col-6 col-md-4 cols">
@@ -50,13 +51,14 @@
             <div class="container landing-image-grid-container">
                 <div id="site-data-heading-container">
                     <div id="site-data-heading">
-                        <h1>SITE NAME</h1>
-                        <div id="profile-photo-container">
-
-                        </div>
-                        <p>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        </p>
+                        @if(site.name.nonEmpty) {
+                            <h1>@site.name</h1>
+                        }
+                        
+                        <div id="profile-photo-container"></div>
+                        @if(site.renderedDescription.value.nonEmpty) {
+                            @Html(site.renderedDescription.value)
+                        }
                         <div class="links">
                             <a class="link" href="#">
                                     <i class="fab fa-twitter"></i>
