@@ -144,10 +144,25 @@ object Palette {
 case class Image(elementId: String,
                  fileSlug: FileSlug,
                  palette: Palette) {
-  def url(sizeType: SizeType): String = routes.PostController.image(elementId, sizeType.name, fileSlug.value).url
-  def smallSizeUrl: String = url(SmallSize)
-  def mediumSizeUrl: String = url(MediumSize)
-  def fullSizeUrl: String = url(FullSize)
-  def blurSizeUrl: String = url(BlurSize)
   def id: String = fileSlug.value
+  lazy val postUrl = new PostImageLinks(this)
+  lazy val siteUrl = new SiteImageLinks(this)
+}
+
+trait ImageLinks{
+  def url(sizeType: SizeType): String
+  def small: String = url(SmallSize)
+  def medium: String = url(MediumSize)
+  def full: String = url(FullSize)
+  def blur: String = url(BlurSize)
+}
+
+class PostImageLinks(image: Image) extends ImageLinks{
+  def url(sizeType: SizeType): String =
+    routes.PostController.image(image.elementId, sizeType.name, image.fileSlug.value).url
+}
+
+class SiteImageLinks(image: Image) extends ImageLinks{
+  def url(sizeType: SizeType): String =
+    routes.AdminSiteController.imageLoad(image.fileSlug.value).url
 }

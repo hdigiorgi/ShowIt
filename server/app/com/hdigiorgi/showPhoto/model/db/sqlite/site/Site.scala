@@ -10,18 +10,18 @@ import slick.jdbc.SQLiteProfile.api._
 object SQLSiteType {
   val TABLE_NAME = "SITE"
   type Name = String; val NAME_COLUMN = "NAME"
-  type DescriptionRaw = String; val DESCRIPTION_RAW_COLUMN = "DESCRIPTION_RAW"
-  type DescriptionRendered = String; val DESCRIPTION_RENDERED_COLUMN = "DESCRIPTION_RENDERED"
+  type RawContent = String; val DESCRIPTION_RAW_COLUMN = "CONTENT_RAW"
+  type RenderedContent = String; val DESCRIPTION_RENDERED_COLUMN = "CONTENT_RENDERED"
   type Links = String; val LINKS_COLUMN = "LINKS"
 
-  type Tuple = (Name, DescriptionRaw, DescriptionRendered, Links)
-  type SmallTuple = (Name, DescriptionRendered, Links)
+  type Tuple = (Name, RawContent, RenderedContent, Links)
+  type SmallTuple = (Name, RenderedContent, Links)
 }
 
 class SQLSite(tag: Tag) extends Table[SQLSiteType.Tuple](tag, SQLSiteType.TABLE_NAME) {
   def name = column[SQLSiteType.Name](SQLSiteType.NAME_COLUMN)
-  def descriptionRaw = column[SQLSiteType.DescriptionRaw](SQLSiteType.DESCRIPTION_RAW_COLUMN)
-  def descriptionRendered = column[SQLSiteType.DescriptionRendered](SQLSiteType.DESCRIPTION_RENDERED_COLUMN)
+  def descriptionRaw = column[SQLSiteType.RawContent](SQLSiteType.DESCRIPTION_RAW_COLUMN)
+  def descriptionRendered = column[SQLSiteType.RenderedContent](SQLSiteType.DESCRIPTION_RENDERED_COLUMN)
   def links = column[SQLSiteType.Links](SQLSiteType.LINKS_COLUMN)
   override def * = (name, descriptionRaw, descriptionRendered, links)
   def smallTuple = (name, descriptionRendered, links)
@@ -53,8 +53,8 @@ class SQLSitePI() extends SitePI {
 
   private def toTuple(site: Site): SQLSiteType.Tuple = {
     (site.name,
-      site.rawDescription,
-      site.renderedDescription.value,
+      site.rawContent,
+      site.renderedContent.value,
       SiteLink.toString(site.links))
   }
 

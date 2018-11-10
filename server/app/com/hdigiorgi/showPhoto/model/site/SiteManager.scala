@@ -16,17 +16,15 @@ class SiteManager(dbi: DBInterface, fsi: FileSystemInterface) {
 
   def site: Site = _site match {
     case Some(site) => site
-    case None =>
-      _site = Some(db.read())
-      _site.get
+    case None => reReadSite()
   }
 
   def updateName(name: String): Either[ErrorMessage, Site] = {
     update(site.withName(name))
   }
 
-  def updateDescription(description: String): Either[ErrorMessage, Site] = {
-    update(site.withRawDescription(description))
+  def updateContent(content: String): Either[ErrorMessage, Site] = {
+    update(site.withRawContent(content))
   }
 
   def updateLinks(links: Seq[String]): Either[ErrorMessage, Site] = {
@@ -39,14 +37,18 @@ class SiteManager(dbi: DBInterface, fsi: FileSystemInterface) {
   def processImage(file: File, name: FileSlug): Either[ErrorMessage, Seq[Image]] = {
     imageDb.process(file, SiteManager.ID, name) match {
       case Failure(exception) => PostManager.ErrorMessages.ErrorProcessingImage(exception)
-      case Success(value) => Right(value)
+      case Success(value) =>
+        reReadSite()
+        Right(value)
     }
   }
 
   def deleteImage(name: FileSlug): Either[ErrorMessage, Unit] = {
     imageDb.deleteImage(SiteManager.ID, name) match {
       case false => PostManager.ErrorMessages.ImageNotFound
-      case true => Right(Unit)
+      case true =>
+        reReadSite()
+        Right(Unit)
     }
   }
 
@@ -64,6 +66,12 @@ class SiteManager(dbi: DBInterface, fsi: FileSystemInterface) {
         Right(site)
     }
   }
+
+  private def reReadSite() = {
+    _site = Some(db.read().withImages(imageDb.getStoredImages(SiteManager.ID)))
+    _site.get
+  }
+
 }
 
 object SiteManager {

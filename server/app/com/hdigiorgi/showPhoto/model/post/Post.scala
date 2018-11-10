@@ -9,7 +9,6 @@ import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
 import org.apache.commons.text.StringEscapeUtils
 
-
 case class PublicationStatus(name: String){
   import PublicationStatus.ErrorMessages._
 
@@ -90,6 +89,70 @@ object Title {
 
 }
 
+trait SelfCopyMutable[A <: SelfCopyMutable[A]] {
+  protected def copyMe(): A
+  protected def mutatingCopy(modify: A => Unit): A = {
+    val `new` = copyMe()
+    modify(`new`)
+    `new`
+  }
+}
+
+trait ImageHolder[A <: ImageHolder[A]] extends SelfCopyMutable[A] {
+  protected var _images: Seq[Image] = Seq.empty
+
+  def images: Seq[Image] = _images
+
+  def withImages(images: Seq[Image]): A = {
+    mutatingCopy{ c =>
+      c._images = images
+    }
+  }
+
+  def randomImage: Option[Image] = {
+    val drop = Math.min(images.size -1, (Math.random()*images.size).ceil.toInt -1)
+    images.drop(drop) match {
+      case Seq() => None
+      case Seq(image, _*) => Some(image)
+    }
+  }
+
+  protected def setMutableImageHolderImages(images: Seq[Image] = Seq.empty) {
+    _images = images
+  }
+}
+
+trait MarkdownContentHolder[A <: MarkdownContentHolder[A]] extends SelfCopyMutable[A] {
+  private var _rawContent: Later[String] = _
+  private var _renderedContent: Option[SafeHtml] = _
+
+  def _possiblyNotEvaluatedRawContent: Later[String]= _rawContent
+  def rawContent: String = _rawContent.value
+
+  def _possiblyNotEvaluatedRenderedContent: Option[SafeHtml]= _renderedContent
+  def renderedContent: SafeHtml = {
+    _renderedContent match {
+      case Some(alreadyRendered) => alreadyRendered
+      case None =>
+        val rendered = SafeHtml.fromUnsafeMarkdown(rawContent)
+        _renderedContent = Some(rendered)
+        rendered
+    }
+  }
+
+  def withRawContent(content: String): A = mutatingCopy{ c =>
+    c._rawContent = Later(content)
+    c._renderedContent = None
+  }
+  def withRawContent(content: Later[String]): A = mutatingCopy(_._rawContent=content)
+
+  protected def setMutableMarkdownContent(rawContent: Option[Later[String]],
+                                          renderedContent: Option[SafeHtml]): Unit = {
+    _renderedContent = renderedContent
+    _rawContent = rawContent.getOrElse(Later(new String()))
+  }
+}
+
 class Post private (_inId: Option[StringId] = None,
                     _inTitle: Option[Title] = None,
                     _inSlug: Option[Slug] = None,
@@ -97,25 +160,11 @@ class Post private (_inId: Option[StringId] = None,
                     _inPublicationStatus: Option[PublicationStatus] = None,
                     _inRawContent: Option[Later[String]] = None,
                     _inRenderedContent: Option[SafeHtml] = None,
-                    _inImages: Seq[Image] = Seq.empty) {
-
+                    _inImages: Seq[Image] = Seq.empty)
+    extends ImageHolder[Post] with MarkdownContentHolder[Post] {
+  setMutableImageHolderImages(_inImages)
+  setMutableMarkdownContent(_inRawContent, _inRenderedContent)
   val id: StringId = _inId.getOrElse(StringId.random)
-
-  private var _images = _inImages
-  def images: Seq[Image] = _images
-  def withImages(images: Seq[Image]): Post = {
-    val post = new Post(this)
-    post._images = images
-    post
-  }
-
-  lazy val randomImage: Option[Image] = {
-    val drop = Math.min(images.size -1, (Math.random()*images.size).ceil.toInt -1)
-    images.drop(drop) match {
-      case Seq() => None
-      case Seq(image, _*) => Some(image)
-    }
-  }
 
   private var _title = _inTitle.getOrElse(Title(""))
   def title: Title = _title
@@ -131,20 +180,6 @@ class Post private (_inId: Option[StringId] = None,
   def withSlug(slug: Slug): Post = {
     val post = new Post(this)
     post._slug = slug
-    post
-  }
-
-  private var _rawContent = _inRawContent.getOrElse(Later(new String()))
-  def rawContent: String = _rawContent.value
-  def withRawContent(contentRaw: Later[String]): Post = {
-    val post = new Post(this)
-    post._rawContent = contentRaw
-    post
-  }
-  def withRawContent(rawContent: String): Post = {
-    val post = new Post(this)
-    post._rawContent = Later(rawContent)
-    post._renderedContent = SafeHtml.fromUnsafeMarkdown(rawContent)
     post
   }
 
@@ -165,8 +200,6 @@ class Post private (_inId: Option[StringId] = None,
   }
   def togglePublicationStatus: Post = withPublicationStatus(_publicationStatus.toggle)
 
-  private var _renderedContent: SafeHtml = _inRenderedContent.getOrElse(SafeHtml.empty)
-  def renderedContent: SafeHtml = _renderedContent
 
   override def toString: String = f"Post(${this.id.value},${this.slug.value})"
 
@@ -183,10 +216,13 @@ class Post private (_inId: Option[StringId] = None,
 
   override def hashCode: Int =  this.id.value.hashCode
 
+
+  override def copyMe(): Post = new Post(this)
   private def this(post: Post) {
     this(_inId = Some(post.id), _inTitle = Some(post.title), _inSlug = Some(post.slug),
          _inCreationTime = Some(post.creationTime), _inPublicationStatus = Some(post.publicationStatus),
-         _inRawContent = Some(Later(post.rawContent)), _inRenderedContent = Some(post.renderedContent),
+         _inRawContent = Some(post._possiblyNotEvaluatedRawContent),
+         _inRenderedContent = post._possiblyNotEvaluatedRenderedContent,
          _inImages = post.images)
   }
 

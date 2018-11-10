@@ -4,8 +4,8 @@ import java.io.StringReader
 import java.net.URL
 
 import cats.Later
-import com.hdigiorgi.showPhoto.model.{ErrorMessage, SiteLinkErrorMsg}
-import com.hdigiorgi.showPhoto.model.post.SafeHtml
+import com.hdigiorgi.showPhoto.model.{ErrorMessage, Image, SiteLinkErrorMsg}
+import com.hdigiorgi.showPhoto.model.post._
 import org.apache.commons.csv.CSVFormat
 
 import scala.util.Try
@@ -73,9 +73,14 @@ object SiteLink {
   }
 }
 class Site private (_inName: Option[String] = None,
-                    _inRawDescription: Option[Later[String]] = None,
-                    _inRenderedDescription: Option[SafeHtml] = None,
-                    _inLinks: Seq[SiteLink] = Seq()) {
+                    _inRawContent: Option[Later[String]] = None,
+                    _inRenderedContent: Option[SafeHtml] = None,
+                    _inLinks: Seq[SiteLink] = Seq(),
+                    _inImages: Seq[Image] = Seq.empty)
+    extends ImageHolder[Site] with MarkdownContentHolder[Site]{
+  setMutableImageHolderImages(_inImages)
+  setMutableMarkdownContent(_inRawContent, _inRenderedContent)
+
   private var _name = _inName.getOrElse("")
   def name: String = _name
   def withName(name: String): Site = {
@@ -83,23 +88,6 @@ class Site private (_inName: Option[String] = None,
     site._name = name
     site
   }
-
-  private var _rawDescription = _inRawDescription.getOrElse(Later(new String()))
-  def rawDescription: String = _rawDescription.value
-  def withRawDescription(descriptionRaw: Later[String]): Site = {
-    val site = new Site(this)
-    site._rawDescription = descriptionRaw
-    site
-  }
-  def withRawDescription(rawDescription: String): Site = {
-    val site = new Site(this)
-    site._rawDescription = Later(rawDescription)
-    site._renderedDescription = SafeHtml.fromUnsafeMarkdown(rawDescription)
-    site
-  }
-
-  private var _renderedDescription: SafeHtml = _inRenderedDescription.getOrElse(SafeHtml.empty)
-  def renderedDescription: SafeHtml = _renderedDescription
 
   private var _links = _inLinks
   def links: Seq[SiteLink] = _links
@@ -118,7 +106,7 @@ class Site private (_inName: Option[String] = None,
   }
 
   override def toString: String = {
-    f"Site($name,$rawDescription,$links)"
+    f"Site($name,$rawContent,$links)"
   }
 
   override def equals(thatObj: Any): Boolean = {
@@ -126,15 +114,18 @@ class Site private (_inName: Option[String] = None,
     val that = thatObj.asInstanceOf[Site]
     this.name.equals(that.name) &&
     this.links.toList.equals(that.links.toList) &&
-    this.rawDescription.equals(that.rawDescription)
+    this.rawContent.equals(that.rawContent)
   }
 
+  override def copyMe(): Site = new Site(this)
   private def this(site: Site){
     this(_inName = Some(site.name),
-      _inRawDescription = Some(Later(site.rawDescription)),
-      _inRenderedDescription = Some(site.renderedDescription),
+      _inRawContent = Some(site._possiblyNotEvaluatedRawContent),
+      _inRenderedContent = site._possiblyNotEvaluatedRenderedContent,
       _inLinks = site.links)
   }
+
+
 }
 
 object Site{
@@ -142,13 +133,13 @@ object Site{
   def apply(name: String, description: String, links: Seq[String]): Site = {
     new Site(
       _inName = Some(name),
-      _inRawDescription = Some(Later(description)),
-      _inRenderedDescription = Some(SafeHtml.fromUnsafeMarkdown(description)),
+      _inRawContent = Some(Later(description)),
+      _inRenderedContent = Some(SafeHtml.fromUnsafeMarkdown(description)),
       _inLinks = links.map(SiteLink(_))
     )
   }
   def apply(name: String, rawDescription: Later[String], renderedDescription: SafeHtml, links: Seq[SiteLink]): Site = {
-    new Site(_inName = Some(name), _inRawDescription = Some(rawDescription), _inRenderedDescription = Some(renderedDescription),
+    new Site(_inName = Some(name), _inRawContent = Some(rawDescription), _inRenderedContent = Some(renderedDescription),
       _inLinks = links)
   }
 }

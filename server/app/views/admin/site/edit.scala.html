@@ -29,7 +29,7 @@
         process = routes.AdminSiteController.imageProcess(),
         list = routes.AdminSiteController.imageList())
         
-    @wrapMarkdownEditor("site-description", "Description", site.rawDescription, routes.AdminSiteController.saveDescription())
+    @wrapMarkdownEditor("site-description", "Description", site.rawContent, routes.AdminSiteController.saveDescription())
 
     @wrapSortableList("site-links", "Links", routes.AdminSiteController.saveLinks()){
         @sortableItem()

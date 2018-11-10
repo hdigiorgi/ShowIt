@@ -17,7 +17,7 @@ class AdminSiteController @Inject()(cc: ControllerComponents)(implicit conf : Co
     argumented.updateFrom[String](Action, "site-name", siteManager.updateName)
 
   def saveDescription(): Loged[AnyContent] =
-    argumented.updateFrom[String](Action, "site-description", siteManager.updateDescription)
+    argumented.updateFrom[String](Action, "site-description", siteManager.updateContent)
 
   def saveLinks(): Loged[AnyContent]=
     argumented.updateFrom[Seq[String]](Action, "site-links", siteManager.updateLinks)

@@ -16,8 +16,8 @@
     <div class="carousel-inner">
         @for((image, i) <- post.images.zipWithIndex){
             <div class="carousel-item @if(i==0){active}">
-                <img src="@image.mediumSizeUrl" alt="@image.fileSlug.value"
-                     fullSizeUrl="@image.fullSizeUrl"
+                <img src="@image.postUrl.medium" alt="@image.fileSlug.value"
+                     fullSizeUrl="@image.postUrl.full"
                      foreground="@image.palette.foreground.rgb"
                      background="@image.palette.background.withAlpha(200).rgba">
             </div>

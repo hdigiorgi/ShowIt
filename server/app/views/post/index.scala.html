@@ -4,11 +4,11 @@
 
 @(site: Site, paginated: PaginatedResult[Post])
 
-@imageItem(post: Post) = {
+@imageItem(post: Post, predefined: Option[Image]) = {
     <div class="col-6 col-md-4 cols">
         <a href="@routes.PostController.post(post.slug.value)">
-            @for(image <- post.randomImage) {
-                <img src="@image.smallSizeUrl"/>
+            @for(image <- predefined.orElse(post.randomImage)) {
+                <img src="@image.postUrl.small"/>
             }
         </a>
         <div class="title">
@@ -19,17 +19,17 @@
 
 @main("Hello", "landingBody", "landing") {
     @if(paginated.nonEmpty) {
-        @defining(paginated.first) {firstPost =>
+        @defining((paginated.first,paginated.first.randomImage)) { case (firstPost, firstImage) =>
             <div class="bodyBackground"><div class="content"></div></div>
 
-            @for(firstImage <- firstPost.randomImage) {
+            @for(image <- firstImage) {
                 @defining((
-                    firstImage.palette.foreground.withAlpha(220).rgba,
-                    firstImage.palette.background.withAlpha(35).rgba
+                    image.palette.foreground.withAlpha(220).rgba,
+                    image.palette.background.withAlpha(35).rgba
                 )){ case (foreground, background) =>
                     <style>
                         body {
-                            background: url('@firstImage.blurSizeUrl');
+                            background: url('@image.postUrl.blur');
                             background-size: cover;
                             background-position: center;
                             background-repeat: no-repeat;
@@ -55,9 +55,15 @@
                             <h1>@site.name</h1>
                         }
                         
-                        <div id="profile-photo-container"></div>
-                        @if(site.renderedDescription.value.nonEmpty) {
-                            @Html(site.renderedDescription.value)
+                        @if(site.randomImage.nonEmpty){
+                            <div id="profile-photo-container"
+                                 style="background-image: url('@site.randomImage.get.siteUrl.small')">
+                            </div>
+                        }
+                        
+
+                        @if(site.renderedContent.value.nonEmpty) {
+                            @Html(site.renderedContent.value)
                         }
 
                         @if(site.links.nonEmpty) {
@@ -74,8 +80,9 @@
                 </div>
                 
                 <div class="row">
-                    @for(post <- paginated.elements) {
-                        @imageItem(post)
+                    @imageItem(firstPost, firstImage)
+                    @for(post <- paginated.elements.tail) {
+                        @imageItem(post, None)
                     }
                 </div>
             </div>
