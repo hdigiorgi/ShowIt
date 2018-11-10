@@ -57,7 +57,7 @@ trait FileInterface {
   def getFiles(container: StringId): Seq[File]
 }
 
-class ImageFileDB()(implicit private val cfg: Configuration){
+abstract class ImageFileDB()(implicit private val cfg: Configuration){
 
   def location: String = filesRoot
 
@@ -283,14 +283,27 @@ class ImageFileDB()(implicit private val cfg: Configuration){
     }
   }
 
-  protected val classification: String = "images"
+  protected val classification: String
   protected val finalImageExtension: String = "jpeg"
-  protected val filesRoot: String = cfg.get[String]("database.filesLocation")
+  protected val filesRoot: String = cfg.get[String]("database.filesBaseLocation")
+}
+
+class PostImagesDB()(implicit cfg: Configuration) extends ImageFileDB {
+  override val classification: String = "post_images"
+}
+
+class PostAttachmentDB()(implicit cfg: Configuration) extends AttachmentFileDB {
+  protected val classification: String = "post_attachments"
+}
+
+class SiteImagesDB()(implicit cfg: Configuration) extends ImageFileDB {
+  override val classification: String = "site_images"
 }
 
 class FileSystemInterface()(implicit ofg: Configuration) {
-  val attachment = new AttachmentFileDB()
-  val image = new ImageFileDB()
+  val postAttachment = new PostAttachmentDB()
+  val postImage = new PostImagesDB()
+  val siteImage = new SiteImagesDB()
 }
 
 object FileSystemInterface {

@@ -15,7 +15,7 @@ object RandomPost {
 
   def genAndSave(configuration: Configuration, sampleImageFolder: String, amount: Integer): Seq[Post] = {
     val postDB = DBInterface.getDB()(configuration).post
-    val imageDB = FileSystemInterface.get(configuration).image
+    val imageDB = FileSystemInterface.get(configuration).postImage
     val sampleImageFolderFile = new File(sampleImageFolder)
     Range.inclusive(1,amount).map{ _ =>
       val post = genAndSave(postDB, imageDB, sampleImageFolderFile)

@@ -43,7 +43,7 @@ class PostManager(val db: PostPI,
 
   def processImage(postId: StringId, file: File, fileName: FileSlug): Either[ErrorMessage, Seq[Image]] = {
     imageDb.process(file, postId, fileName) match {
-      case Failure(exception) => ErrorProcessingImage
+      case Failure(exception) => ErrorProcessingImage(exception)
       case Success(result) => Right(result)
     }
   }
@@ -171,11 +171,11 @@ class PostManager(val db: PostPI,
 object PostManager {
 
   def apply()(implicit cfg: Configuration): PostManager = {
-    new PostManager(DBInterface.getDB().post, new ImageFileDB(), new AttachmentFileDB())
+    new PostManager(DBInterface.getDB().post, new PostImagesDB(), new PostAttachmentDB())
   }
 
   def apply(db: DBInterface)(implicit cfg: Configuration): PostManager = {
-    new PostManager(db.post, new ImageFileDB(), new AttachmentFileDB())
+    new PostManager(db.post, new PostImagesDB(), new PostAttachmentDB())
   }
 
   object ErrorMessages {
@@ -183,7 +183,9 @@ object PostManager {
     val PostIsUnpublished = Left(PostErrorMsg("error.unpublished"))
     val NoImages = Left(ImageErrorMsg("validations.noImages"))
     val OneImageNeeded = Left(ImageErrorMsg("validations.oneImageNeeded"))
-    val ErrorProcessingImage = Left(ImageErrorMsg("error.processFailure"))
+    def ErrorProcessingImage[A](t: Throwable): Either[ErrorMessage, A] = {
+      Left(ImageErrorMsg("error.processFailure").withThrowable(t))
+    }
     val ErrorProcessingAttachment = Left(AttachmentErrorMsg("error.processFailure"))
     val ImageNotFound = Left(ImageErrorMsg("error.imageNotFound"))
   }

@@ -88,8 +88,8 @@ class ModelUnitTest extends FunSuite
       db.site.update(site)
       db.site.read() shouldBe site
       val site2 = site.withStingLinks(Seq("x", "y", "z"))
-      db.site.update(site2)
-      db.site.read() shouldBe site2
+      db.site.update(site2.right.get)
+      db.site.read() shouldBe site2.right.get
     }
   }
 

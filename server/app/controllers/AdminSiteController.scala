@@ -1,11 +1,10 @@
 package controllers
 
-import com.hdigiorgi.showPhoto.model.site.{Site, SiteManager}
-import filters.{AuthenticationSupport, LanguageFilterSupport, Loged}
+import filters.Loged
 import javax.inject.Inject
-import org.apache.logging.log4j.{LogManager, Logger}
 import play.api.Configuration
-import play.api.mvc.{AbstractController, AnyContent, ControllerComponents}
+import play.api.libs.Files
+import play.api.mvc.{AnyContent, ControllerComponents, MultipartFormData}
 
 class AdminSiteController @Inject()(cc: ControllerComponents)(implicit conf : Configuration)
     extends BaseController(cc) {
@@ -20,24 +19,19 @@ class AdminSiteController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def saveDescription(): Loged[AnyContent] =
     argumented.updateFrom[String](Action, "site-description", siteManager.updateDescription)
 
-  def saveLinks(): Loged[AnyContent ]=
+  def saveLinks(): Loged[AnyContent]=
     argumented.updateFrom[Seq[String]](Action, "site-links", siteManager.updateLinks)
 
-  def imageProcess()() = Loged { Action { implicit r =>
-    Ok(views.html.admin.site.edit(site))
-  }}
+  def imageProcess(): Loged[MultipartFormData[Files.TemporaryFile]]=
+    multipart.receiveMultipart(parse, Action, new multipart.site.ImageReceiver(siteManager))
 
-  def imageDelete(delete: String)() = Loged { Action { implicit r =>
-    Ok(views.html.admin.site.edit(site))
-  }}
+  def imageDelete(imageId: String): Loged[AnyContent] =
+    multipart.deleteUploaded(Action, new multipart.site.ImageDeleter(siteManager, imageId))
 
-  def imageLoad(load: String)() = Loged { Action { implicit r =>
-    Ok(views.html.admin.site.edit(site))
-  }}
+  def imageLoad(imageId: String)(): Loged[AnyContent] =
+    multipart.previewUpload(Action, new multipart.site.ImagePreviewer(siteManager, imageId))
 
-  def imageList()() = Loged { Action { implicit r =>
-    Ok(views.html.admin.site.edit(site))
-  }}
-
+  def imageList(): Loged[AnyContent] =
+    multipart.listUploaded(Action, new multipart.site.ImageLister(siteManager))
 
 }

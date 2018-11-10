@@ -17,7 +17,7 @@ object FileEntry{
   }
 }
 
-class AttachmentFileDB()(implicit private val cfg: Configuration) {
+abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
 
   def addFile(id: StringId, inputFile: File, inputFileName: String): Try[FileEntry] = Try {
     val toCompress = renameFile(inputFile, inputFileName)
@@ -74,7 +74,7 @@ class AttachmentFileDB()(implicit private val cfg: Configuration) {
     Paths.get(filesRoot, elementId.value, classification).toFile
   }
 
+  protected val classification: String
   protected val zipFileName: String = "attachment.zip"
-  protected val classification: String = "attachments"
-  protected val filesRoot: String = cfg.get[String]("database.filesLocation")
+  protected val filesRoot: String = cfg.get[String]("database.filesBaseLocation")
 }

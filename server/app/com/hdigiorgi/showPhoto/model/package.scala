@@ -20,6 +20,9 @@ final case class InvalidModelException(private val message: String = "")
 class ErrorMessage(origin: Symbol, private val msgSuffixId: String, val throwable: Option[Throwable] = None) {
   def id = f"errorMessage.${origin.name}.$msgSuffixId"
   def message()(implicit i18n: play.api.i18n.Messages): String = i18n(id)
+  def withThrowable(t: Throwable): ErrorMessage = {
+    new ErrorMessage(origin, msgSuffixId, Some(t))
+  }
   def log(message: String = null)(implicit logger: Logger): Unit = {
     val msgOpt = Option(message)
     this.throwable match {
