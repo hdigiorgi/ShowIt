@@ -116,13 +116,15 @@ package object multipart {
     }
   }
 
-  def previewUpload(action: ActionBuilder[Request, AnyContent], previewer: MultipartPreviewer) = Loged {
-    action {
-      previewer.preview() match {
-        case None => NotFound(previewer.name)
-        case Some(file) => DownloadHelper.getInlineResult(file)
-      }
+  def publicPreviewUpload(action: ActionBuilder[Request, AnyContent], previewer: MultipartPreviewer) = action {
+    previewer.preview() match {
+      case None => NotFound(previewer.name)
+      case Some(file) => DownloadHelper.getInlineResult(file)
     }
+  }
+
+  def previewUpload(action: ActionBuilder[Request, AnyContent], previewer: MultipartPreviewer) = Loged {
+    publicPreviewUpload(action, previewer)
   }
 
 }
