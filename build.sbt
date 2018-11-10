@@ -10,7 +10,7 @@ lazy val sharedSettings = Seq(
   organization := "com.hdigiorgi",
   version := "1.0-SNAPSHOT",
   scalaVersion := "2.12.7",
-  scalacOptions += "-language:implicitConversions"
+  scalacOptions += "-language:implicitConversions",
 )
 
 lazy val server = (project in file("server")).settings(sharedSettings).settings(
@@ -64,13 +64,15 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
     "org.apache.logging.log4j" % "log4j-core" % "2.11.1",
     "org.apache.logging.log4j" % "log4j-api" % "2.11.1",
     "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.11.1",
+    "com.lmax" % "disruptor" % "3.4.2" // async logging
   ),
+  javaOptions += "-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector", // async logging
 
-    //js
+  //js
   resources in Compile += (fullOptJS in Compile in client).value.data,
   unmanagedSourceDirectories in Compile += file("../client/src/main/scala/com/hdigiorgi/showit/"),
 
-).enablePlugins(PlayScala).disablePlugins(PlayLogback).dependsOn(client).settings(
+).enablePlugins(PlayScala).disablePlugins(PlayLogback).dependsOn(client).settings( // disable logback for custom log4j2
   excludeDependencies  += "ch.qos.logback" % "*"
 )
 

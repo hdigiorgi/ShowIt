@@ -3,6 +3,9 @@ pc.stdout.log
 ensime-*
 .idea
 ALL_DATA
+.dev_data_files
+.test_data_files
+.prod_data_files
 TEST_DATA
 /target
 /gradle

@@ -4,14 +4,14 @@ import java.io.File
 import java.net.URL
 
 import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core._
+import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configurator
 import org.slf4j.ILoggerFactory
 import play.api.{Configuration, Environment, LoggerConfigurator, Mode}
 
-
 class Log4J2LoggerConfigurator extends LoggerConfigurator {
-  private var factory: ILoggerFactory = _
+  sys.props(org.apache.logging.log4j.util.LoaderUtil.IGNORE_TCCL_PROPERTY) = "true"
+  private lazy val factory: ILoggerFactory = org.slf4j.impl.StaticLoggerBinder.getSingleton.getLoggerFactory
 
   override def init(rootPath: File, mode: Mode): Unit = {
     val properties = Map("application.home" -> rootPath.getAbsolutePath)
@@ -41,8 +41,6 @@ class Log4J2LoggerConfigurator extends LoggerConfigurator {
   override def configure(properties: Map[String, String], config: Option[URL]): Unit = {
     val context = LogManager.getContext(false).asInstanceOf[LoggerContext]
     context.setConfigLocation(config.get.toURI)
-
-    factory = org.slf4j.impl.StaticLoggerBinder.getSingleton.getLoggerFactory
   }
 
   override def loggerFactory: ILoggerFactory = factory
