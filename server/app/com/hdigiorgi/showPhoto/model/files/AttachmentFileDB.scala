@@ -71,10 +71,11 @@ abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
   }
 
   private def containerRoot(elementId: StringId): File = {
-    Paths.get(filesRoot, elementId.value, classification).toFile
+    Paths.get(filesRoot, subFolder, elementId.value, classification).toFile
   }
 
-  protected val classification: String
+  protected val subFolder: String
+  protected val classification: String = "attachments"
   protected val zipFileName: String = "attachment.zip"
   protected val filesRoot: String = cfg.get[String]("database.filesBaseLocation")
 }

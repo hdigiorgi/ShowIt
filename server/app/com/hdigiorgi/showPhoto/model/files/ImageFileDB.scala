@@ -164,7 +164,7 @@ abstract class ImageFileDB()(implicit private val cfg: Configuration){
   }
 
   private def getContainerRoot(elementId: StringId): File = {
-    Paths.get(filesRoot, elementId.value, classification).toFile
+    Paths.get(filesRoot, subFolder, elementId.value, classification).toFile
   }
 
   private def getContainerFolders(elementId: StringId): Seq[File] = {
@@ -283,21 +283,22 @@ abstract class ImageFileDB()(implicit private val cfg: Configuration){
     }
   }
 
-  protected val classification: String
+  protected val subFolder: String
+  protected val classification: String = "image"
   protected val finalImageExtension: String = "jpeg"
   protected val filesRoot: String = cfg.get[String]("database.filesBaseLocation")
 }
 
 class PostImagesDB()(implicit cfg: Configuration) extends ImageFileDB {
-  override val classification: String = "post_images"
+  override val subFolder: String = "posts"
 }
 
 class PostAttachmentDB()(implicit cfg: Configuration) extends AttachmentFileDB {
-  protected val classification: String = "post_attachments"
+  override val subFolder: String = "posts"
 }
 
 class SiteImagesDB()(implicit cfg: Configuration) extends ImageFileDB {
-  override val classification: String = "site_images"
+  override val subFolder: String = "site"
 }
 
 class FileSystemInterface()(implicit ofg: Configuration) {
