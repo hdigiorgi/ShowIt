@@ -26,7 +26,8 @@ package object paypal {
 
   case class BuyFormData(site: Site, post: Post)(implicit cfg: Configuration, tracking: TrackingHolder) {
 
-    def isSelling: Boolean = post.price.isDefined && site.paypalEmail.isDefined
+    def isSelling: Boolean = post.price.isDefined &&
+      site.paypalEmail.value.isDefined
 
     def buyUrl: String = {
       cfg.get[String]("ENV").contains("PROD") match {
@@ -45,7 +46,7 @@ package object paypal {
 
     def amount: String = post.price.map(_.toString).getOrElse("")
 
-    def business: String = site.paypalEmail.getOrElse("")
+    def business: String = site.paypalEmail.string
 
     def notifyUrl: String = genUrl(routes.PaypalController.IPN())
 

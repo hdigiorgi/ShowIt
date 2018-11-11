@@ -22,6 +22,9 @@ class AdminSiteController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def saveLinks(): Loged[AnyContent]=
     argumented.updateFrom[Seq[String]](Action, "site-links", siteManager.updateLinks)
 
+  def savePaypalEmail(): Loged[AnyContent]=
+    argumented.updateFrom[String](Action, "site-paypal-email", siteManager.updatePaypalEmail)
+
   def imageProcess(): Loged[MultipartFormData[Files.TemporaryFile]]=
     multipart.receiveMultipart(parse, Action, new multipart.site.ImageReceiver(siteManager))
 

@@ -87,9 +87,12 @@ class ModelUnitTest extends FunSuite
       val site = Site(name = "test", description="des", links= Seq("a","b"))
       db.site.update(site)
       db.site.read() shouldBe site
-      val site2 = site.withStingLinks(Seq("x", "y", "z"))
+      val site2 = site.withStringLinks(Seq("x", "y", "z"))
       db.site.update(site2.right.get)
       db.site.read() shouldBe site2.right.get
+      val siteWithPaypalEmail = site.withPaypalEmail("me@hdigiorgi.com")
+      db.site.update(siteWithPaypalEmail.right.get)
+      db.site.read() shouldBe siteWithPaypalEmail.right.get
     }
   }
 

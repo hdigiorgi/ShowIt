@@ -43,6 +43,7 @@ case class AttachmentErrorMsg(private val _id: String) extends ErrorMessage('att
 case class TitleErrorMsg(private val _id: String) extends ErrorMessage('title, _id)
 case class PubStatusErrorMsg(private val _id: String) extends ErrorMessage('publicationStatus, _id)
 case class SiteLinkErrorMsg(private val _id: String) extends ErrorMessage('siteLink, _id)
+case class EmailErrorMsg(private val _id: String) extends ErrorMessage('email, _id)
 case class FatalErrorMsg(t: Throwable) extends ErrorMessage('fatal, t.getMessage, Some(t)) {
   override def id = f"errorMessage.fatal"
   override def message()(implicit i18n: play.api.i18n.Messages): String =

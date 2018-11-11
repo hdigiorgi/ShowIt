@@ -1,5 +1,6 @@
 @import helper._
 @import views.html.admin.form.{wrapPlainTextInput, wrapUploadInput, wrapMarkdownEditor, wrapSortableList}
+@import views.html.admin.form.wrapConfirmable
 @import com.hdigiorgi.showPhoto.model.site.Site
 
 @(site: Site)(implicit request: RequestHeader)
@@ -24,6 +25,9 @@
 <div class="container">
     <h1>Edit site data</h1>
     @wrapPlainTextInput("site-name", "Name", site.name, routes.AdminSiteController.saveName())
+
+    @wrapConfirmable("site-paypal-email", "Paypal email", site.paypalEmail.string,
+        save=routes.AdminSiteController.savePaypalEmail)
 
     @wrapUploadInput("site-image", "Site image", variant="image",
         process = routes.AdminSiteController.imageProcess(),

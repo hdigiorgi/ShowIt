@@ -43,6 +43,7 @@ GET    /admin/site                     controllers.AdminSiteController.index
 POST   /admin/site/edit/name           controllers.AdminSiteController.saveName
 POST   /admin/site/edit/description    controllers.AdminSiteController.saveDescription
 POST   /admin/site/edit/links          controllers.AdminSiteController.saveLinks
+POST   /admin/site/edit/paypal_email   controllers.AdminSiteController.savePaypalEmail
 POST   /admin/site/edit/image/         controllers.AdminSiteController.imageProcess()
 DELETE /admin/site/edit/image/         controllers.AdminSiteController.imageDelete(delete: String)
 GET    /admin/site/edit/image/list     controllers.AdminSiteController.imageList()

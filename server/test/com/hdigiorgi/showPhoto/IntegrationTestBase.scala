@@ -1,24 +1,24 @@
 package com.hdigiorgi.showPhoto
 
-
 import com.gargoylesoftware.htmlunit.SilentCssErrorHandler
-import org.openqa.selenium.WebDriver
+import controllers.routes
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
-import org.scalatest.{AppendedClues, FunSuite, Matchers, ScreenshotCapturer}
+import org.scalatest.{FunSuite, Matchers}
 
 import scala.language.postfixOps
 import org.scalatest.selenium._
 import play.api.Application
+import play.api.mvc.Call
 import play.api.test.TestServer
-import play.core.server.DevServerStart
+
 
 trait IntegrationTestBase extends FunSuite with Matchers with WebBrowser with Driver{
   import IntegrationTestBase._
   protected val host = f"http://localhost:$PORT"
-  protected def url(path: String): String = f"$host$path"
-  protected val loginUrl: String = url("/login")
-  protected val logoutUrl: String = url("/logout")
-  protected val adminUrl: String = url("/admin")
+  protected def url(path: Call): String = f"$host${path.url}"
+  protected val loginUrl: String = url(routes.AuthenticationController.login())
+  protected val logoutUrl: String = url(routes.AuthenticationController.logout())
+  protected val adminUrl: String = url(routes.AdminController.index())
   protected val application: Application = UnitTestBase.fakeApplication()
   override implicit val webDriver: HtmlUnitDriver = new ITWebDriver()
   initServer(application)
@@ -26,7 +26,7 @@ trait IntegrationTestBase extends FunSuite with Matchers with WebBrowser with Dr
   protected def logIn(): Unit = {
     go to loginUrl
     if(!currentUrl.equals(adminUrl)){
-      pageTitle.toLowerCase should be ("login")
+      currentUrl shouldEqual loginUrl
       emailField("email-input").value = "me@hdigiorgi.com"
       pwdField("password-input").value = "password"
       click on id("login-submit-button")

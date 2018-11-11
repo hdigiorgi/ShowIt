@@ -29,10 +29,15 @@ class SiteManager(dbi: DBInterface, fsi: FileSystemInterface) {
 
   def updateLinks(links: Seq[String]): Either[ErrorMessage, Site] = {
     for {
-      siteWithLinks <- site.withStingLinks(links)
+      siteWithLinks <- site.withStringLinks(links)
       r <- update(siteWithLinks)
     } yield r
   }
+
+  def updatePaypalEmail(email: String): Either[ErrorMessage, Site] = for {
+    siteWithEmail <- site.withPaypalEmail(email)
+    r <- update(siteWithEmail)
+  } yield  r
 
   def processImage(file: File, name: FileSlug): Either[ErrorMessage, Seq[Image]] = {
     imageDb.process(file, SiteManager.ID, name) match {

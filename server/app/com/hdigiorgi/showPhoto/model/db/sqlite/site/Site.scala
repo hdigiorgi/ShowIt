@@ -3,7 +3,7 @@ package com.hdigiorgi.showPhoto.model.db.sqlite.site
 import cats.Later
 import com.hdigiorgi.showPhoto.model.db.sqlite.DB
 import com.hdigiorgi.showPhoto.model.post.SafeHtml
-import com.hdigiorgi.showPhoto.model.site.{Site, SiteLink}
+import com.hdigiorgi.showPhoto.model.site.{Email, Site, SiteLink}
 import com.hdigiorgi.showPhoto.model.SitePI
 import slick.jdbc.SQLiteProfile.api._
 
@@ -13,9 +13,10 @@ object SQLSiteType {
   type RawContent = String; val DESCRIPTION_RAW_COLUMN = "CONTENT_RAW"
   type RenderedContent = String; val DESCRIPTION_RENDERED_COLUMN = "CONTENT_RENDERED"
   type Links = String; val LINKS_COLUMN = "LINKS"
+  type PaypalEmail = String; val PAYPAL_EMAIL_COLUMN = "PAYPAL_EMAIL"
 
-  type Tuple = (Name, RawContent, RenderedContent, Links)
-  type SmallTuple = (Name, RenderedContent, Links)
+  type Tuple = (Name, RawContent, RenderedContent, Links, PaypalEmail)
+  type SmallTuple = (Name, RenderedContent, Links, PaypalEmail)
 }
 
 class SQLSite(tag: Tag) extends Table[SQLSiteType.Tuple](tag, SQLSiteType.TABLE_NAME) {
@@ -23,8 +24,9 @@ class SQLSite(tag: Tag) extends Table[SQLSiteType.Tuple](tag, SQLSiteType.TABLE_
   def descriptionRaw = column[SQLSiteType.RawContent](SQLSiteType.DESCRIPTION_RAW_COLUMN)
   def descriptionRendered = column[SQLSiteType.RenderedContent](SQLSiteType.DESCRIPTION_RENDERED_COLUMN)
   def links = column[SQLSiteType.Links](SQLSiteType.LINKS_COLUMN)
-  override def * = (name, descriptionRaw, descriptionRendered, links)
-  def smallTuple = (name, descriptionRendered, links)
+  def paypalEmail = column[SQLSiteType.PaypalEmail](SQLSiteType.PAYPAL_EMAIL_COLUMN)
+  override def * = (name, descriptionRaw, descriptionRendered, links, paypalEmail)
+  def smallTuple = (name, descriptionRendered, links, paypalEmail)
 }
 
 class SQLSitePI() extends SitePI {
@@ -55,7 +57,8 @@ class SQLSitePI() extends SitePI {
     (site.name,
       site.rawContent,
       site.renderedContent.value,
-      SiteLink.toString(site.links))
+      SiteLink.toString(site.links),
+      site.paypalEmail.string)
   }
 
   private def readRawDescription(): String = {
@@ -64,7 +67,7 @@ class SQLSitePI() extends SitePI {
   }
 
   private def fromTuple(tuple: SQLSiteType.SmallTuple): Site = {
-    fromTuple((tuple._1, null, tuple._2, tuple._3))
+    fromTuple((tuple._1, null, tuple._2, tuple._3, tuple._4))
   }
   private def fromTuple(tuple: SQLSiteType.Tuple): Site = {
     val rawDescription: String = tuple._2 match {
@@ -74,7 +77,8 @@ class SQLSitePI() extends SitePI {
     Site(name = tuple._1,
       rawDescription = Later(rawDescription),
       renderedDescription = SafeHtml.fromAlreadySafeHtml(tuple._3),
-      links = SiteLink.fromString(tuple._4))
+      links = SiteLink.fromString(tuple._4),
+      paypalEmail = Email(tuple._5))
   }
 
   private def ensureSiteExists(): Unit = {

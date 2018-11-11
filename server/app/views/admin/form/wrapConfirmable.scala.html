@@ -1,0 +1,14 @@
+@import helper._
+@(id: String,
+  label: String,
+  value: String,
+  save: Call,
+  placeHolder: String = "")(implicit request: RequestHeader)
+
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <button class="btn btn-outline-secondary" type="button">Button</button>
+    </div>
+    <input type="text" class="form-control" placeholder="@placeHolder" value="@value">
+</div>
+  

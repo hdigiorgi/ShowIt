@@ -5,11 +5,37 @@ import java.net.URL
 
 import akka.http.scaladsl.model.headers.CacheDirectives.public
 import cats.Later
-import com.hdigiorgi.showPhoto.model.{ErrorMessage, Image, SiteLinkErrorMsg}
+import com.hdigiorgi.showPhoto.model.{EmailErrorMsg, ErrorMessage, Image, SiteLinkErrorMsg}
 import com.hdigiorgi.showPhoto.model.post._
 import org.apache.commons.csv.CSVFormat
+import org.apache.commons.validator.routines.EmailValidator
 
 import scala.util.Try
+
+case class Email private(value: Option[String]) {
+  val string: String = value.getOrElse("")
+}
+object Email{
+
+  def apply(email: String): Email = validated(email) match {
+    case Left(_) => Email(None)
+    case Right(r) => r
+  }
+
+  implicit def fromString(input: String): Email = Email(input)
+
+  def validated(input: String): Either[ErrorMessage, Email] = {
+    if(input == null) return InvalidEmail
+    if(input.trim.isEmpty) return InvalidEmail
+    if(!EmailValidator.getInstance().isValid(input)) InvalidEmail  else {
+      Right(Email(Some(input.trim)))
+    }
+  }
+
+  val InvalidEmail = Left(EmailErrorMsg("invalid"))
+  val empty = Email(None)
+}
+
 
 case class SiteLink(raw: String) {
   import SiteLink._
@@ -76,13 +102,21 @@ object SiteLink {
 class Site private (_inName: Option[String] = None,
                     _inRawContent: Option[Later[String]] = None,
                     _inRenderedContent: Option[SafeHtml] = None,
-                    _inLinks: Seq[SiteLink] = Seq(),
+                    _inLinks: Seq[SiteLink] = Seq.empty,
+                    _inPaypalEmail: Email = Email.empty,
                     _inImages: Seq[Image] = Seq.empty)
     extends ImageHolder[Site] with MarkdownContentHolder[Site]{
   setMutableImageHolderImages(_inImages)
   setMutableMarkdownContent(_inRawContent, _inRenderedContent)
 
-  def paypalEmail: Option[String] = Some("dd")
+  private var _paypalEmail = _inPaypalEmail
+  def paypalEmail: Email = _paypalEmail
+  def withPaypalEmail(emailString: String): Either[ErrorMessage,Site] = {
+    Email.validated(emailString).map { email =>
+      mutatingCopy(_._paypalEmail = email)
+    }
+  }
+
 
   private var _name = _inName.getOrElse("")
   def name: String = _name
@@ -94,7 +128,7 @@ class Site private (_inName: Option[String] = None,
 
   private var _links = _inLinks
   def links: Seq[SiteLink] = _links
-  def withStingLinks(links: Seq[String]): Either[ErrorMessage, Site] = {
+  def withStringLinks(links: Seq[String]): Either[ErrorMessage, Site] = {
     val siteLinks = links.map(SiteLink(_))
     siteLinks.find(_.valid.isLeft) match {
       case Some(invalidSiteLink) => Left(invalidSiteLink.valid.left.get)
@@ -117,7 +151,8 @@ class Site private (_inName: Option[String] = None,
     val that = thatObj.asInstanceOf[Site]
     this.name.equals(that.name) &&
     this.links.toList.equals(that.links.toList) &&
-    this.rawContent.equals(that.rawContent)
+    this.rawContent.equals(that.rawContent) &&
+    this.paypalEmail.equals(that.paypalEmail)
   }
 
   override def copyMe(): Site = new Site(this)
@@ -125,7 +160,7 @@ class Site private (_inName: Option[String] = None,
     this(_inName = Some(site.name),
       _inRawContent = Some(site._possiblyNotEvaluatedRawContent),
       _inRenderedContent = site._possiblyNotEvaluatedRenderedContent,
-      _inLinks = site.links)
+      _inLinks = site.links, _inPaypalEmail = site.paypalEmail)
   }
 
 
@@ -138,11 +173,11 @@ object Site{
       _inName = Some(name),
       _inRawContent = Some(Later(description)),
       _inRenderedContent = Some(SafeHtml.fromUnsafeMarkdown(description)),
-      _inLinks = links.map(SiteLink(_))
+      _inLinks = links.map(SiteLink(_)),
     )
   }
-  def apply(name: String, rawDescription: Later[String], renderedDescription: SafeHtml, links: Seq[SiteLink]): Site = {
+  def apply(name: String, rawDescription: Later[String], renderedDescription: SafeHtml, links: Seq[SiteLink], paypalEmail: Email): Site = {
     new Site(_inName = Some(name), _inRawContent = Some(rawDescription), _inRenderedContent = Some(renderedDescription),
-      _inLinks = links)
+      _inLinks = links, _inPaypalEmail = paypalEmail)
   }
 }
