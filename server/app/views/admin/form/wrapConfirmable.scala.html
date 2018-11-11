@@ -5,10 +5,20 @@
   save: Call,
   placeHolder: String = "")(implicit request: RequestHeader)
 
-<div class="input-group mb-3">
-    <div class="input-group-prepend">
-        <button class="btn btn-outline-secondary" type="button">Button</button>
+<div id="@id-confirmable-wrapper" 
+     save="@CSRF(save).url">
+    <label id="@{id}-confirmable-wrapper-label" class="side-inform-label">@label</label>
+    <span id="@{id}-confirmable-input-indicator"></span>
+    <div class="margin-for-top-informer"></div>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <button id="@{id}-confirmable-button" 
+                    class="btn btn-outline-secondary confirmable-button" type="button" disabled>
+                <i class="far fa-save"></i>
+            </button>
+        </div>
+        <input id="@{id}-confirmable-input" type="text" class="form-control" 
+               placeholder="@placeHolder" value="@value">
     </div>
-    <input type="text" class="form-control" placeholder="@placeHolder" value="@value">
 </div>
   

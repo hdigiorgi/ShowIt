@@ -2,7 +2,6 @@ package com.hdigiorgi.showit.components
 
 import org.scalajs.jquery.{JQuery, jQuery}
 import com.hdigiorgi.showit.utils._
-
 import scala.scalajs.js
 import js.JSConverters._
 

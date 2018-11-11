@@ -20,9 +20,14 @@ trait ResultInformer {
 }
 
 class Updater[A,B](name: String, sub: Subscribable[A, B],
-                 informer: ResultInformer, endpoint: String) {
+                   informer: ResultInformer, endpoint: String) {
   var timeOutHandle: SetTimeoutHandle = _
   sub.subscribeToChange(onChangeDetected)
+
+  def cancelUpdate(): Unit = {
+    js.timers.clearTimeout(timeOutHandle)
+    informer.informHide()
+  }
 
   private def onChangeDetected(): Unit = {
     informer.informWorking()

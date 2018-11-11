@@ -88,14 +88,7 @@ lazy val client = (project in file("client")).settings(sharedSettings).settings(
   scalacOptions += "-P:scalajs:sjsDefinedByDefault"
 ).enablePlugins(ScalaJSPlugin)
 
-/*
-lazy val app = crossProject(JSPlatform, JVMPlatform)
-    .crossType(CrossType.Pure)
-lazy val appJS = app.js
-lazy val appJVM = app.jvm
-*/
 run := (Keys.run in Compile in server).evaluated
-
 
 val action = inputKey[Unit]("run actions from the Main class")
 action := {
