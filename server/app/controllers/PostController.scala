@@ -2,6 +2,7 @@ package controllers
 
 import com.google.inject.Singleton
 import com.hdigiorgi.showPhoto.model.files.SmallSize
+import com.hdigiorgi.showPhoto.model.payments.paypal.BuyFormData
 import com.hdigiorgi.showPhoto.model.post.PostManager
 import filters.LanguageFilterSupport
 import javax.inject.Inject
@@ -28,10 +29,10 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
 
   def smallImage(postId: String, imageName: String): Action[AnyContent] = image(postId, SmallSize.name, imageName)
 
-  def post(slug: String) = Action { _ =>
+  def post(slug: String) = Action { implicit request =>
     PostManager().post(slug) match {
       case None => Redirect(routes.PostController.index(None))
-      case Some(post) => Ok(views.html.post.post(post)).withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> "")
+      case Some(post) => Ok(views.html.post.post(post, BuyFormData(site, post)))
     }
   }
 

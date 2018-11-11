@@ -166,6 +166,8 @@ class Post private (_inId: Option[StringId] = None,
   setMutableMarkdownContent(_inRawContent, _inRenderedContent)
   val id: StringId = _inId.getOrElse(StringId.random)
 
+  def price: Option[Float] = Some(10)
+
   private var _title = _inTitle.getOrElse(Title(""))
   def title: Title = _title
   def withTitle(title: Title): Post = {

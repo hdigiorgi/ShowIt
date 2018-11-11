@@ -1,0 +1,36 @@
+@import com.hdigiorgi.showPhoto.model.payments.paypal.BuyFormData
+@import play.api.i18n.Messages
+
+@(form: BuyFormData)(implicit messages: Messages)
+
+@i(name: String, value: String, _description: String = "") = {
+  <input type="hidden" name="@name" value="@value">
+}
+
+@if(form.isSelling){
+
+<form action="@form.buyUrl" method="post">
+
+  @i("notify_url", form.notifyUrl, "IPN callback url")
+  @i("callback_timeout", "3", "The timeout in seconds for callback responses from your Instant Update callback server")
+  @i("custom", form.custom, "custom tracking data 256 characters max")
+  @i("return", form.returnUrl, "The URL to which PayPal redirects buyers' browser after they complete their payments")
+  @i("cancel_return", form.cancelUrl, "A URL to which PayPal redirects the buyers' browsers if they cancel checkout before completing their payments.")
+  @i("rm", "2", "The FORM METHOD used to send data to the URL specified by the return variable. 0 GET, 1 GET no vars, 2 POST all vars")
+
+  @i("business", form.business, "Paypal owner email")
+
+  @i("cmd", "_xclick", "Is a buy button")
+
+  @i("item_number", form.item_number, "Pass-through variable for you to track product or service purchased or the contribution made")
+  @i("item_name", form.item_name)
+  @i("amount", form.amount, "Price")
+  @i("currency_code", "USD")
+  @i("no_shipping", "1", "Do not prompt for a shipping address")
+
+  @* Visible button *@
+  <button type="submit" class="btn btn-warning">Buy</button>
+
+</form>
+
+} @* form selling*@

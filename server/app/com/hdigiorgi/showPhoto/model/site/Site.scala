@@ -3,6 +3,7 @@ package com.hdigiorgi.showPhoto.model.site
 import java.io.StringReader
 import java.net.URL
 
+import akka.http.scaladsl.model.headers.CacheDirectives.public
 import cats.Later
 import com.hdigiorgi.showPhoto.model.{ErrorMessage, Image, SiteLinkErrorMsg}
 import com.hdigiorgi.showPhoto.model.post._
@@ -80,6 +81,8 @@ class Site private (_inName: Option[String] = None,
     extends ImageHolder[Site] with MarkdownContentHolder[Site]{
   setMutableImageHolderImages(_inImages)
   setMutableMarkdownContent(_inRawContent, _inRenderedContent)
+
+  def paypalEmail: Option[String] = Some("dd")
 
   private var _name = _inName.getOrElse("")
   def name: String = _name
