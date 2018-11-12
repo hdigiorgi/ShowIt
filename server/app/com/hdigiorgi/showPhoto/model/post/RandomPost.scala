@@ -74,7 +74,7 @@ object RandomPost {
 
   private def randomImageFileName(file: File): String = {
     val ext = FilenameUtils.getExtension(file.getName)
-    val name = System.currentTimeMillis().toString + "-" + new Faker().ancient().titan()
+    val name = new Faker().app().name() + " " + new Faker().artist().name() + " " + new Faker().ancient().titan()
     f"$name.$ext"
   }
 

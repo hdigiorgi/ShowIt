@@ -3,6 +3,7 @@ package com.hdigiorgi.showPhoto.model.files
 import java.io.File
 import java.nio.file.Paths
 import java.text.DecimalFormat
+import java.util.concurrent.Executors
 
 import com.hdigiorgi.showPhoto.model.StringId
 import net.lingala.zip4j.core.ZipFile
@@ -13,6 +14,8 @@ import org.apache.logging.log4j.LogManager
 import collection.JavaConverters._
 import play.api.Configuration
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Try}
 
 case class FileEntry(name: String, size: Long) {
@@ -31,13 +34,13 @@ object FileEntry{
 
 abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
 
-  def addFile(id: StringId, inputFile: File, inputFileName: String): Try[FileEntry] = Try {
+  def addFile(id: StringId, inputFile: File, inputFileName: String): Try[FileEntry] = singleThreadTry {
     val toCompress = renameFile(inputFile, inputFileName)
     zip(id).addFile(toCompress, compressionParams)
     FileEntry(inputFileName, inputFile.length())
   }
 
-  def removeFile(id: StringId, name: String): Try[FileEntry] = Try{
+  def removeFile(id: StringId, name: String): Try[FileEntry] = singleThreadTry {
     zip(id).removeFile(name)
     FileEntry(name, 0)
   }
@@ -74,7 +77,7 @@ abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
   private def zip(id: StringId): ZipFile = {
     val zipLocation = getZipLocation(id)
     if(!zipLocation.exists()) {
-      zipLocation.getParentFile.mkdir()
+      zipLocation.getParentFile.mkdirs()
     }
     new ZipFile(zipLocation)
   }
@@ -92,9 +95,17 @@ abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
     Paths.get(filesRoot, subFolder, elementId.value, classification).toFile
   }
 
+
+  private def singleThread[A](action : => A): A = {
+    val future = Future(action)(excSingleThread)
+    Await.result(future, Duration.Inf)
+  }
+  private def singleThreadTry[A](action: => A): Try[A] = singleThread(Try(action))
+
   protected val subFolder: String
   protected val classification: String = "attachments"
   protected val zipFileName: String = "attachment.zip"
   protected val filesRoot: String = cfg.get[String]("database.filesBaseLocation")
   protected val logger = LogManager.getLogger(this.getClass)
+  private val excSingleThread: ExecutionContext = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
 }
