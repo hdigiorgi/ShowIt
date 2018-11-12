@@ -45,6 +45,8 @@ abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
     FileEntry(name, 0)
   }
 
+  def getFile(id: StringId): Option[File] = optZip(id).map(_.getFile)
+
   def tryListFiles(id: StringId): Try[Seq[FileEntry]] = Try {
     optZip(id).map{_.getFileHeaders.asScala.map{ header =>
       val fileHeader = header.asInstanceOf[FileHeader]

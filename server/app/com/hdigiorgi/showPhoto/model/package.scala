@@ -40,6 +40,7 @@ class ErrorMessage(origin: Symbol, private val msgSuffixId: String, val throwabl
 }
 case class PostErrorMsg(private val _id: String) extends ErrorMessage('post, _id)
 case class ImageErrorMsg(private val _id: String) extends ErrorMessage('image, _id)
+case class PurchaseErrorMsg(private val _id: String) extends ErrorMessage('purchase, _id)
 case class AttachmentErrorMsg(private val _id: String) extends ErrorMessage('attachment, _id)
 case class TitleErrorMsg(private val _id: String) extends ErrorMessage('title, _id)
 case class PubStatusErrorMsg(private val _id: String) extends ErrorMessage('publicationStatus, _id)

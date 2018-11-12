@@ -30,6 +30,9 @@ trait TrackingSupport {
   implicit def request2TrackingHolder(implicit rh: RequestHeader): TrackingHolder = {
     new TrackingHolder(rh)
   }
+  implicit def request2TrackingHolder(r: Request[_]): TrackingHolder = {
+    new TrackingHolder(r)
+  }
 }
 
 class TrackingFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext, cfg: Configuration)

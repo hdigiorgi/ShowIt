@@ -4,6 +4,8 @@ import java.io.File
 
 import com.hdigiorgi.showPhoto.model.files._
 import com.hdigiorgi.showPhoto.model._
+import com.hdigiorgi.showPhoto.model.purchase.PurchaseManager
+import filters.TrackingHolder
 import play.api.Configuration
 
 import scala.util.{Failure, Success}
@@ -11,7 +13,8 @@ import scala.util.{Failure, Success}
 
 class PostManager(val db: PostPI,
                   val imageDb: ImageFileDB,
-                  val attachmentDb: AttachmentFileDB) {
+                  val attachmentDb: AttachmentFileDB,
+                  val purchaseManager: PurchaseManager) {
   import PostManager.ErrorMessages._
 
   def post(slug: Slug): Option[Post] = {
@@ -80,6 +83,19 @@ class PostManager(val db: PostPI,
     attachmentDb.removeFile(postId, file.value) match {
       case Failure(exception) => Left(FatalErrorMsg(exception))
       case Success(_) => Right(())
+    }
+  }
+
+  def getAttachment(postId: StringId)(implicit tracking: TrackingHolder): Either[ErrorMessage, File] = {
+    db.read(postId).filter(_.publicationStatus.isPublished) match {
+      case None => PostIsUnpublished
+      case Some(post) =>
+        purchaseManager.hasValidPurchase(postId, tracking).map{_ =>
+          attachmentDb.getFile(postId)
+        }.flatMap{
+          case None => NoAttachmentAvailable
+          case Some(file) => Right(file)
+        }
     }
   }
 
@@ -172,11 +188,11 @@ class PostManager(val db: PostPI,
 object PostManager {
 
   def apply()(implicit cfg: Configuration): PostManager = {
-    new PostManager(DBInterface.getDB().post, new PostImagesDB(), new PostAttachmentDB())
+    new PostManager(DBInterface.getDB().post, new PostImagesDB(), new PostAttachmentDB(), PurchaseManager())
   }
 
   def apply(db: DBInterface)(implicit cfg: Configuration): PostManager = {
-    new PostManager(db.post, new PostImagesDB(), new PostAttachmentDB())
+    new PostManager(db.post, new PostImagesDB(), new PostAttachmentDB(), PurchaseManager())
   }
 
   object ErrorMessages {
@@ -184,6 +200,7 @@ object PostManager {
     val PostIsUnpublished = Left(PostErrorMsg("error.unpublished"))
     val NoImages = Left(ImageErrorMsg("validations.noImages"))
     val OneImageNeeded = Left(ImageErrorMsg("validations.oneImageNeeded"))
+    val NoAttachmentAvailable = Left(AttachmentErrorMsg("error.doesntExists"))
     def ErrorProcessingImage[A](t: Throwable): Either[ErrorMessage, A] = {
       Left(ImageErrorMsg("error.processFailure").withThrowable(t))
     }

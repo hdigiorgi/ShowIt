@@ -15,20 +15,20 @@ class PurchasesTest extends UnitTestBase {
   test("store purchase") {
     val postId = randomId
     val tracking = CustomTrackingHolder(randomId, randomId)
-    m.hasValidPurchase(postId, tracking) shouldBe false
+    m.hasValidPurchase(postId, tracking) shouldBe PurchaseManager.ErrorMessages.NoPurchaseRegistered
     m.createPurchase(postId, tracking)
-    m.hasValidPurchase(postId, tracking) shouldBe true
+    m.hasValidPurchase(postId, tracking).isRight shouldBe true
     m.deletePurchase(postId,tracking)
-    m.hasValidPurchase(postId, tracking) shouldBe false
+    m.hasValidPurchase(postId, tracking) shouldBe PurchaseManager.ErrorMessages.NoPurchaseRegistered
   }
 
   test("invalid purchase renewal") {
     val postId = randomId
     val tracking = CustomTrackingHolder(randomId, randomId)
     m.createPurchase(postId, tracking, Some(Instant.now().minus(4, ChronoUnit.HOURS)))
-    m.hasValidPurchase(postId, tracking) shouldBe false
+    m.hasValidPurchase(postId, tracking) shouldBe PurchaseManager.ErrorMessages.Expired
     m.createPurchase(postId, tracking, Some(Instant.now().minus(2, ChronoUnit.HOURS)))
-    m.hasValidPurchase(postId, tracking) shouldBe true
+    m.hasValidPurchase(postId, tracking).isRight shouldBe true
     m.deletePurchase(postId,tracking)
   }
 

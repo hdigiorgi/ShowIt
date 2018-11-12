@@ -2,6 +2,7 @@ package com.hdigiorgi.showPhoto.model.payments
 
 import com.hdigiorgi.showPhoto.application.Environment
 import com.hdigiorgi.showPhoto.model.post.Post
+import com.hdigiorgi.showPhoto.model.purchase.{Purchase, PurchaseManager}
 import com.hdigiorgi.showPhoto.model.site.Site
 import controllers.{UrlFormDecoder, routes}
 import filters.TrackingHolder
@@ -31,11 +32,15 @@ package object paypal {
     lazy val item_number: Try[String] = S("item_number")
   }
 
-  case class BuyFormData(site: Site, post: Post)(implicit cfg: Configuration, tracking: TrackingHolder) {
+  case class BuyFormData(site: Site, post: Post, purchaseManager: PurchaseManager)(implicit cfg: Configuration, tracking: TrackingHolder) {
 
-    def isSelling: Boolean = post.price.isDefined &&
-      site.paypalEmail.value.isDefined &&
-      post.attachments.nonEmpty
+    lazy val isDownloadable: Boolean = post.attachments.nonEmpty
+    lazy val wasBought: Boolean = purchaseManager.hasValidPurchase(post.id, tracking).isRight
+
+    lazy val isSelling: Boolean = isDownloadable && !wasBought &&
+      post.price.isDefined &&
+      site.paypalEmail.value.isDefined
+
 
     def buyUrl: String = Environment().withValue(
       prod = "https://www.paypal.com/cgi-bin/webscr",

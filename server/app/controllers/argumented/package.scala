@@ -1,5 +1,7 @@
 package controllers
 
+import java.io.File
+
 import com.hdigiorgi.showPhoto.model.ErrorMessage
 import filters.{LanguageFilterSupport, Loged}
 import org.apache.logging.log4j.Logger
@@ -30,6 +32,14 @@ package object argumented {
     r match {
       case Left(msg) => Conflict(msg.message)
       case Right(_) => Ok("{}")
+    }
+  }
+
+  def fileResponse(r: Either[ErrorMessage, File])(implicit i18n: play.api.i18n.Messages): Result = {
+    r match {
+      case Left(msg) => Conflict(msg.message)
+      case Right(file) =>
+        DownloadHelper.getAttachmentResult(file)
     }
   }
 
