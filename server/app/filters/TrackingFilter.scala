@@ -16,8 +16,6 @@ class TrackingHolder(val rh: RequestHeader) {
   def userTrackingCode: String = rh.attrs.get(TRACKING_KEY).get.value
   def requestHost: String = rh.host
   def userIp: String = {
-    println(f"fowarded: ${rh.headers.get("X-Forwarded-For")}")
-    println(f"remote: ${rh.remoteAddress}")
     rh.headers.get("X-Forwarded-For").getOrElse(rh.remoteAddress)
   }
 }

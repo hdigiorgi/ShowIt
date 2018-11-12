@@ -1,5 +1,6 @@
 package com.hdigiorgi.showPhoto.model.payments
 
+import com.hdigiorgi.showPhoto.application.Environment
 import com.hdigiorgi.showPhoto.model.post.Post
 import com.hdigiorgi.showPhoto.model.site.Site
 import controllers.{UrlFormDecoder, routes}
@@ -18,6 +19,12 @@ package object paypal {
     lazy val payment_status: Try[String] = S("payment_status")
     lazy val first_name: Try[String] = S("first_name")
     lazy val custom: Try[String] = S("custom")
+    lazy val custom_ip: Try[String] = custom.flatMap{ custom =>
+      Try(custom.split(" ")(0))
+    }
+    lazy val custom_tracking: Try[String] = custom.flatMap{ custom =>
+      Try(custom.split(" ")(1))
+    }
     lazy val verify_sign: Try[String] = S("verify_sign")
     lazy val payer_email: Try[String] = S("payer_email")
     lazy val item_name: Try[String] = S("item_name")
@@ -29,12 +36,10 @@ package object paypal {
     def isSelling: Boolean = post.price.isDefined &&
       site.paypalEmail.value.isDefined
 
-    def buyUrl: String = {
-      cfg.get[String]("ENV").contains("PROD") match {
-        case true => "https://www.paypal.com/cgi-bin/webscr"
-        case false => "https://www.sandbox.paypal.com/cgi-bin/webscr"
-      }
-    }
+    def buyUrl: String = Environment().withValue(
+      prod = "https://www.paypal.com/cgi-bin/webscr",
+      dev = "https://www.sandbox.paypal.com/cgi-bin/webscr"
+    )
 
     def item_name()(implicit i18n: Messages): String = {
       i18n("buy.filesOf") + " " + post.title.value
