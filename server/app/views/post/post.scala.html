@@ -35,11 +35,14 @@
     <a id="imageCarouselZoom" class="carousel-control-zoom">
         <i class="fas fa-search"></i>
     </a>
-    <div id="bellowCarouselDownloadContainer">
-        <div id="bellowCarouselDownload">
-            <i id="bellowCarouselDownloadIcon" class="fas fa-download icon"></i>
-        </div>
-    </div>
+    @if(buyFormData.isSelling){
+        <a id="bellowCarouselDownloadContainer" href="#attachment">
+            <div id="bellowCarouselDownload">
+                <i id="bellowCarouselDownloadIcon" class="fas fa-download icon"></i>
+            </div>
+        </a>
+    }
+    
     
 </div>
 
@@ -78,11 +81,15 @@
         </div>
       </div>
 
-      @payments.paypal(buyFormData)  
+      
     
     <div class="content">
         @Html(post.renderedContent.value)
     </div>
+
+    @attachment("attachment", buyFormData)
+
+    @footer()
 </div>
 
 

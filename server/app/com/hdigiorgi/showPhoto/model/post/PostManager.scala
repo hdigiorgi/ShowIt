@@ -17,6 +17,7 @@ class PostManager(val db: PostPI,
   def post(slug: Slug): Option[Post] = {
     db.readBySlug(slug).filter(_.publicationStatus.isPublished).map{post =>
       post.withImages(imageDb.getStoredImages(post.id))
+        .withAttachments(attachmentDb.listFiles(post.id))
     }
   }
 
@@ -73,7 +74,7 @@ class PostManager(val db: PostPI,
   }
 
   def adminListStoredAttachments(postId: StringId): Seq[FileEntry] =
-    attachmentDb.listFiles(postId).getOrElse(Seq.empty)
+    attachmentDb.listFiles(postId)
 
   def deleteStoredAttachment(postId: StringId, file: FileSlug): Either[ErrorMessage, Unit] = {
     attachmentDb.removeFile(postId, file.value) match {

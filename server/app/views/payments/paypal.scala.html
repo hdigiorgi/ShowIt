@@ -1,7 +1,7 @@
 @import com.hdigiorgi.showPhoto.model.payments.paypal.BuyFormData
 @import play.api.i18n.Messages
 
-@(form: BuyFormData)(implicit messages: Messages)
+@(form: BuyFormData)(button: Html)(implicit messages: Messages)
 
 @i(name: String, value: String, _description: String = "") = {
   <input type="hidden" name="@name" value="@value">
@@ -9,7 +9,7 @@
 
 @if(form.isSelling){
 
-<form action="@form.buyUrl" method="post">
+<form action="@form.buyUrl" method="post" class="buy-button-form">
 
   @i("notify_url", form.notifyUrl, "IPN callback url")
   @i("callback_timeout", "3", "The timeout in seconds for callback responses from your Instant Update callback server")
@@ -29,7 +29,8 @@
   @i("no_shipping", "1", "Do not prompt for a shipping address")
 
   @* Visible button *@
-  <button type="submit" class="btn btn-warning">Buy</button>
+  @button
+  
 
 </form>
 

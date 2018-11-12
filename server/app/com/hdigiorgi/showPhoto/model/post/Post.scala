@@ -2,7 +2,9 @@ package com.hdigiorgi.showPhoto.model.post
 
 import com.hdigiorgi.showPhoto.model._
 import java.time.Instant
+
 import cats.Later
+import com.hdigiorgi.showPhoto.model.files.FileEntry
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.jsoup.Jsoup
@@ -122,6 +124,14 @@ trait ImageHolder[A <: ImageHolder[A]] extends SelfCopyMutable[A] {
   }
 }
 
+trait AttachmentHolder[A <: AttachmentHolder[A]] extends SelfCopyMutable[A] {
+  protected var _attachments: Seq[FileEntry] = Seq.empty
+  def attachments: Seq[FileEntry] = _attachments
+  def withAttachments(attachments: Seq[FileEntry]): A = mutatingCopy{
+    _._attachments = attachments
+  }
+}
+
 trait MarkdownContentHolder[A <: MarkdownContentHolder[A]] extends SelfCopyMutable[A] {
   private var _rawContent: Later[String] = _
   private var _renderedContent: Option[SafeHtml] = _
@@ -161,7 +171,7 @@ class Post private (_inId: Option[StringId] = None,
                     _inRawContent: Option[Later[String]] = None,
                     _inRenderedContent: Option[SafeHtml] = None,
                     _inImages: Seq[Image] = Seq.empty)
-    extends ImageHolder[Post] with MarkdownContentHolder[Post] {
+    extends ImageHolder[Post] with MarkdownContentHolder[Post] with AttachmentHolder[Post]{
   setMutableImageHolderImages(_inImages)
   setMutableMarkdownContent(_inRawContent, _inRenderedContent)
   val id: StringId = _inId.getOrElse(StringId.random)

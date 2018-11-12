@@ -34,7 +34,8 @@ package object paypal {
   case class BuyFormData(site: Site, post: Post)(implicit cfg: Configuration, tracking: TrackingHolder) {
 
     def isSelling: Boolean = post.price.isDefined &&
-      site.paypalEmail.value.isDefined
+      site.paypalEmail.value.isDefined &&
+      post.attachments.nonEmpty
 
     def buyUrl: String = Environment().withValue(
       prod = "https://www.paypal.com/cgi-bin/webscr",

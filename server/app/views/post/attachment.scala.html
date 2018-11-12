@@ -1,0 +1,39 @@
+@import com.hdigiorgi.showPhoto.model.post.Post
+@import play.api.i18n.Messages
+@import com.hdigiorgi.showPhoto.model.payments.paypal.BuyFormData
+
+
+@(id: String, buyFormData: BuyFormData)(implicit messages: Messages)
+
+@if(buyFormData.isSelling){
+<div id="@id" class="attachment-listing">
+
+    <div class="table-responsive">
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Downloadable files</th>
+                    <th scope="col" class="text-right">Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(entry <- buyFormData.post.attachments){
+                    <tr>
+                        <td>@entry.name</td>
+                        <td class="text-right">@entry.sizeString</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
+
+    @payments.paypal(buyFormData){
+        <button type="submit" class="btn btn-warning" style="float:right;">
+            <i class="fas fa-file-download"></i>
+            Download (@{buyFormData.post.price.get} USD)
+        </button>
+    }
+</div>
+}
+

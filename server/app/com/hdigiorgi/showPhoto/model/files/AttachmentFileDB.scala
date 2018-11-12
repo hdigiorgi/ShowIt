@@ -2,15 +2,27 @@ package com.hdigiorgi.showPhoto.model.files
 
 import java.io.File
 import java.nio.file.Paths
+import java.text.DecimalFormat
+
 import com.hdigiorgi.showPhoto.model.StringId
 import net.lingala.zip4j.core.ZipFile
 import net.lingala.zip4j.model.{FileHeader, ZipParameters}
 import net.lingala.zip4j.util.Zip4jConstants
+import org.apache.logging.log4j.LogManager
+
 import collection.JavaConverters._
 import play.api.Configuration
-import scala.util.Try
 
-case class FileEntry(name: String, size: Long)
+import scala.util.{Failure, Try}
+
+case class FileEntry(name: String, size: Long) {
+  def sizeString: String = {
+    if(size <= 0) return "0";
+    val units = Seq(" B", "kB", "MB", "GB", "TB")
+    val digitGroups: Integer = (Math.log10(size)/Math.log10(1024)).toInt
+    new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups.toDouble)) + " " + units(digitGroups)
+  }
+}
 object FileEntry{
   def apply(fh: FileHeader): FileEntry = {
     new FileEntry(fh.getFileName, fh.getUncompressedSize)
@@ -30,12 +42,18 @@ abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
     FileEntry(name, 0)
   }
 
-  def listFiles(id: StringId): Try[Seq[FileEntry]] = Try {
+  def tryListFiles(id: StringId): Try[Seq[FileEntry]] = Try {
     optZip(id).map{_.getFileHeaders.asScala.map{ header =>
       val fileHeader = header.asInstanceOf[FileHeader]
       FileEntry(fileHeader.getFileName, fileHeader.getUncompressedSize)
     }}.getOrElse(Seq())
   }
+
+  def listFiles(id: StringId): Seq[FileEntry] = tryListFiles(id).recoverWith{
+    case ex: Exception =>
+      logger.error(ex)
+      Failure(ex)
+  }.getOrElse(Seq.empty)
 
   def location: String = filesRoot
 
@@ -78,4 +96,5 @@ abstract class AttachmentFileDB()(implicit private val cfg: Configuration) {
   protected val classification: String = "attachments"
   protected val zipFileName: String = "attachment.zip"
   protected val filesRoot: String = cfg.get[String]("database.filesBaseLocation")
+  protected val logger = LogManager.getLogger(this.getClass)
 }
