@@ -45,6 +45,7 @@
     bottom: 0;
     height: 5em;
     cursor: pointer;
+    transition: 1s;
 }
 
 #bellowCarouselDownload {
@@ -69,9 +70,16 @@
     font-size: 2em;
     transition: 1s;
 }
+
 #bellowCarouselDownloadContainer:hover #bellowCarouselDownload .icon {
-    font-size: 3em;
+    font-size: 3em
+}
+#bellowCarouselDownloadContainer:hover #bellowCarouselDownload .icon,
+#buy-button i {
     animation: shake 0.1s ease-in-out 0.1s infinite alternate;
+}
+.flash-animation {
+    animation: pulse linear 1s; 
 }
 
 @keyframes wiggle {
@@ -89,6 +97,12 @@
     to {
         transform: rotate(-10deg);
     }
+}
+
+@keyframes pulse {
+	0% { width:200px; } 
+	50% { width:340px; } 
+	100% { width:200px; }
 }
 
 .content-container {

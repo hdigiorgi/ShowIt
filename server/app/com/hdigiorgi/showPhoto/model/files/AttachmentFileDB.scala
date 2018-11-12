@@ -18,7 +18,7 @@ import scala.util.{Failure, Try}
 case class FileEntry(name: String, size: Long) {
   def sizeString: String = {
     if(size <= 0) return "0";
-    val units = Seq(" B", "kB", "MB", "GB", "TB")
+    val units = Seq("B", "kB", "MB", "GB", "TB")
     val digitGroups: Integer = (Math.log10(size)/Math.log10(1024)).toInt
     new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups.toDouble)) + " " + units(digitGroups)
   }

@@ -6,7 +6,7 @@
 @(id: String, buyFormData: BuyFormData)(implicit messages: Messages)
 
 @if(buyFormData.isSelling){
-<div id="@id" class="attachment-listing">
+<div id="@id" class="attachment-listing" style="padding-top:1.75em;">
 
     <div class="table-responsive">
         <table class="table table-hover table-sm">
@@ -29,8 +29,8 @@
     
 
     @payments.paypal(buyFormData){
-        <button type="submit" class="btn btn-warning" style="float:right;">
-            <i class="fas fa-file-download"></i>
+        <button id="buy-button" type="submit" class="btn btn-warning" style="float:right;">
+            <i class="fas fa-file-download animated infinite heartBeat"></i>
             Download (@{buyFormData.post.price.get} USD)
         </button>
     }

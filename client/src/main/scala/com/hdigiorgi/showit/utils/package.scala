@@ -1,8 +1,10 @@
 package com.hdigiorgi.showit
 
+import org.scalajs.dom
 import org.scalajs.jquery.JQuery
 import org.scalajs.jquery.jQuery
-import scala.scalajs.js.Any
+
+import scala.scalajs.js.{Any, RegExp}
 import scalajs.js
 import js.JSConverters._
 
@@ -78,6 +80,24 @@ package object utils {
   }
   def `[`(fields: Any*): js.Any = {
     fields.toJSArray
+  }
+
+  def isVisibleInViewport(element: JQuery): Boolean = {
+    val elementTop = element.offset().asInstanceOf[js.Dynamic].top.asInstanceOf[Double]
+    val elementBottom = elementTop + element.outerHeight(false)
+
+    val viewportTop = jQuery(dom.window).scrollTop()
+    val viewportBottom = viewportTop + jQuery(dom.window).height()
+
+    elementBottom > viewportTop && elementTop < viewportBottom
+  }
+
+  def whenMobile[A](body:  => A): Option[A] = {
+    if(isMobile()) Some(body) else None
+  }
+
+  def isMobile(): Boolean = {
+    new RegExp("Mobi").test(dom.window.navigator.userAgent)
   }
 
   class `JQUERYPrintable`(j: JQuery) {
