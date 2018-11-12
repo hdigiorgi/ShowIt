@@ -13,44 +13,57 @@ import collection.JavaConverters._
 
 object RandomPost {
 
-  def genAndSave(configuration: Configuration, sampleImageFolder: String, amount: Integer): Seq[Post] = {
-    val postDB = DBInterface.getDB()(configuration).post
-    val imageDB = FileSystemInterface.get(configuration).postImage
+  def genAndSave(configuration: Configuration, sampleImageFolder: String, atachmentFolder: String, amount: Integer): Seq[Post] = {
+    val postManager = PostManager()(configuration)
     val sampleImageFolderFile = new File(sampleImageFolder)
+    val attachmentFolderFile = new File(atachmentFolder)
     Range.inclusive(1,amount).map{ _ =>
-      val post = genAndSave(postDB, imageDB, sampleImageFolderFile)
+      val post = genAndSave(postManager, sampleImageFolderFile, attachmentFolderFile)
       println(post)
       post
     }
   }
 
-  def genAndSave(postDB: PostPI, imageFileDB: ImageFileDB, sampleImageFolder: File): Post = {
-    val post = Post().withTitle(genTitle).withRawContent(genContent).withPublicationStatus(Published)
-    postDB.insert(post)
-    Range(0,3).map(_ => genRandomImage(sampleImageFolder)).foreach{image =>
-      imageFileDB.process(image, post.id, FileSlug(image.getName))
+  def genAndSave(mgr: PostManager, sampleImageFolder: File, attachmentFolder: File): Post = {
+    val post = mgr.firsPostIfUnpublishedCreateNewOtherwise().id
+    mgr.saveTitle(post, genTitle())
+    mgr.saveContent(post, genContent())
+
+    for(_ <- 1 to 3) {
+      val image = getRandomFileFromSamples(sampleImageFolder)
+      mgr.processImage(post, image, FileSlug(image.getName))
     }
-    post
+
+    for(_ <- 1 to 7) {
+      val attachment = getRandomFileFromSamples(attachmentFolder)
+      mgr.processAttachment(post, attachment, FileSlug(attachment.getName))
+    }
+
+    mgr.publish(post).right.get
   }
 
-  private def genTitle: String = {
-    new Faker().book().title() + "_" + System.currentTimeMillis()
+  private def genTitle(): String = {
+    new Faker().book().title() + " " +
+    new Faker().ancient().god() + " " +
+    new Faker().ancient().hero() + " " +
+    new Faker().overwatch().hero()
   }
 
-  private def genContent: String = new Faker().lorem().paragraphs(5).asScala.foldLeft(new StringBuilder){ (builder, string) =>
+  private def genContent(): String = new Faker().lorem().paragraphs(5).asScala.foldLeft(new StringBuilder){ (builder, string) =>
     builder.append(string)
+    builder.append(System.getProperty("line.separator"))
     builder.append(System.getProperty("line.separator"))
     builder
   }.toString()
 
-  private def genRandomImage(sampleFolder: File): File = {
-    if(!sampleFolder.exists() || !sampleFolder.isDirectory()) {
+  private def getRandomFileFromSamples(sampleFolder: File): File = {
+    if(!sampleFolder.exists() || !sampleFolder.isDirectory) {
       throw new RuntimeException(f"folder ${sampleFolder.getCanonicalPath} doesn't exists or isn't a directory")
     }
-    randomFromSamples(sampleFolder)
+    getRandomFileFromSamplesUnchecked(sampleFolder)
   }
 
-  private def randomFromSamples(folder: File): File = {
+  private def getRandomFileFromSamplesUnchecked(folder: File): File = {
     val files = folder.listFiles()
     val selected = files((Math.random()*files.length).toInt)
     val tempFile = Paths.get(FileUtils.getTempDirectory.getCanonicalPath,
