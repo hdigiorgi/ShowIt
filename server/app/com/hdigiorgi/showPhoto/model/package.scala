@@ -6,6 +6,7 @@ import java.util.UUID
 
 import cats.Later
 import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus, SafeHtml}
+import com.hdigiorgi.showPhoto.model.purchase.Purchase
 import com.hdigiorgi.showPhoto.model.site.Site
 import org.apache.logging.log4j.Logger
 import org.jasypt.util.password.StrongPasswordEncryptor
@@ -134,51 +135,6 @@ case class Grade(n: Int) {
   def int: Int = n
 }
 
-/**
-  * LICENCE
-  */
-case class License(grade: Grade, price: Price, enabled: Toggle)
-object License {
-  val allowedGrades = List(Grade(1), Grade(2), Grade(3))
-  val defaultLicenses: List[License] = List(
-    License(Grade(1), Price(2), Enabled),
-    License(Grade(2), Price(10), Enabled),
-    License(Grade(3), Price(30), Enabled)
-  )
-}
-
-
-
-/**
-  * Purchase
-  */
-object Purchase {
-  abstract case class Status(name: String)
-  object Started extends Status("STARTED")
-  object Cancelled extends Status("CANCELLED")
-  object Received extends Status("RECEIVED")
-}
-
-case class Purchase(purchaseId: String,
-                    itemId: String,
-                    status: Purchase.Status,
-                    email: String,
-                    price: Float,
-                    startedAt: Instant,
-                    endedAt: Option[Instant])
-
-/**
-  * File
-  */
-case class FileMeta(location: String,
-                    itemId: String,
-                    semantic: FileMeta.Semantic)
-object FileMeta {
-  abstract case class Semantic(id: String)
-  object Thumbnail extends Semantic("THUMBNAIL")
-  object DisplayImage extends Semantic("DISPLAY_IMAGE")
-  object DownloadFile extends Semantic("FILE_TO_DOWNLOAD")
-}
 
 /**
   * User
@@ -259,13 +215,16 @@ trait PersistentInterface[A, B]{
   def read(key: B): Option[A]
   def delete(key: B): Unit
 }
-trait LicensePI extends PersistentInterface[License, Grade]
+
 trait SitePI {
   def update(element: Site): Unit
   def read(): Site
 }
-trait PurchasePI extends PersistentInterface[Purchase, String]
-trait FileMetaPI extends PersistentInterface[FileMeta, String]
+trait PurchasePI {
+  def readMatching(purchase: Purchase): Option[Purchase]
+  def insert(purchase: Purchase): Unit
+  def delete(itemId: String, trackingCode: String)
+}
 trait MetaPI extends PersistentInterface[Meta, String]
 trait UserPI extends PersistentInterface[User, StringId] {
   def readByEmail(email: String): Option[User]
@@ -276,7 +235,6 @@ trait PostPI extends PersistentInterface[Post, StringId] {
 }
 
 trait DBInterface {
-  def license: LicensePI
   def post: PostPI
   def site: SitePI
   def purchase: PurchasePI

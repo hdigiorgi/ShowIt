@@ -2,13 +2,12 @@ package com.hdigiorgi.showPhoto.model.db.sqlite
 
 import java.io.File
 import java.sql.DriverManager
-
 import com.hdigiorgi.showPhoto.model.ExecutionContext._
 import com.hdigiorgi.showPhoto.model._
-import com.hdigiorgi.showPhoto.model.db.sqlite.license._
 import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLiteMetaPI
 import com.hdigiorgi.showPhoto.model.db.sqlite.post.SQLitePostPI
-import com.hdigiorgi.showPhoto.model.db.sqlite.site.{SQLSite, SQLSitePI}
+import com.hdigiorgi.showPhoto.model.db.sqlite.purchase.SQLPurchasePI
+import com.hdigiorgi.showPhoto.model.db.sqlite.site.SQLSitePI
 import com.hdigiorgi.showPhoto.model.db.sqlite.user.SQLiteUserPI
 import org.sqlite.{SQLiteErrorCode, SQLiteException}
 import play.api.Configuration
@@ -16,7 +15,6 @@ import slick.dbio.{DBIOAction, NoStream}
 import slick.jdbc.SQLiteProfile
 import slick.jdbc.SQLiteProfile.api._
 import slick.jdbc.meta.MTable
-
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
@@ -26,20 +24,19 @@ object DB extends DBInterface { self =>
   val urlPath = f"$configurationPath.url"
   private var _db: SQLiteProfile.backend.Database = _
   private var _configuration: Configuration =  _
-  private var _license_db: SQLiteLicensePI = _
   private var _meta_db: SQLiteMetaPI = _
   private var _user_db: SQLiteUserPI = _
   private var _post_db: SQLitePostPI = _
   private var _site_db: SQLSitePI = _
+  private var _purchase_db: SQLPurchasePI = _
   private var _initialized = false
 
-  override def license: LicensePI = _license_db
 
   override def post: PostPI = _post_db
 
   override def site: SitePI = _site_db
 
-  override def purchase: PurchasePI = ???
+  override def purchase: PurchasePI = _purchase_db
 
   override def meta: MetaPI = _meta_db
 
@@ -66,11 +63,11 @@ object DB extends DBInterface { self =>
   private def destroy_PutVarsInNull(): Unit = {
     _db = null
     _configuration = null
-    _license_db = null
     _meta_db = null
     _user_db = null
     _post_db = null
     _site_db = null
+    _purchase_db =  null
     _initialized = false
   }
 
@@ -80,11 +77,11 @@ object DB extends DBInterface { self =>
     if (db == null){
       ensureSQLiteFileExists()
       _db = getSlickProfile()
-      _license_db = new SQLiteLicensePI().init()
       _meta_db = new SQLiteMetaPI().init()
       _user_db = new SQLiteUserPI().init()
       _post_db = new SQLitePostPI().init()
       _site_db = new SQLSitePI().init()
+      _purchase_db = new SQLPurchasePI().init()
     }
   }
 

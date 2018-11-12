@@ -20,6 +20,12 @@ class TrackingHolder(val rh: RequestHeader) {
   }
 }
 
+case class CustomTrackingHolder(trackingCode: String, ip: String, host: String = "") extends TrackingHolder(null) {
+  override def userTrackingCode: String = trackingCode
+  override def requestHost: String = host
+  override def userIp: String = ip
+}
+
 trait TrackingSupport {
   implicit def request2TrackingHolder(implicit rh: RequestHeader): TrackingHolder = {
     new TrackingHolder(rh)

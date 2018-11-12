@@ -1,5 +1,6 @@
 package com.hdigiorgi.showPhoto
 import java.io.File
+import java.util.UUID
 
 import com.hdigiorgi.showPhoto.model.{DBInterface, PostPI}
 import com.hdigiorgi.showPhoto.model.DBInterface.DB
@@ -28,6 +29,9 @@ trait UnitTestBase extends FunSuite
   protected implicit val configuration: Configuration = application.configuration
   protected implicit val controllerComponents: ControllerComponents =
     fakeApplication().injector.instanceOf(classOf[ControllerComponents])
+
+
+  protected def randomId: String = UUID.randomUUID().toString
 
   protected def deleteFiles()(implicit configuration: Configuration): Unit = {
     val locations = Seq(
