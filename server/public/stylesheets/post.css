@@ -187,3 +187,31 @@
     background: #25D366;
 }
 
+
+.downloadBody {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#download-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+#download-wrapper .elements{
+    font-size: 2em;
+    text-align: center;
+    border-radius: 10px;
+    color: #ffffffd4;
+    background-color: #0000009e;
+}
+#download-wrapper .elements .i {
+    font-size: 3em;
+}
+
+#download-wrapper .elements .icon-error {
+    font-size: 6em;
+}

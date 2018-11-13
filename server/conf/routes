@@ -1,9 +1,9 @@
 ########################################################################################################################
 ## PAYPAL
 ########################################################################################################################
-POST /paypal/ipn        controllers.PaypalController.IPN
-POST /paypal/completed  controllers.PaypalController.completed
-GET  /paypal/cancelled  controllers.PaypalController.cancelled
+POST /paypal/ipn            controllers.PaypalController.IPN
+POST /paypal/completed/:id  controllers.PaypalController.completed(id: String)
+GET  /paypal/cancelled/:id  controllers.PaypalController.cancelled(id: String)
 
 
 ########################################################################################################################
@@ -53,9 +53,13 @@ GET    /image/site                     controllers.AdminSiteController.imageLoad
 GET    /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 ########################################################################################################################
-## Post display
+## Post
 ########################################################################################################################
 GET /                        controllers.PostController.index(page: Option[Int])
 GET /image/:id/:size/:name   controllers.PostController.image(id: String, size: String, name: String)
 GET /image/:id/:name         controllers.PostController.smallImage(id: String, name: String)
 GET /:slug                   controllers.PostController.post(slug: String)
+GET /download/:id            controllers.PostController.waitForDownload(id: String)
+GET /download/link/:id       controllers.PostController.getDownloadLink(id: String)
+GET /download/file/:id       controllers.PostController.doDownloadFile(id: String)
+GET /download/cancelled/:id  controllers.PostController.downloadCancelled(id: String)

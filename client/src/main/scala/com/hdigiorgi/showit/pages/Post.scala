@@ -7,8 +7,8 @@ import org.scalajs.jquery.{JQuery, jQuery}
 import scala.scalajs.js
 
 class Post {
-  val carouselDownloadButton = `$#`("bellowCarouselDownloadContainer")
-  val buyButton = `$#`("buy-button")
+  private val carouselDownloadButton = `$#`("bellowCarouselDownloadContainer")
+  private val buyButton = `$#`("buy-button")
   jQuery(dom.window).scroll(() => checkForCarouselDownloadVisibility())
 
   def run(): Unit = jQuery {

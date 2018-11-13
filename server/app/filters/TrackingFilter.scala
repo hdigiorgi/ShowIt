@@ -18,6 +18,9 @@ class TrackingHolder(val rh: RequestHeader) {
   def userIp: String = {
     rh.headers.get("X-Forwarded-For").getOrElse(rh.remoteAddress)
   }
+  def trackingToString(): String = {
+    f"$userIp $userTrackingCode"
+  }
 }
 
 case class CustomTrackingHolder(trackingCode: String, ip: String, host: String = "") extends TrackingHolder(null) {
@@ -30,10 +33,8 @@ trait TrackingSupport {
   implicit def request2TrackingHolder(implicit rh: RequestHeader): TrackingHolder = {
     new TrackingHolder(rh)
   }
-  implicit def request2TrackingHolder(r: Request[_]): TrackingHolder = {
-    new TrackingHolder(r)
-  }
 }
+
 
 class TrackingFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext, cfg: Configuration)
     extends Filter{

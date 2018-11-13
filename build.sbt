@@ -24,11 +24,13 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
     "org.apache.commons" % "commons-csv" % "1.6"
   ),
 
+
   // Commons
   libraryDependencies ++= Seq(
     "org.apache.commons" % "commons-text" % "1.6",
     "commons-validator" % "commons-validator" % "1.4.0",
     "commons-io" % "commons-io" % "2.6",
+    "org.apache.httpcomponents" % "httpclient" % "4.5.6",
     "org.im4java" % "im4java" % "1.4.0"
   ),
 

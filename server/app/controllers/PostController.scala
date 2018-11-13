@@ -8,6 +8,7 @@ import com.hdigiorgi.showPhoto.model.purchase.PurchaseManager
 import filters.{LanguageFilterSupport, TrackingSupport}
 import javax.inject.Inject
 import play.api.Configuration
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.filters.headers.SecurityHeadersFilter
 
@@ -37,7 +38,32 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
     }
   }
 
-  def download(postId: String) = Action { implicit request =>
+  def downloadCancelled(postId: String) = Action {
+    Ok("cancelled")
+  }
+
+  def waitForDownload(postId: String) = Action { implicit request =>
+    postManager.postById(postId) match {
+      case None => Redirect(routes.PostController.index(None))
+      case Some(post) =>
+        Ok(views.html.post.waitForDownload(site, post))
+    }
+  }
+
+  def getDownloadLink(postId: String) = Action { implicit request =>
+    postManager.getAttachment(postId) match {
+      case Left(message) =>
+        val tracking = request2TrackingHolder(request).trackingToString()
+        logger.info(f"no download available for id $postId with tracking $tracking and reason ${message.id}")
+        Conflict(message.message())
+      case Right(file) =>
+        Ok(Json.obj(
+          "url" -> routes.PostController.doDownloadFile(postId).url
+        ))
+    }
+  }
+
+  def doDownloadFile(postId: String) = Action { implicit request =>
     argumented.fileResponse(postManager.getAttachment(postId))
   }
 

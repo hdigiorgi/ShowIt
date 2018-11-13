@@ -2,10 +2,15 @@ package com.hdigiorgi.showPhoto.model.payments
 
 import com.hdigiorgi.showPhoto.application.Environment
 import com.hdigiorgi.showPhoto.model.post.Post
-import com.hdigiorgi.showPhoto.model.purchase.{Purchase, PurchaseManager}
+import com.hdigiorgi.showPhoto.model.purchase.PurchaseManager
 import com.hdigiorgi.showPhoto.model.site.Site
 import controllers.{UrlFormDecoder, routes}
 import filters.TrackingHolder
+import org.apache.http.client.entity.UrlEncodedFormEntity
+import org.apache.http.client.methods.{HttpGet, HttpPost}
+import org.apache.http.impl.client._
+import org.apache.http.message.BasicNameValuePair
+import org.apache.http.util.EntityUtils
 import play.api.Configuration
 import play.api.i18n.Messages
 import play.api.mvc.{Call, Request}
@@ -30,6 +35,43 @@ package object paypal {
     lazy val payer_email: Try[String] = S("payer_email")
     lazy val item_name: Try[String] = S("item_name")
     lazy val item_number: Try[String] = S("item_number")
+
+    def verify(request: Request[Map[String, Seq[String]]])(implicit cfg: Configuration): Try[Boolean] = Try {
+      val httpClient = createHttpClient()
+      val httpPost = new HttpPost(verifyUrl())
+      httpPost.setEntity(toUrlEncodedEntity(request.body))
+      val response = httpClient.execute(httpPost)
+      val entityResponse = response.getEntity
+      val responseBodyString = EntityUtils.toString(entityResponse)
+      EntityUtils.consume(entityResponse)
+      httpClient.close()
+      responseBodyString.trim.equals("VERIFIED")
+    }
+
+    private def createHttpClient(): CloseableHttpClient = {
+      HttpClientBuilder.create()
+        .setRedirectStrategy(new LaxRedirectStrategy)
+        .setRetryHandler(new DefaultHttpRequestRetryHandler(10, true))
+        .setUserAgent("Scala-IPN-VerificationScript")
+        .build()
+    }
+
+    private def toUrlEncodedEntity(data: Map[String, Seq[String]]): UrlEncodedFormEntity = {
+      val params = new java.util.ArrayList[BasicNameValuePair]
+      for((key, seq) <- data) {
+        val value = seq.reduce((a,b) => a + b)
+        params.add(new BasicNameValuePair(key, value))
+      }
+      params.add(new BasicNameValuePair("cmd", "_notify-validate"))
+      new UrlEncodedFormEntity(params)
+    }
+
+    private def verifyUrl()(implicit cfg: Configuration) = {
+      Environment().withValue(
+        prod = "https://ipnpb.paypal.com/cgi-bin/webscr",
+        dev = "https://ipnpb.sandbox.paypal.com/cgi-bin/webscr"
+      )
+    }
   }
 
   case class BuyFormData(site: Site, post: Post, purchaseManager: PurchaseManager)(implicit cfg: Configuration, tracking: TrackingHolder) {
@@ -61,9 +103,9 @@ package object paypal {
 
     def notifyUrl: String = genUrl(routes.PaypalController.IPN())
 
-    def returnUrl: String = genUrl(routes.PaypalController.completed())
+    def returnUrl: String = genUrl(routes.PaypalController.completed(post.id))
 
-    def cancelUrl: String = genUrl(routes.PaypalController.cancelled())
+    def cancelUrl: String = genUrl(routes.PaypalController.cancelled(post.id))
 
     private def genUrl(relative: Call): String = {
       f"http://${tracking.requestHost}${relative.url}"

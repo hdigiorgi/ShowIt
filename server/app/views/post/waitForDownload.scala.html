@@ -1,0 +1,39 @@
+@import com.hdigiorgi.showPhoto.model.post.Post
+@import com.hdigiorgi.showPhoto.model._
+@import com.hdigiorgi.showPhoto.model.site.Site
+
+@(site: Site, post: Post)
+
+@main("Downloading", "downloadBody", "post"){
+@defining(post.randomImage){ firstImage =>
+    @for(image <- firstImage) {
+        <style>
+            body {
+                background: url('@image.postUrl.blur');
+            }   
+            #download-wrapper .elements{
+                color: @image.palette.foreground.rgb ;
+                background-color: @image.palette.background.withAlpha(200).rgba
+            }
+        </style>
+    }
+
+}
+
+    <div id="download-wrapper" class="container" 
+         getDownloadLink="@{routes.PostController.getDownloadLink(post.id).url}">
+        <div class="elements">
+            <div id="waiting">
+                <div>Your download will be ready soon</div>
+                <i class="fas fa-cog fa-spin"></i>
+            </div>
+            <div id="error" style="display: none">
+                <i class="fas fa-sad-cry icon-error"></i>
+                <div>Something went wrong, please try egain</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="APP" run="download"></div>
+
+}{ }    

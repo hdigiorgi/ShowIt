@@ -4,7 +4,10 @@ import scala.util.{Failure, Success, Try}
 import scala.reflect.runtime.universe.{TypeTag, typeOf}
 
 abstract class UrlFormDecoder(map: Map[String, Seq[String]]) {
-  protected def S(key: String): Try[String] = getFromMapN(key,_.self)
+  protected def S(key: String): Try[String] = getFromMapN(key,_.self).flatMap{
+    case s if s.isEmpty => Failure(new RuntimeException("empty string"))
+    case s => Success(s)
+  }
   protected def F(key: String): Try[Float] = getFromMapN(key,_.toFloat)
 
   protected def getFromMap(key: String): Try[Seq[String]] = {

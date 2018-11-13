@@ -5,9 +5,10 @@ import java.io.File
 import com.hdigiorgi.showPhoto.model.ErrorMessage
 import filters.{LanguageFilterSupport, Loged}
 import org.apache.logging.log4j.Logger
-import play.api.libs.json.Reads
+import play.api.libs.json.{JsObject, Reads}
 import play.api.mvc._
 import play.api.mvc.Results._
+import play.libs.Json
 
 import scala.util.{Failure, Success, Try}
 

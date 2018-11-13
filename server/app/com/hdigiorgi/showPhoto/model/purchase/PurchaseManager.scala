@@ -4,8 +4,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 import com.hdigiorgi.showPhoto.model._
+import com.hdigiorgi.showPhoto.model.payments.paypal
 import filters.TrackingHolder
 import play.api.Configuration
+
+import scala.util.Try
 
 class PurchaseManager(val db: PurchasePI) {
   import PurchaseManager.ErrorMessages._
@@ -29,6 +32,15 @@ class PurchaseManager(val db: PurchasePI) {
     val purchase = Purchase(postId, tracking)
     val purchaseWithCreation = createdAt.map(purchase.withCreatedAt).getOrElse(purchase)
     db.insert(purchaseWithCreation)
+    purchase
+  }
+
+  def createPurchase(ipn: paypal.IPN): Try[Purchase] = Try{
+    val ip = ipn.custom_ip.get
+    val tracking = ipn.custom_tracking.get
+    val postId = ipn.item_number.get
+    val purchase = Purchase(postId, trackingCode = tracking, ip = ip )
+    db.insert(purchase)
     purchase
   }
 

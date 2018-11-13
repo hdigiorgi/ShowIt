@@ -18,7 +18,15 @@ class PostManager(val db: PostPI,
   import PostManager.ErrorMessages._
 
   def post(slug: Slug): Option[Post] = {
-    db.readBySlug(slug).filter(_.publicationStatus.isPublished).map{post =>
+    checkAndPopulatePost(db.readBySlug(slug))
+  }
+
+  def postById(id: StringId): Option[Post] = {
+    checkAndPopulatePost(db.read(id))
+  }
+
+  private def checkAndPopulatePost(postOpt: Option[Post]): Option[Post] = {
+    postOpt.filter(_.publicationStatus.isPublished).map{post =>
       post.withImages(imageDb.getStoredImages(post.id))
         .withAttachments(attachmentDb.listFiles(post.id))
     }
