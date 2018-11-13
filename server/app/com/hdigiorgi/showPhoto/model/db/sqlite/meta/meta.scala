@@ -14,7 +14,7 @@ class SQLiteMeta(tag: Tag) extends Table[SQLiteMetaType.Tuple](tag, "META") {
   override def * = (entry, value)
 }
 
-class SQLiteMetaPI() extends MetaPI {self =>
+class SQLMetaPI() extends MetaPI {self =>
   val table = TableQuery[SQLiteMeta]
 
 
@@ -36,7 +36,7 @@ class SQLiteMetaPI() extends MetaPI {self =>
     DB.runSync(delete)
   }
 
-  def init(): SQLiteMetaPI = {
+  def init(): SQLMetaPI = {
     DB.ensureTableExists(table)
     self
   }

@@ -1,19 +1,12 @@
 package com.hdigiorgi.showPhoto.model
 
-import java.net.URL
-import java.time.Instant
 import java.util.UUID
-
-import cats.Later
 import com.hdigiorgi.showPhoto.model.post.{Post, PublicationStatus, SafeHtml}
 import com.hdigiorgi.showPhoto.model.purchase.Purchase
-import com.hdigiorgi.showPhoto.model.site.Site
+import com.hdigiorgi.showPhoto.model.site.{Email, Site}
 import org.apache.logging.log4j.Logger
 import org.jasypt.util.password.StrongPasswordEncryptor
 import play.api.Configuration
-
-import scala.util.Try
-
 
 final case class InvalidModelException(private val message: String = "")
   extends Exception(message)
@@ -46,6 +39,7 @@ case class TitleErrorMsg(private val _id: String) extends ErrorMessage('title, _
 case class PubStatusErrorMsg(private val _id: String) extends ErrorMessage('publicationStatus, _id)
 case class SiteLinkErrorMsg(private val _id: String) extends ErrorMessage('siteLink, _id)
 case class EmailErrorMsg(private val _id: String) extends ErrorMessage('email, _id)
+case class PriceErrorMsg(private val _id: String) extends ErrorMessage('price, _id)
 case class FatalErrorMsg(t: Throwable) extends ErrorMessage('fatal, t.getMessage, Some(t)) {
   override def id = f"errorMessage.fatal"
   override def message()(implicit i18n: play.api.i18n.Messages): String =
@@ -63,7 +57,6 @@ object StringId {
 }
 case class IntId(value: Int)
 object IntId { def random: IntId = IntId(new java.security.SecureRandom().nextInt()) }
-case class Email(value: String)
 
 /**
   * LANGUAGE
@@ -83,25 +76,6 @@ object Language {
 
   def toLanguage(code: String): Option[Language] = languages.find( _.code.contains(code) )
   def getLanguage(code: String): Language = toLanguage(code).getOrElse(Default)
-}
-
-/**
-  * PRICE
-  */
-trait Price {
-  def value: Float
-  def op(f: Float => Float): Price = Price(f(value))
-}
-object Price {
-  def apply(v: Float): Price = {
-    if(v > 0) Priced(v) else Free
-  }
-}
-object Free extends Price {
-  override def value: Float = 0
-}
-case class Priced(private val _value: Float) extends Price {
-  override def value: Float = _value
 }
 
 /**

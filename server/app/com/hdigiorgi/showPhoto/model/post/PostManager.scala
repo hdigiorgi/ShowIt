@@ -135,6 +135,15 @@ class PostManager(val db: PostPI,
     updated
   }
 
+  def savePrice(postId: String, price: String): Either[ErrorMessage, Post] =  for {
+    post <- readPost(postId)
+    price <- Price.validated(price)
+  } yield {
+    val updated = post.withPrice(price)
+    db.update(updated)
+    updated
+  }
+
   def saveContent(postId: String, content: String): Either[ErrorMessage, Post] = for {
     post <- readPost(postId)
   }yield {

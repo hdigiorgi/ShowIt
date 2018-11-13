@@ -2,13 +2,14 @@ package com.hdigiorgi.showPhoto.model.db.sqlite.user
 
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.db.sqlite.DB
+import com.hdigiorgi.showPhoto.model.site.Email
 import slick.jdbc.SQLiteProfile.api._
 
-object SQLiteUserType {
+object SQLUserType {
   type Tuple = (String, String, String)
 }
 
-class SQLiteUser(tag: Tag) extends Table[SQLiteUserType.Tuple](tag, "USER") {
+class SQLUser(tag: Tag) extends Table[SQLUserType.Tuple](tag, "USER") {
   def id = column[String]("ID", O.PrimaryKey)
   def email = column[String]("EMAIL")
   def password = column[String]("PASSWORD")
@@ -16,8 +17,8 @@ class SQLiteUser(tag: Tag) extends Table[SQLiteUserType.Tuple](tag, "USER") {
   override def * = (id, email, password)
 }
 
-class SQLiteUserPI() extends UserPI { self =>
-  private val table = TableQuery[SQLiteUser]
+class SQLUserPI() extends UserPI { self =>
+  private val table = TableQuery[SQLUser]
 
 
   override def insert(element: User): Unit = DB.runSyncThrowIfNothingAffected{
@@ -45,23 +46,23 @@ class SQLiteUserPI() extends UserPI { self =>
     DB.runSyncThrowIfNothingAffected(delete)
   }
 
-  def init(): SQLiteUserPI = {
+  def init(): SQLUserPI = {
     DB.ensureTableExists(table)
     ensureUserExist()
     self
   }
 
-  private def toTuple(user: User): SQLiteUserType.Tuple =
-    (user.id.value, user.email.value, user.password.value)
+  private def toTuple(user: User): SQLUserType.Tuple =
+    (user.id.value, user.email.string, user.password.value)
 
-  private def fromTuple(tuple: SQLiteUserType.Tuple): User = tuple match {
+  private def fromTuple(tuple: SQLUserType.Tuple): User = tuple match {
     case(id, email, password) =>
       User(StringId(id), Email(email), Password.fromEncrypted(password))
   }
 
   private def ensureUserExist(): Unit = {
     User.defaultUsers.map{ defaultUser =>
-      (readByEmail(defaultUser.email.value), defaultUser)
+      (readByEmail(defaultUser.email.string), defaultUser)
     } foreach {
       case (Some(_),_) => ()
       case (None, defaultUser) =>

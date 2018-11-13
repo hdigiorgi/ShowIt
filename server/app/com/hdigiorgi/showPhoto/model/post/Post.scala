@@ -5,11 +5,14 @@ import java.time.Instant
 
 import cats.Later
 import com.hdigiorgi.showPhoto.model.files.FileEntry
+import org.apache.commons.lang3.math.NumberUtils
 import org.commonmark.parser.Parser
 import org.commonmark.renderer.html.HtmlRenderer
 import org.jsoup.Jsoup
 import org.jsoup.safety.Whitelist
 import org.apache.commons.text.StringEscapeUtils
+
+import scala.util.{Failure, Success, Try}
 
 case class PublicationStatus(name: String){
   import PublicationStatus.ErrorMessages._
@@ -88,7 +91,50 @@ object Title {
     val LeadAlreadyExistingSlug = Left(TitleErrorMsg("validations.existingSlug"))
     val LeadToShortSlug = Left(TitleErrorMsg("validations.shortSlug"))
   }
+}
 
+case class Price(baseValue: Float, percentageFee: Float = 0.0f, fixedFee: Float = 0.0f) {
+  if(percentageFee < 0.0f || percentageFee > 1.0) throw new IllegalStateException(f"invalid percentage fee $percentageFee")
+  if(fixedFee < 0.0f) throw new IllegalStateException(f"fixed fee can't be negative")
+
+  def totalPrice: Float = {
+    val percentageFreeValue = baseValue * percentageFee
+    baseValue + percentageFreeValue + fixedFee
+  }
+
+  def withPercentageFee(percentage: Float): Price = Price(this.baseValue, percentage, this.fixedFee)
+  def withFixedFee(fixed: Float): Price = Price(this.baseValue, this.percentageFee, fixed)
+}
+
+object Price {
+  import ErrorMessenges._
+
+  def getOpt(input: Float): Option[Price] = {
+    if(input <= 0) return None
+    Some(Price(input))
+  }
+
+  def validated(input: String): Either[PriceErrorMsg, Price] = {
+    Try(NumberUtils.toFloat(input)) match {
+      case Failure(_) => InvalidNumber
+      case Success(number) => number match {
+        case n if n < 0 => NonPositive
+        case n if n < MIN_PRICE => ToLow
+        case n if n > MAX_PRICE => ToMuch
+        case _ => Right(Price(number))
+      }
+    }
+  }
+
+  object ErrorMessenges {
+    val InvalidNumber = Left(PriceErrorMsg("invalid.number"))
+    val NonPositive = Left(PriceErrorMsg("invalid.nonPositive"))
+    val ToLow = Left(PriceErrorMsg("invalid.toLow"))
+    val ToMuch = Left(PriceErrorMsg("invalid.toMuch"))
+  }
+
+  private val MAX_PRICE = 2000
+  private val MIN_PRICE = 1
 }
 
 trait SelfCopyMutable[A <: SelfCopyMutable[A]] {
@@ -170,13 +216,16 @@ class Post private (_inId: Option[StringId] = None,
                     _inPublicationStatus: Option[PublicationStatus] = None,
                     _inRawContent: Option[Later[String]] = None,
                     _inRenderedContent: Option[SafeHtml] = None,
-                    _inImages: Seq[Image] = Seq.empty)
+                    _inImages: Seq[Image] = Seq.empty,
+                    _inPrice: Option[Price] = None)
     extends ImageHolder[Post] with MarkdownContentHolder[Post] with AttachmentHolder[Post]{
   setMutableImageHolderImages(_inImages)
   setMutableMarkdownContent(_inRawContent, _inRenderedContent)
   val id: StringId = _inId.getOrElse(StringId.random)
 
-  def price: Option[Float] = Some(10)
+  private var _price = _inPrice
+  def price: Option[Price] = _price
+  def withPrice(price: Price): Post = mutatingCopy(_._price=Some(price))
 
   private var _title = _inTitle.getOrElse(Title(""))
   def title: Title = _title
@@ -222,7 +271,8 @@ class Post private (_inId: Option[StringId] = None,
         this.slug.equals(that.slug) &&
         this.creationTime.getEpochSecond == that.creationTime.getEpochSecond &&
         this.renderedContent.equals(that.renderedContent) &&
-        this.publicationStatus.equals(that.publicationStatus)
+        this.publicationStatus.equals(that.publicationStatus) &&
+        this.price.equals(that.price)
       case _ => false
     }
 
@@ -246,10 +296,10 @@ object Post {
   def apply(id: StringId): Post = new Post(_inId = Some(id))
 
   def apply(id: StringId, title: Title, slug: Slug, creationTime: Instant, rawContent: Later[String],
-            renderedContent: SafeHtml, publicationStatus: PublicationStatus): Post = {
+            renderedContent: SafeHtml, publicationStatus: PublicationStatus, price: Float): Post = {
     new Post(_inId = Some(id), _inTitle = Some(title), _inSlug = Some(slug), _inCreationTime = Some(creationTime),
              _inRenderedContent = Some(renderedContent), _inRawContent = Some(rawContent),
-             _inPublicationStatus = Some(publicationStatus))
+             _inPublicationStatus = Some(publicationStatus), _inPrice = Price.getOpt(price))
   }
 
 

@@ -4,11 +4,11 @@ import java.io.File
 import java.sql.DriverManager
 import com.hdigiorgi.showPhoto.model.ExecutionContext._
 import com.hdigiorgi.showPhoto.model._
-import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLiteMetaPI
-import com.hdigiorgi.showPhoto.model.db.sqlite.post.SQLitePostPI
+import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLMetaPI
+import com.hdigiorgi.showPhoto.model.db.sqlite.post.SQLPostPI
 import com.hdigiorgi.showPhoto.model.db.sqlite.purchase.SQLPurchasePI
 import com.hdigiorgi.showPhoto.model.db.sqlite.site.SQLSitePI
-import com.hdigiorgi.showPhoto.model.db.sqlite.user.SQLiteUserPI
+import com.hdigiorgi.showPhoto.model.db.sqlite.user.SQLUserPI
 import org.sqlite.{SQLiteErrorCode, SQLiteException}
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
@@ -24,9 +24,9 @@ object DB extends DBInterface { self =>
   val urlPath = f"$configurationPath.url"
   private var _db: SQLiteProfile.backend.Database = _
   private var _configuration: Configuration =  _
-  private var _meta_db: SQLiteMetaPI = _
-  private var _user_db: SQLiteUserPI = _
-  private var _post_db: SQLitePostPI = _
+  private var _meta_db: SQLMetaPI = _
+  private var _user_db: SQLUserPI = _
+  private var _post_db: SQLPostPI = _
   private var _site_db: SQLSitePI = _
   private var _purchase_db: SQLPurchasePI = _
   private var _initialized = false
@@ -77,9 +77,9 @@ object DB extends DBInterface { self =>
     if (db == null){
       ensureSQLiteFileExists()
       _db = getSlickProfile()
-      _meta_db = new SQLiteMetaPI().init()
-      _user_db = new SQLiteUserPI().init()
-      _post_db = new SQLitePostPI().init()
+      _meta_db = new SQLMetaPI().init()
+      _user_db = new SQLUserPI().init()
+      _post_db = new SQLPostPI().init()
       _site_db = new SQLSitePI().init()
       _purchase_db = new SQLPurchasePI().init()
     }

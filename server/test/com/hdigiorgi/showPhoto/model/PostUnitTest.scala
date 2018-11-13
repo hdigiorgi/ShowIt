@@ -2,7 +2,7 @@ package com.hdigiorgi.showPhoto.model
 import java.time.Instant
 
 import com.hdigiorgi.showPhoto.UnitTestBase
-import com.hdigiorgi.showPhoto.model.post.{Post, Published, Title, Unpublished}
+import com.hdigiorgi.showPhoto.model.post._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.sqlite.SQLiteException
@@ -98,6 +98,21 @@ class PostUnitTest extends UnitTestBase{
       insertedPage1 shouldEqual readPage1
       insertedPage2 shouldEqual readPage2
       readPage6 shouldEqual Seq.empty
+    }
+  }
+
+  test("price") {
+    wrapCleanPostDB{ db =>
+      val p2 = Post().withPrice(Price(2))
+      val p3 = p2.withPrice(Price(3))
+      db.insert(p2)
+      val readP2 = db.read(p2.id).get
+      readP2 shouldBe p2
+      readP2 should not be p3
+      db.update(p3)
+      val readP3 = db.read(p2.id).get
+      readP3 should not be p2
+      readP3 shouldBe p3
     }
   }
 

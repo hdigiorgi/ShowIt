@@ -13,7 +13,7 @@ class Post {
   carouselDownloadButton.map(_ =>
     jQuery(dom.window).scroll(() => checkForCarouselDownloadVisibility())
   )
-  
+
 
   def run(): Unit = jQuery { () =>
     updateColors()
