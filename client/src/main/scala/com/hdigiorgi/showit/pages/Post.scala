@@ -8,7 +8,8 @@ import scala.scalajs.js
 
 class Post {
   private val carouselDownloadButton = `$#`("bellowCarouselDownloadContainer")
-  private val buyButton = `$#`("buy-button")
+  private val buyButton = `$#opt`("buy-button")
+  private val downloadButton = `$#opt`("download-button")
   jQuery(dom.window).scroll(() => checkForCarouselDownloadVisibility())
 
   def run(): Unit = jQuery {
@@ -84,17 +85,20 @@ class Post {
     item2.css("max-height", f"${targetHeight}px")
   }
 
+  private def downloadOrBuyButton: JQuery = buyButton.getOrElse(downloadButton.get)
+
+
   private def onCarouselDownloadButtonPressed(): Unit = {
     val animation = "flash-animation"
-    buyButton.scroll()
-    buyButton.removeClass(animation)
+    downloadOrBuyButton.scroll()
+    downloadOrBuyButton.removeClass(animation)
     dom.window.setTimeout(()=>{
-      buyButton.addClass(animation)
+      downloadOrBuyButton.addClass(animation)
     },150)
   }
 
   private def checkForCarouselDownloadVisibility(): Unit = {
-    if(isVisibleInViewport(buyButton)) {
+    if(isVisibleInViewport(downloadOrBuyButton)) {
       carouselDownloadButton.css("opacity", "0")
     } else {
       carouselDownloadButton.css("opacity", "1")

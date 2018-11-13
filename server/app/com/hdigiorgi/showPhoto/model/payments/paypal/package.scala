@@ -79,7 +79,7 @@ package object paypal {
     lazy val isDownloadable: Boolean = post.attachments.nonEmpty
     lazy val wasBought: Boolean = purchaseManager.hasValidPurchase(post.id, tracking).isRight
 
-    lazy val isSelling: Boolean = isDownloadable && !wasBought &&
+    lazy val isSelling: Boolean = isDownloadable &&
       post.price.isDefined &&
       site.paypalEmail.value.isDefined
 

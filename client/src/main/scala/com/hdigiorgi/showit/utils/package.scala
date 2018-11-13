@@ -17,11 +17,12 @@ package object utils {
 
   def $opt(id: String): Option[JQuery] = {
     if(id.trim.equals("")) return None
-    val element = $(id)
+    val element = jQuery(id)
     if(element.length <= 0) None else Some(element)
   }
 
   def `$#`(id: String): JQuery = $(f"#$id")
+  def `$#opt`(id: String): Option[JQuery] = $opt(f"#$id")
   def `$#`(id: String, postfix: String): JQuery = $(f"#$id-$postfix")
   def `$#0`(id: String, postfix: String): JQuery = {
     val element = `$#`(id, postfix)

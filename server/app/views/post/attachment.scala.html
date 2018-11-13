@@ -28,11 +28,19 @@
     </div>
     
 
-    @payments.paypal(buyFormData){
-        <button id="buy-button" type="submit" class="btn btn-warning" style="float:right;">
-            <i class="fas fa-file-download animated infinite heartBeat"></i>
-            Download (@{buyFormData.post.price.get} USD)
-        </button>
+    @if(buyFormData.wasBought){
+        <a id="download-button" type="submit" class="btn btn-success" style="float:right;"
+           href="@routes.PostController.waitForDownload(buyFormData.post.id)">
+            <i class="fas fa-file-download"></i>
+            Download
+        </a>
+    } else{
+        @payments.paypal(buyFormData){
+            <button id="buy-button" type="submit" class="btn btn-warning" style="float:right;">
+                <i class="fas fa-file-download"></i>
+                Download (@{buyFormData.post.price.get} USD)
+            </button>
+        }
     }
 </div>
 }
