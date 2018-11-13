@@ -81,7 +81,6 @@ class PostUnitTest extends UnitTestBase{
     }
   }
 
-
   test("post fetching order") {
     val toInsert = Range(10,0).map{ i =>
       Post(i.toString)
@@ -101,9 +100,10 @@ class PostUnitTest extends UnitTestBase{
     }
   }
 
-  test("price") {
+  test("price change") {
     wrapCleanPostDB{ db =>
-      val p2 = Post().withPrice(Price(2))
+      val p2 = Post().withPrice(Price(2)).withTitle("title")
+      p2.price shouldBe Some(Price(2))
       val p3 = p2.withPrice(Price(3))
       db.insert(p2)
       val readP2 = db.read(p2.id).get
@@ -114,6 +114,18 @@ class PostUnitTest extends UnitTestBase{
       readP3 should not be p2
       readP3 shouldBe p3
     }
+  }
+
+  test("price") {
+    import Price.ErrorMessenges._
+    Price.validated("") equals InvalidNumber
+    Price.validated("d") equals  InvalidNumber
+    Price.validated("d sadasd") equals InvalidNumber
+    Price.validated("-1") equals NonPositive
+    Price.validated("0.5") equals ToLow
+    Price.validated("1500.5") equals ToMuch
+    Price.validated("1500,5") equals NoCommaAllowed
+    Price.validated("1500.5") equals Right(Price(1500.5f))
   }
 
 }

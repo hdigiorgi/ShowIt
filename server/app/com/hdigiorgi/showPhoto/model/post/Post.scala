@@ -103,6 +103,7 @@ case class Price(baseValue: Float, percentageFee: Float = 0.0f, fixedFee: Float 
   }
 
   def withPercentageFee(percentage: Float): Price = Price(this.baseValue, percentage, this.fixedFee)
+
   def withFixedFee(fixed: Float): Price = Price(this.baseValue, this.percentageFee, fixed)
 }
 
@@ -115,7 +116,8 @@ object Price {
   }
 
   def validated(input: String): Either[PriceErrorMsg, Price] = {
-    Try(NumberUtils.toFloat(input)) match {
+    if(input.contains(",")) return NoCommaAllowed
+    Try(input.trim.toFloat) match {
       case Failure(_) => InvalidNumber
       case Success(number) => number match {
         case n if n < 0 => NonPositive
@@ -131,6 +133,7 @@ object Price {
     val NonPositive = Left(PriceErrorMsg("invalid.nonPositive"))
     val ToLow = Left(PriceErrorMsg("invalid.toLow"))
     val ToMuch = Left(PriceErrorMsg("invalid.toMuch"))
+    val NoCommaAllowed = Left(PriceErrorMsg("invalid.noCommaAllowed"))
   }
 
   private val MAX_PRICE = 2000
@@ -225,6 +228,7 @@ class Post private (_inId: Option[StringId] = None,
 
   private var _price = _inPrice
   def price: Option[Price] = _price
+  def priceStr: String = price.map(_.baseValue.toString).getOrElse("")
   def withPrice(price: Price): Post = mutatingCopy(_._price=Some(price))
 
   private var _title = _inTitle.getOrElse(Title(""))
@@ -285,7 +289,8 @@ class Post private (_inId: Option[StringId] = None,
          _inCreationTime = Some(post.creationTime), _inPublicationStatus = Some(post.publicationStatus),
          _inRawContent = Some(post._possiblyNotEvaluatedRawContent),
          _inRenderedContent = post._possiblyNotEvaluatedRenderedContent,
-         _inImages = post.images)
+         _inImages = post.images,
+         _inPrice = post.price)
   }
 
 }

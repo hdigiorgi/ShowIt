@@ -45,6 +45,9 @@ class AdminPostController @Inject()(cc: ControllerComponents)(implicit conf : Co
   def saveContent(postId: String): Loged[AnyContent] =
     argumented.updateFrom[String](Action, "post-content", PostManager().saveContent(postId, _))
 
+  def savePrice(postId: String): Loged[AnyContent] =
+    argumented.updateFrom[String](Action,"post-price", PostManager().savePrice(postId, _))
+
   def imageProcess(id: String): Loged[MultipartFormData[Files.TemporaryFile]] =
     multipart.receiveMultipart(parse, Action, new multipart.post.ImageReceiver(id))
 

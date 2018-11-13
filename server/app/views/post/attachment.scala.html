@@ -38,7 +38,7 @@
         @payments.paypal(buyFormData){
             <button id="buy-button" type="submit" class="btn btn-warning" style="float:right;">
                 <i class="fas fa-file-download"></i>
-                Download (@{buyFormData.post.price.get} USD)
+                Download (@{buyFormData.post.priceStr} USD)
             </button>
         }
     }

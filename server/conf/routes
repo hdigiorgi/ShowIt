@@ -24,6 +24,7 @@ GET    /admin/post/new                     controllers.AdminPostController.creat
 GET    /admin/post/edit/:id                controllers.AdminPostController.edit(id: String)
 POST   /admin/post/save_title/:id          controllers.AdminPostController.saveTitle(id: String)
 POST   /admin/post/save_content/:id        controllers.AdminPostController.saveContent(id: String)
+POST   /admin/post/save_price/:id          controllers.AdminPostController.savePrice(id: String)
 POST   /admin/post/publication_status/:id  controllers.AdminPostController.publicationStatus(id: String)
 POST   /admin/post/delete/:id              controllers.AdminPostController.delete(id: String)
 # Image
