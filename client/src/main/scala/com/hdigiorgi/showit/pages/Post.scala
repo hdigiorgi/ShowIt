@@ -7,17 +7,22 @@ import org.scalajs.jquery.{JQuery, jQuery}
 import scala.scalajs.js
 
 class Post {
-  private val carouselDownloadButton = `$#`("bellowCarouselDownloadContainer")
+  private val carouselDownloadButton = `$#opt`("bellowCarouselDownloadContainer")
   private val buyButton = `$#opt`("buy-button")
   private val downloadButton = `$#opt`("download-button")
-  jQuery(dom.window).scroll(() => checkForCarouselDownloadVisibility())
+  carouselDownloadButton.map(_ =>
+    jQuery(dom.window).scroll(() => checkForCarouselDownloadVisibility())
+  )
+  
 
-  def run(): Unit = jQuery {
+  def run(): Unit = jQuery { () =>
     updateColors()
     fixCasouselSize()
     `$#`("imageCarouselZoom").on("click", () => zoomImage())
     `$#`("imageCarousel").on("slid.bs.carousel", () => updateColors())
-    carouselDownloadButton.on("click", () => onCarouselDownloadButtonPressed())
+    carouselDownloadButton.map(
+      _.on("click", () => onCarouselDownloadButtonPressed())
+    )
   }
 
   private def updateColors(): Unit = {
@@ -85,8 +90,7 @@ class Post {
     item2.css("max-height", f"${targetHeight}px")
   }
 
-  private def downloadOrBuyButton: JQuery = buyButton.getOrElse(downloadButton.get)
-
+  private def downloadOrBuyButton: JQuery = buyButton.getOrElse(downloadButton.orNull)
 
   private def onCarouselDownloadButtonPressed(): Unit = {
     val animation = "flash-animation"
@@ -99,9 +103,9 @@ class Post {
 
   private def checkForCarouselDownloadVisibility(): Unit = {
     if(isVisibleInViewport(downloadOrBuyButton)) {
-      carouselDownloadButton.css("opacity", "0")
+      carouselDownloadButton.map(_.css("opacity", "0"))
     } else {
-      carouselDownloadButton.css("opacity", "1")
+      carouselDownloadButton.map(_.css("opacity", "1"))
     }
   }
 
