@@ -11,6 +11,7 @@ class Download {
   private val urlToGetDownloadLink = `!attr`(downloadWrapper, "getDownloadLink")
   private val waitingDisplayElement = `$#`("waiting")
   private val errorDisplayElement = `$#`("error")
+  private val downloadingDisplayElement = `$#`("downloading")
   private var retries = 10
   private val requestInterval = 3000
   getLinkNow()
@@ -46,6 +47,9 @@ class Download {
   }
 
   private def redirect(url: String): Unit = {
+    errorDisplayElement.hide()
+    waitingDisplayElement.hide()
+    downloadingDisplayElement.show()
     dom.window.top.location.href = url
   }
 

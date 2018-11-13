@@ -39,7 +39,10 @@ class PostController @Inject()(cc: ControllerComponents)(implicit conf : Configu
   }
 
   def downloadCancelled(postId: String) = Action {
-    Ok("cancelled")
+    postManager.postById(postId) match {
+      case None => Redirect(routes.PostController.index(None))
+      case Some(post) => Redirect(routes.PostController.post(post.slug.value))
+    }
   }
 
   def waitForDownload(postId: String) = Action { implicit request =>

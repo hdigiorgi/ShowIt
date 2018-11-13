@@ -15,6 +15,10 @@
                 color: @image.palette.foreground.rgb ;
                 background-color: @image.palette.background.withAlpha(200).rgba
             }
+            #download-wrapper .elements a,
+            #download-wrapper .elements a:hover  {
+                color: @image.palette.foreground.rgb
+            }
         </style>
     }
 
@@ -24,12 +28,21 @@
          getDownloadLink="@{routes.PostController.getDownloadLink(post.id).url}">
         <div class="elements">
             <div id="waiting">
-                <div>Your download will be ready soon</div>
+                <div>Your download will start soon</div>
                 <i class="fas fa-cog fa-spin"></i>
             </div>
             <div id="error" style="display: none">
                 <i class="fas fa-sad-cry icon-error"></i>
-                <div>Something went wrong, please try egain</div>
+                <div>Something went wrong, please try again</div>
+            </div>
+            <div id="downloading" style="display: none">
+                <i class="fas fa-file-download icon-success"></i>
+                <div>Downloading file</div>
+                <p>
+                    <a href="@routes.PostController.post(post.slug.value)">
+                        <i class="fas fa-link"></i> Go back to @post.title.value
+                    </a>
+                </p>
             </div>
         </div>
     </div>
