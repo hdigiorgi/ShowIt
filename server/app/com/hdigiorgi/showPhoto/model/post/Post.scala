@@ -97,14 +97,16 @@ case class Price(baseValue: Float, percentageFee: Float = 0.0f, fixedFee: Float 
   if(percentageFee < 0.0f || percentageFee > 1.0) throw new IllegalStateException(f"invalid percentage fee $percentageFee")
   if(fixedFee < 0.0f) throw new IllegalStateException(f"fixed fee can't be negative")
 
-  def totalPrice: Float = {
-    val percentageFreeValue = baseValue * percentageFee
-    baseValue + percentageFreeValue + fixedFee
-  }
+  def totalPrice: Float = baseValue + fees
+
+  def fees: Float = baseValue * percentageFee  +fixedFee
+
+  def percentageFeeInt: Integer = (percentageFee * 100.0f).toInt
 
   def withPercentageFee(percentage: Float): Price = Price(this.baseValue, percentage, this.fixedFee)
 
   def withFixedFee(fixed: Float): Price = Price(this.baseValue, this.percentageFee, fixed)
+    
 }
 
 object Price {

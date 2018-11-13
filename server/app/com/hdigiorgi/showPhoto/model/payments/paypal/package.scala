@@ -1,7 +1,7 @@
 package com.hdigiorgi.showPhoto.model.payments
 
 import com.hdigiorgi.showPhoto.application.Environment
-import com.hdigiorgi.showPhoto.model.post.Post
+import com.hdigiorgi.showPhoto.model.post.{Post, Price}
 import com.hdigiorgi.showPhoto.model.purchase.PurchaseManager
 import com.hdigiorgi.showPhoto.model.site.Site
 import controllers.{UrlFormDecoder, routes}
@@ -75,14 +75,14 @@ package object paypal {
   }
 
   case class BuyFormData(site: Site, post: Post, purchaseManager: PurchaseManager)(implicit cfg: Configuration, tracking: TrackingHolder) {
+    val price: Option[Price] = post.price.map(_.withPercentageFee(0.05f).withFixedFee(0.3f))
 
     lazy val isDownloadable: Boolean = post.attachments.nonEmpty
     lazy val wasBought: Boolean = purchaseManager.hasValidPurchase(post.id, tracking).isRight
 
     lazy val isSelling: Boolean = isDownloadable &&
-      post.price.isDefined &&
+      price.isDefined &&
       site.paypalEmail.value.isDefined
-
 
     def buyUrl: String = Environment().withValue(
       prod = "https://www.paypal.com/cgi-bin/webscr",
@@ -97,7 +97,9 @@ package object paypal {
 
     def custom: String = f"$ip $trackingCode"
 
-    def amount: String = post.price.map(_.toString).getOrElse("")
+    def amount: String = price.map(_.baseValue.toString).getOrElse("")
+
+    def tax: String = price.map(_.fees.toString).getOrElse("")
 
     def business: String = site.paypalEmail.string
 
@@ -110,13 +112,10 @@ package object paypal {
     private def genUrl(relative: Call): String = {
       f"http://${tracking.requestHost}${relative.url}"
     }
+
     private def ip = tracking.userIp
+
     private def trackingCode = tracking.userTrackingCode
-  }
-
-
-  case class IPNVerificator(ipn: IPN) {
-
   }
 
 }

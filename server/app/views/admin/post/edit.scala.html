@@ -28,7 +28,7 @@
                             process = routes.AdminPostController.attachmentProcess(post.id.value),
                             list = routes.AdminPostController.attachmentList(post.id.value)) 
 
-        @wrapConfirmable("post-price", "Files price", post.priceStr,
+        @wrapConfirmable("post-price", "Files price without transaction costs", post.priceStr,
                          save=routes.AdminPostController.savePrice(post.id.value))
 
         @wrapMarkdownEditor(id = "post-content", label = "Post description", value=post.rawContent,

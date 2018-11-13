@@ -35,12 +35,13 @@
             Download
         </a>
     } else{
+        @defining(buyFormData.price.get){ price =>
         @payments.paypal(buyFormData){
             <button id="buy-button" type="submit" class="btn btn-warning" style="float:right;">
                 <i class="fas fa-file-download"></i>
-                Download (@{buyFormData.post.priceStr} USD)
-            </button>
-        }
+                Download (@{price.totalPrice}USD)
+        }}
+        
     }
 </div>
 }
