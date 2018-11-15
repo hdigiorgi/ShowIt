@@ -17,3 +17,5 @@ TEST_DATA
 /server/public/scalajs
 /server/log
 /app
+.dev_data
+.dev_data_files

@@ -8,7 +8,7 @@ IS_DEV = False
 IS_TEST = False
 
 def startDockerCompose():
-    composeUpCmd = ["docker-compose", "up", "--build", "-d"]
+    composeUpCmd = ["docker-compose", "up", "--build", "--abort-on-container-exit"]
     composeDownCmd = ["docker-compose", "down"]
     env = os.environ.copy()
     env["ENV"] = getEnvString()
@@ -42,8 +42,8 @@ def getEnvString():
 def getDataLocation():
     if isWindows() and IS_PROD: return "C:\DATA"
     if IS_PROD: return "/data/"
-    if IS_DEV: return ".dev_data"
-    if IS_TEST: return ".test_data"
+    if IS_DEV: return "../.dev_data"
+    if IS_TEST: return "../.test_data"
     
 def isWindows(): os.name == 'nt'
 

@@ -17,7 +17,7 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
   libraryDependencies += guice,
 
   // Html, CSV, Markdown
-  libraryDependencies ++= Seq(
+  libraryDependencies ++= Seq(  
     "org.jsoup" % "jsoup" % "1.11.3",
     "com.atlassian.commonmark" % "commonmark" % "0.11.0",
     "com.github.slugify" % "slugify" % "2.2",
