@@ -37,6 +37,7 @@ services:
     image: hdigiorgi/nginx_page_speed:latest
     depends_on:
       - app
+      - owa
     ports:
       - "80:80"
       - "443:443"
@@ -49,6 +50,17 @@ services:
     networks:
       internal:
         ipv4_address: 10.0.0.12
+  owa:
+    container_name: owa
+    image: hdigiorgi/open_web_analytics
+    depends_on:
+      - mysql
+    ports:
+      - "4040:80"
+    networks:
+      internal:
+        ipv4_address: 10.0.0.13
+
     
 networks:
   internal:

@@ -2,10 +2,12 @@ from threading import Thread
 from time import sleep
 import subprocess
 
+keep_running = True
+
 def init_db():
     thread = Thread(target=_init_db)
     thread.start()
-    return True
+    return thread
 
 def _is_container_running():
     print("is container running? ...")
@@ -16,9 +18,7 @@ def _is_ready():
     return subprocess.call('docker exec mysql mysql -uroot -ppassword -e "select VERSION();"') == 0
 
 def _wait_until_is_container_running():
-    t = 0
-    while (not _is_container_running()) and t < 60: 
-        t+=1
+    while keep_running and (not _is_container_running()): 
         sleep(1)
     if _is_container_running():
         return True
@@ -27,9 +27,7 @@ def _wait_until_is_container_running():
         return False
 
 def _wait_until_is_ready():
-    t = 0
-    while (not _is_ready()) and t < 60: 
-        t+=1
+    while keep_running and (not _is_ready()): 
         sleep(1)
     if _is_ready():
         return True

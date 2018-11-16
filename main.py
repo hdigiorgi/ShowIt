@@ -3,7 +3,7 @@ import subprocess
 import string
 import time
 import os
-from ops.init_db import init_db
+import ops.init_db
 IS_PROD = False
 IS_DEV = False
 IS_TEST = False
@@ -16,8 +16,10 @@ def startDockerCompose():
     env["ENV"] = getEnvString()
     env["DATA_LOCATION"] = getDataLocation()
     subprocess.call(composeDownCmd, env=env,cwd=cwd)
-    init_db()
+    ops.init_db.init_db()
     subprocess.call(composeUpCmd, env=env,cwd=cwd)
+    ops.init_db.keep_running = False
+    
 
 def run():
     if(not IS_PROD): goToSleep()
