@@ -2,7 +2,8 @@ version: '3.7'
 services:
   app:
     container_name: app
-    build: ./app
+    image: hdigiorgi/si_base:latest
+    command: python main.py ${ENV} run
     depends_on:
       - mysql
     ports:
@@ -13,7 +14,7 @@ services:
       - "../:/opt/source"
       - "~/.ivy2:/root/.ivy2"
     environment:
-      - ENV=${ENV}
+      - ENV="${ENV}"
   mysql:
     container_name: mysql
     image: mysql:8.0.13
@@ -21,19 +22,21 @@ services:
       - "3306:3306"
     volumes:
       - "${DATA_LOCATION}/mysql:/var/lib/mysql"
+      - "./mysql:/opt/mysql"
     environment:
-      - MYSQL_ROOT_PASSWORD="root_password"
+      - MYSQL_ROOT_PASSWORD=password
   nginx:
     container_name: nginx
-    image: nginx:1.15.6
-    command: nginx -g 'daemon off;'
+    image: hdigiorgi/nginx_page_speed:latest
     depends_on:
       - app
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - "../nginx.conf:/etc/nginx/nginx.conf:ro"
-    environment:
-      - NGINX_PORT=80
+      - "../nginx.conf:/usr/local/nginx/conf/nginx.conf:ro"
+      - type: tmpfs
+        target: /dev/nginx_tmpfs
+        tmpfs:
+          size: 128000000 #128m
     
