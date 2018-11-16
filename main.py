@@ -3,18 +3,21 @@ import subprocess
 import string
 import time
 import os
+from ops.init_db import init_db
 IS_PROD = False
 IS_DEV = False
 IS_TEST = False
 
 def startDockerCompose():
+    cwd = "ops/docker"
     composeUpCmd = ["docker-compose", "up", "--build", "--abort-on-container-exit"]
     composeDownCmd = ["docker-compose", "down"]
     env = os.environ.copy()
     env["ENV"] = getEnvString()
     env["DATA_LOCATION"] = getDataLocation()
-    subprocess.call(composeDownCmd, env=env,cwd='docker')
-    subprocess.call(composeUpCmd, env=env,cwd='docker')
+    subprocess.call(composeDownCmd, env=env,cwd=cwd)
+    init_db()
+    subprocess.call(composeUpCmd, env=env,cwd=cwd)
 
 def run():
     if(not IS_PROD): goToSleep()

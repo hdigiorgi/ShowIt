@@ -19,3 +19,4 @@ TEST_DATA
 /app
 .dev_data
 .dev_data_files
+__pycache__
