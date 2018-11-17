@@ -4,8 +4,6 @@ services:
     container_name: app
     image: hdigiorgi/si_base:latest
     command: python main.py ${ENV} run
-    depends_on:
-      - mysql
     ports:
       - "9000:9000"
       - "9999:9999"
@@ -18,49 +16,24 @@ services:
     networks:
       internal:
         ipv4_address: 10.0.0.10
-  mysql:
-    container_name: mysql
-    image: mysql:8.0.13
-    ports:
-      - "3306:3306"
-    volumes:
-      - "${DATA_LOCATION}/mysql:/var/lib/mysql"
-      - "./mysql/scripts/:/opt/mysql:ro"
-      - "./mysql/conf.d/:/etc/mysql/conf.d:ro"
-    environment:
-      - MYSQL_ROOT_PASSWORD=password
-    networks:
-      internal:
-        ipv4_address: 10.0.0.11
   nginx:
     container_name: nginx
     image: hdigiorgi/nginx_page_speed:latest
     depends_on:
       - app
-      - owa
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - "./nginx.conf:/usr/local/nginx/conf/nginx.conf:ro"
+      - "${DATA_LOCATION}/logs/:/dev/nginx_logs/"
       - type: tmpfs
         target: /dev/nginx_tmpfs
         tmpfs:
           size: 128000000 #128m
     networks:
       internal:
-        ipv4_address: 10.0.0.12
-  owa:
-    container_name: owa
-    image: hdigiorgi/open_web_analytics
-    depends_on:
-      - mysql
-    ports:
-      - "4040:80"
-    networks:
-      internal:
-        ipv4_address: 10.0.0.13
-
+        ipv4_address: 10.0.0.11
     
 networks:
   internal:

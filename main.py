@@ -16,12 +16,13 @@ def startDockerCompose():
     env["ENV"] = getEnvString()
     env["DATA_LOCATION"] = getDataLocation()
     subprocess.call(composeDownCmd, env=env,cwd=cwd)
-    ops.init_db.init_db()
+    #ops.init_db.init_db()
     subprocess.call(composeUpCmd, env=env,cwd=cwd)
-    ops.init_db.keep_running = False
+    #ops.init_db.keep_running = False
     
 
 def run():
+    #if(IS_DEV): sbtRun()
     if(not IS_PROD): goToSleep()
     
 def contains(str,x): return str.find(x) >=0
@@ -33,6 +34,10 @@ def getEnvFromString(inputString):
     if(str.find("te") >= 0):
         return "testing"
     return "development"
+
+def sbtRun():
+    sbtRunCmd = ["sbt", "run"]
+    subprocess.call(sbtRunCmd)
 
 def goToSleep():
     print("sleeping")
