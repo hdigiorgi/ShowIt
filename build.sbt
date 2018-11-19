@@ -6,11 +6,13 @@ import sbt.internal.inc.classpath.ClasspathUtilities
 
 
 lazy val sharedSettings = Seq(
-  name := """show-photos""",
+  name := """show-photos""", // <APP_NAME>
   organization := "com.hdigiorgi",
-  version := "1.0-SNAPSHOT",
+  version := "1.0-SNAPSHOT", // <APP_VERSION>
   scalaVersion := "2.12.7",
   scalacOptions += "-language:implicitConversions",
+  sources in (Compile, doc) := Seq.empty,
+  publishArtifact in (Compile, packageDoc) := false
 )
 
 lazy val server = (project in file("server")).settings(sharedSettings).settings(
@@ -75,9 +77,14 @@ lazy val server = (project in file("server")).settings(sharedSettings).settings(
   resources in Compile += (fullOptJS in Compile in client).value.data,
   unmanagedSourceDirectories in Compile += file("../client/src/main/scala/com/hdigiorgi/showit/"),
 
+  // package
+  maintainer in Linux := "Hernan Di Giorgi <me@hdigiorgi.com>",
+  packageSummary in Linux := "Custom package",
+  packageDescription := "Custom package"
+
 ).enablePlugins(PlayScala).disablePlugins(PlayLogback).dependsOn(client).settings( // disable logback for custom log4j2
   excludeDependencies  += "ch.qos.logback" % "*"
-)
+).enablePlugins(DebianPlugin)
 
 lazy val client = (project in file("client")).settings(sharedSettings).settings(
   libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.4",

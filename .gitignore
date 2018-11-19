@@ -20,3 +20,6 @@ TEST_DATA
 .dev_data
 .dev_data_files
 __pycache__
+/VERSION
+*.deb
+*.swp
