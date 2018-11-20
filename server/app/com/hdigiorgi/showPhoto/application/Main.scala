@@ -1,6 +1,7 @@
 package com.hdigiorgi.showPhoto.application
 
 import com.hdigiorgi.showPhoto.model.post.RandomPost
+import play.api.Play
 
 case class Arguments(args: Array[String]) {
   def apply(index: Integer, name: String): String = get(index, name)
@@ -31,6 +32,7 @@ object Main {
 
   private def callAction(env: Environment, action: String, args: Arguments): Unit = action match {
     case "populate" => populate(env, args)
+    case "run" => run(env, args)
     case _ =>
       throw new Exception(f"action found: $action")
   }
@@ -40,6 +42,10 @@ object Main {
     val imageFolder = args.get(1, "default image folder")
     val attachmentFolder = args.get(2, "attachment files folder")
     RandomPost.genAndSave(env.configuration, imageFolder, attachmentFolder, count)
+  }
+
+  private def run(env: Environment, args: Arguments): Unit = {
+    Play.start(env.application)
   }
 
 }

@@ -23,12 +23,19 @@ trait Environment {
   lazy val application: Application = {
     val config = ConfigFactory.load(configurationFile)
     val configMap = config.entrySet.asScala.map{entry => (entry.getKey, entry.getValue)}.toMap
-    GuiceApplicationBuilder().configure(configMap).build()
+    val builder = GuiceApplicationBuilder().configure(configMap)
+    builder.in(guiceMode()).build()
   }
 
   lazy val configuration: Configuration = application.configuration
 
   val configurationFile: String
+
+  private def guiceMode(): play.api.Mode = {
+    if (isProd) return play.api.Mode.Prod
+    if (isTest) return play.api.Mode.Test
+    play.api.Mode.Dev
+  }
 }
 object Development extends Environment {
   override val configurationFile: String = "application.conf"
