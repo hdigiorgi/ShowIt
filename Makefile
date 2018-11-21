@@ -1,5 +1,5 @@
 NAME=si
-VERSION=0.0.1
+VERSION=0.0.2
 BUILD_DIR=/tmp/si_build
 
 .PHONY: prod-compile

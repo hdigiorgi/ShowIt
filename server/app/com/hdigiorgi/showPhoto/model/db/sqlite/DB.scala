@@ -2,6 +2,7 @@ package com.hdigiorgi.showPhoto.model.db.sqlite
 
 import java.io.File
 import java.sql.DriverManager
+
 import com.hdigiorgi.showPhoto.model.ExecutionContext._
 import com.hdigiorgi.showPhoto.model._
 import com.hdigiorgi.showPhoto.model.db.sqlite.meta.SQLMetaPI
@@ -9,12 +10,14 @@ import com.hdigiorgi.showPhoto.model.db.sqlite.post.SQLPostPI
 import com.hdigiorgi.showPhoto.model.db.sqlite.purchase.SQLPurchasePI
 import com.hdigiorgi.showPhoto.model.db.sqlite.site.SQLSitePI
 import com.hdigiorgi.showPhoto.model.db.sqlite.user.SQLUserPI
+import org.apache.commons.io.FileUtils
 import org.sqlite.{SQLiteErrorCode, SQLiteException}
 import play.api.Configuration
 import slick.dbio.{DBIOAction, NoStream}
 import slick.jdbc.SQLiteProfile
 import slick.jdbc.SQLiteProfile.api._
 import slick.jdbc.meta.MTable
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
@@ -92,15 +95,14 @@ object DB extends DBInterface { self =>
   private def getDBFile(config: Configuration): (String, File) = {
     val url: String = config.get[String](urlPath)
     val path = url.substring("jdbc:sqlite:".length)
-    val file = new File(path)
+    val file = new File(path).getCanonicalFile
     (url, file)
   }
 
   private def ensureSQLiteFileExists(): Unit = {
     val (url, file) = getDBFile(self.configuration)
-    val folder = file.getParentFile
-    if(!folder.exists()) folder.mkdirs()
-    Class.forName("org.sqlite.JDBC");
+    FileUtils.forceMkdirParent(file)
+    Class.forName("org.sqlite.JDBC")
     val con = DriverManager.getConnection(url)
     con.close()
   }
